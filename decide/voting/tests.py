@@ -268,7 +268,8 @@ class VotingModelTestCase(BaseTestCase):
         opt2.save()
 
         self.v=Voting(name="Votacion",question=q)
-        super.setUp()
+        self.v.save()
+        super().setUp()
 
 
     def tearDown(self):
