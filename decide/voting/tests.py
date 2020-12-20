@@ -256,27 +256,3 @@ class VotingTestCase(BaseTestCase):
         response = self.client.put('/voting/{}/'.format(voting.pk), data, format='json')
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json(), 'Voting already tallied')
-
-class VotingModelTestCase(BaseTestCase):
-    def setUp(self):
-        q=Question(desc="Esta es la descripcion")
-        q.save()
-
-        opt1=QuestionOption(question=q,option="opcion1")
-        opt2=QuestionOption(question=q,option="opcion2")
-        opt1.save()
-        opt2.save()
-
-        self.v=Voting(name="Votacion",question=q)
-        super.setUp()
-
-
-    def tearDown(self):
-        super().tearDown()
-        self.v=None
-        
-    def testExists(self):
-        v=Voting.objects.get(name="Votacion")
-        self.assertEquals(v.question.options.all()[0].option,"opcion1")
-        self.assertEquals(v.question.options.all()[1].option,"opcion2")
-        self.assertEquals(len(v.question.options.all()),2)
