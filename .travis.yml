@@ -14,14 +14,8 @@ python:
 install:
   - pip install -r requirements.txt
   - pip install codacy-coverage
-  
 script:
   - cd decide
-  - sudo 
-  - sudo apt-get
-  - sudo cp geckodriver /usr/bin/
-  - sudo apt-get install firefox
-  - sudo apt install chromium-browser chromium-chromedriver
   - coverage run --branch --source=. ./manage.py test --keepdb --with-xunit
   - coverage xml
   - python-codacy-coverage -r coverage.xml
