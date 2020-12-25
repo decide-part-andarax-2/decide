@@ -9,11 +9,12 @@ from base.models import Auth, Key
 
 class Question(models.Model):
     desc = models.TextField()
+    is_yes_no_question = models.BooleanField(default=False)
 
     def __str__(self):
         return self.desc
 
-
+    
 class QuestionOption(models.Model):
     question = models.ForeignKey(Question, related_name='options', on_delete=models.CASCADE)
     number = models.PositiveIntegerField(blank=True, null=True)
@@ -22,6 +23,22 @@ class QuestionOption(models.Model):
     def save(self):
         if not self.number:
             self.number = self.question.options.count() + 2
+
+        # if it's a yes/no question    
+        if self.question.is_yes_no_question and first_save:
+
+            # YES
+            question_yes = QuestionOption
+            question_yes.option = 'YES'
+            question_yes.number = 0
+            super().save(question_yes)
+
+            #NO
+            question_no = QuestionOption
+            question_no.option = 'NO'
+            question_no.number = 1
+            super().save(question_no)
+
         return super().save()
 
     def __str__(self):
@@ -43,6 +60,62 @@ class QuestionOrder(models.Model):
     def __str__(self):
         return '{} ({})'.format(self.option, self.number)
 
+"""
+class QuestionYesNo(models.Model):
+    question = models.ForeignKey(Question, related_name='options_yes_no', on_delete=models.CASCADE)
+    number = models.PositiveIntegerField(blank=True, null=True)
+    option = models.TextField()
+
+    # YES 
+    number = 0
+    option = "YES"
+
+    def save(self):
+        if not self.number:
+            self.number = self.question.options_yes_no.count() + 2
+        return super().save()
+
+    def __str__(self):
+        return '{} ({})'.format(self.options_yes_no, self.number)
+
+    #NO
+    number = 1
+    option = "NO"
+
+    def save(self):
+        if not self.number:
+            self.number = self.question.options_yes_no.count() + 2
+        return super().save()
+
+    def __str__(self):
+        return '{} ({})'.format(self.options_yes_no, self.number)
+"""
+"""
+class QuestionYesNo(models.Model):
+    question =  models.ForeignKey(Question, related_name='options_yes_no', on_delete=models.CASCADE)
+    questionOption = models.ForeignKey(QuestionOption, related_name='options_yes_no', on_delete=models.CASCADE)
+    is_yes_no_question = models.BooleanField(default=False)
+
+    def save(self):
+
+        # only if active
+        if is_yes_no_question:
+
+            # YES
+            question_yes = QuestionOption
+            question_yes.option = 'YES'
+            question_yes.number = '0'
+            questionOption.save(question_yes)
+
+            #NO
+            question_yes = QuestionOption
+            question_yes.option = 'NO'
+            question_yes.number = '1'
+            questionOption.save(question_yes)
+        
+    def __str__(self):
+        return self.is_yes_no_question
+"""
 class Voting(models.Model):
     name = models.CharField(max_length=200)
     desc = models.TextField(blank=True, null=True)
