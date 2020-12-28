@@ -17,10 +17,28 @@ class Question(models.Model):
         super().save()
         
         try:
-            QuestionOption.objects.get(option = 'YES', question = self)
+            # try to get the question options yes and no options
+            option_yes = QuestionOption.objects.get(option = 'YES', question = self)
+            option_no = QuestionOption.objects.get(option = 'NO', question = self)
+            
+            # if they exist but it is not a yes/no question, we delete these options 
+            if not self.is_yes_no_question:
+                QuestionOption.objects.get(pk=option_yes.id).delete()
+                QuestionOption.objects.get(pk=option_no.id).delete()
+
+        # only if don't have any yes and no options
         except:
+            
             # if it's a yes or no question    
             if self.is_yes_no_question:
+                
+                # delete all the options that are not yes/no options
+                try:
+                    options = QuestionOption.objects.all().filter(question = self)
+                    for element in options:
+                        QuestionOption.objects.get(pk=element.id).delete()
+                except:
+                    pass
 
                 # YES
                 question_yes = QuestionOption(option = 'YES', number = 0, question = self)
@@ -29,7 +47,7 @@ class Question(models.Model):
                 # NO
                 question_no = QuestionOption(option = 'NO', number = 1, question = self)
                 question_no.save()
-
+                
     def __str__(self):
         return self.desc
 
@@ -40,21 +58,44 @@ class QuestionOption(models.Model):
     option = models.TextField()
 
     def save(self):
-        if not self.number:
-            self.number = self.question.options.count() + 2
 
-        # if exists -> don't save
-        try:
-            QuestionOption.objects.get(option = self.option, question = self.question)
-            raise ValidationError("This option already exists")
+        # if it is not a yes/no question, we manage the option
+        if not self.question.is_yes_no_question:
+            if not self.number:
+                self.number = self.question.options.count() + 2
 
-        # if not exists -> save
-        except:
-            return super().save()
-        
+            # if exists -> don't save
+            try:
+                QuestionOption.objects.get(option = self.option, question = self.question)
+                raise ValidationError('Duplicated option, please checkout question options')
+                
+            # duplicated option
+            except ValidationError:
+                return
+
+            # if not exists -> save
+            except:
+                return super().save()
+
+        # if it is a yes/no question
+        else:
+            
+            # if the option is not 'YES' or 'NO', don't save it
+            if (self.option == 'YES') or (self.option == 'NO'):
+                return super().save()
+            else:
+                return
+
+    def delete(self):
+        # if the question is a yes/no question, we can not delete the 'YES' or 'NO' options
+        if ((self.option == 'YES') or (self.option == 'NO')) and (self.question.is_yes_no_question):
+            return
+        else:
+            return super().delete()        
 
     def __str__(self):
         return '{} ({})'.format(self.option, self.number)
+        
 
 class QuestionOrder(models.Model):
     question = models.ForeignKey(Question, related_name='order_options', on_delete=models.CASCADE)

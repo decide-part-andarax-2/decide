@@ -3,7 +3,6 @@ from django.utils import timezone
 
 from .models import QuestionOrder
 from .models import QuestionOption
-#from .models import QuestionYesNo
 from .models import Question
 from .models import Voting
 
@@ -22,7 +21,6 @@ def stop(ModelAdmin, request, queryset):
         v.end_date = timezone.now()
         v.save()
 
-
 def tally(ModelAdmin, request, queryset):
     for v in queryset.filter(end_date__lt=timezone.now()):
         token = request.session.get('auth-token', '')
@@ -34,10 +32,7 @@ class QuestionOptionInline(admin.TabularInline):
 
 class QuestionOrderInline(admin.TabularInline):
     model = QuestionOrder
-"""
-class QuestionYesNoInline(admin.TabularInline):
-    model = QuestionYesNo
-"""
+
 class QuestionAdmin(admin.ModelAdmin):
     inlines = [QuestionOptionInline, QuestionOrderInline]
 
