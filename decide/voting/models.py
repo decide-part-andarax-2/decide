@@ -51,11 +51,30 @@ class Question(models.Model):
     def __str__(self):
         return self.desc
 
+
+# Auxiliar method
+def repitedOption(self):
+    # if exists -> don't save
+    try:
+        QuestionOption.objects.get(option = self.option, question = self.question)
+        raise ValidationError('Duplicated option, please checkout question options')
+                
+    # duplicated option
+    except ValidationError:
+        return
+
+    # if not exists -> save
+    except:
+        return QuestionOption.super_save(self)
     
+
 class QuestionOption(models.Model):
     question = models.ForeignKey(Question, related_name='options', on_delete=models.CASCADE)
     number = models.PositiveIntegerField(blank=True, null=True)
     option = models.TextField()
+
+    def super_save(self):
+        return super().save()
 
     def save(self):
 
@@ -64,25 +83,13 @@ class QuestionOption(models.Model):
             if not self.number:
                 self.number = self.question.options.count() + 2
 
-            # if exists -> don't save
-            try:
-                QuestionOption.objects.get(option = self.option, question = self.question)
-                raise ValidationError('Duplicated option, please checkout question options')
-                
-            # duplicated option
-            except ValidationError:
-                return
-
-            # if not exists -> save
-            except:
-                return super().save()
+            repitedOption(self)
 
         # if it is a yes/no question
         else:
-            
             # if the option is not 'YES' or 'NO', don't save it
             if (self.option == 'YES') or (self.option == 'NO'):
-                return super().save()
+                repitedOption(self)
             else:
                 return
 
@@ -95,7 +102,7 @@ class QuestionOption(models.Model):
 
     def __str__(self):
         return '{} ({})'.format(self.option, self.number)
-        
+
 
 class QuestionOrder(models.Model):
     question = models.ForeignKey(Question, related_name='order_options', on_delete=models.CASCADE)
