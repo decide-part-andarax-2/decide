@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.postgres.fields import JSONField
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.core.exceptions import ValidationError
 
 from base import mods
 from base.models import Auth, Key
@@ -16,17 +17,17 @@ class Question(models.Model):
         super().save()
         
         try:
-            QuestionOption.objects.get(option='YES', question=self)
+            QuestionOption.objects.get(option = 'YES', question = self)
         except:
-            # if it's a yes/no question    
+            # if it's a yes or no question    
             if self.is_yes_no_question:
 
                 # YES
-                question_yes = QuestionOption(option='YES', number = 0, question = self)
+                question_yes = QuestionOption(option = 'YES', number = 0, question = self)
                 question_yes.save()
 
                 # NO
-                question_no = QuestionOption(option='NO', number = 1, question = self)
+                question_no = QuestionOption(option = 'NO', number = 1, question = self)
                 question_no.save()
 
     def __str__(self):
@@ -42,7 +43,15 @@ class QuestionOption(models.Model):
         if not self.number:
             self.number = self.question.options.count() + 2
 
-        return super().save()
+        # if exists -> don't save
+        try:
+            QuestionOption.objects.get(option = self.option, question = self.question)
+            raise ValidationError("This option already exists")
+
+        # if not exists -> save
+        except:
+            return super().save()
+        
 
     def __str__(self):
         return '{} ({})'.format(self.option, self.number)
