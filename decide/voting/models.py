@@ -52,8 +52,9 @@ class Question(models.Model):
         return self.desc
 
 
-# Auxiliar method
+# Auxiliar method save option without repiting
 def repitedOption(self):
+    
     # if exists -> don't save
     try:
         QuestionOption.objects.get(option = self.option, question = self.question)
@@ -103,6 +104,21 @@ class QuestionOption(models.Model):
     def __str__(self):
         return '{} ({})'.format(self.option, self.number)
 
+# Auxiliar method save order without repiting
+def repitedOrder(self):
+
+    # if exists -> don't save
+    try:
+        QuestionOrder.objects.get(option = self.option, question = self.question)
+        raise ValidationError('Duplicated option, please checkout question options')
+                
+    # duplicated option
+    except ValidationError:
+        return
+
+    # if not exists -> save
+    except:
+        return QuestionOrder.super_save(self)
 
 class QuestionOrder(models.Model):
     question = models.ForeignKey(Question, related_name='order_options', on_delete=models.CASCADE)
@@ -110,12 +126,16 @@ class QuestionOrder(models.Model):
     number = models.PositiveIntegerField(blank=True, null=True)
     option = models.TextField()
 
+    def super_save(self):
+        return super().save()
+
     def save(self):
         if not self.number:
             self.number = self.question.order_options.count() + 2
         if not self.order_number:
             self.order_number = self.question.order_options.count() + 2
-        return super().save()
+
+        repitedOrder(self)
 
     def __str__(self):
         return '{} ({})'.format(self.option, self.number)
