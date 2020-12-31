@@ -301,9 +301,23 @@ class VotingModelTestCase(BaseTestCase):
         self.assertEquals(q.options.all()[0].number, 0)
         self.assertEquals(q.options.all()[1].number, 1)
 
+    def test_duplicity_yes(self):
+        q = Question.objects.get(desc='This is a test yes/no question')
+        qo = QuestionOption(question = q, number = 2, option = 'YES')
+        qo.save()
+        q.save()
+
+        self.assertEquals(len(q.options.all()), 2)
+        self.assertEquals(q.options.all()[0].question, q)
+        self.assertEquals(q.options.all()[1].question, q)
+        self.assertEquals(q.options.all()[0].option, 'YES')
+        self.assertEquals(q.options.all()[1].option, 'NO')
+        self.assertEquals(q.options.all()[0].number, 0)
+        self.assertEquals(q.options.all()[1].number, 1)
+
     def test_duplicity_no(self):
         q = Question.objects.get(desc='This is a test yes/no question')
-        qo = QuestionOption(question = q, number = 1, option = 'NO')
+        qo = QuestionOption(question = q, number = 2, option = 'NO')
         qo.save()
         q.save()
 
