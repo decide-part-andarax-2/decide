@@ -54,7 +54,7 @@ class Question(models.Model):
 
 # Auxiliar method save option without repiting
 def repitedOption(self):
-    
+
     # if exists -> don't save
     try:
         QuestionOption.objects.get(option = self.option, question = self.question)
@@ -110,7 +110,7 @@ def repitedOrder(self):
     # if exists -> don't save
     try:
         QuestionOrder.objects.get(option = self.option, question = self.question)
-        raise ValidationError('Duplicated option, please checkout question options')
+        raise ValidationError('Duplicated order, please checkout question order')
                 
     # duplicated option
     except ValidationError:

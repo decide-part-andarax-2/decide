@@ -268,6 +268,9 @@ class VotingModelTestCase(BaseTestCase):
         q2 = Question(desc='This is NOT a test yes/no question', is_yes_no_question=False)
         q2.save()
 
+        q3 = Question(desc='This contain an order question', is_yes_no_question=False)
+        q3.save()
+
         qo1 = QuestionOption(question = q2, option = 'Primera opcion')
         qo1.save()
 
@@ -276,6 +279,8 @@ class VotingModelTestCase(BaseTestCase):
 
         qo3 = QuestionOption(question = q2, option = 'Tercera opcion')
         qo3.save()
+
+        qord1 = QuestionOrder(question = q3, option = 'First Order')
 
         super().setUp()
 
@@ -334,15 +339,7 @@ class VotingModelTestCase(BaseTestCase):
 
     # verify when selected YES/NO options that adds these
     def add_yes_no_question(self):
-
-        # first: no option selected
-        q = Question.objects.get(desc='Verify that adds YES/NO question')
-        q.is_yes_no_question = False
-        q.save()
-
-        self.assertEquals(len(q.options.all()), 0)
-
-        # second: select YES/NO question
+        q = Question.objects.get(desc='This is NOT a test yes/no question')
         q.is_yes_no_question = True
         q.save()
 
@@ -418,10 +415,19 @@ class VotingModelTestCase(BaseTestCase):
         q = Question.objects.get(desc='This is NOT a test yes/no question')
         qo = QuestionOption(question = q, option = 'Primera opcion')
         qo.save()
+        q.save()
 
         self.assertRaises(ValidationError)
         self.assertRaisesRegex(ValidationError,"Duplicated option, please checkout question options")
         self.assertEquals(len(q.options.all()), 3)
 
+    # question cannot contain 2 different order with the same "name"
+    def test_duplicity_order(self):
+        q = Question.objects.get(desc='This is NOT a test yes/no question')
+        qo = QuestionOrder(question = q, option = 'Primera opcion')
+        qo.save()
+        q.save()
 
-    
+        self.assertRaises(ValidationError)
+        self.assertRaisesRegex(ValidationError,"Duplicated order, please checkout question order")
+        self.assertEquals(len(q.options.all()), 3)
