@@ -280,7 +280,8 @@ class VotingModelTestCase(BaseTestCase):
         qo3 = QuestionOption(question = q2, option = 'Tercera opcion')
         qo3.save()
 
-        qord1 = QuestionOrder(question = q3, option = 'First Order')
+        qord1 = QuestionOrder(question = q3, option = 'First order')
+        qord1.save()
 
         super().setUp()
 
@@ -423,11 +424,11 @@ class VotingModelTestCase(BaseTestCase):
 
     # question cannot contain 2 different order with the same "name"
     def test_duplicity_order(self):
-        q = Question.objects.get(desc='This is NOT a test yes/no question')
-        qo = QuestionOrder(question = q, option = 'Primera opcion')
+        q = Question.objects.get(desc='This contain an order question')
+        qo = QuestionOrder(question = q, option = 'First order')
         qo.save()
         q.save()
 
         self.assertRaises(ValidationError)
         self.assertRaisesRegex(ValidationError,"Duplicated order, please checkout question order")
-        self.assertEquals(len(q.options.all()), 3)
+        self.assertEquals(len(q.order_options.all()), 1)

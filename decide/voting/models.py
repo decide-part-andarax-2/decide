@@ -15,7 +15,7 @@ class Question(models.Model):
     def save(self):
 
         super().save()
-        
+
         try:
             # try to get the question options yes and no options
             option_yes = QuestionOption.objects.get(option = 'YES', question = self)
@@ -28,10 +28,10 @@ class Question(models.Model):
 
         # only if don't have any yes and no options
         except:
-            
+
             # if it's a yes or no question    
             if self.is_yes_no_question:
-                
+
                 # delete all the options that are not yes/no options
                 try:
                     options = QuestionOption.objects.all().filter(question = self)
@@ -47,7 +47,7 @@ class Question(models.Model):
                 # NO
                 question_no = QuestionOption(option = 'NO', number = 1, question = self)
                 question_no.save()
-                
+
     def __str__(self):
         return self.desc
 
@@ -59,7 +59,7 @@ def repitedOption(self):
     try:
         QuestionOption.objects.get(option = self.option, question = self.question)
         raise ValidationError('Duplicated option, please checkout question options')
-                
+
     # duplicated option
     except ValidationError:
         return
@@ -67,7 +67,7 @@ def repitedOption(self):
     # if not exists -> save
     except:
         return QuestionOption.super_save(self)
-    
+
 
 class QuestionOption(models.Model):
     question = models.ForeignKey(Question, related_name='options', on_delete=models.CASCADE)
@@ -95,6 +95,7 @@ class QuestionOption(models.Model):
                 return
 
     def delete(self):
+
         # if the question is a yes/no question, we can not delete the 'YES' or 'NO' options
         if ((self.option == 'YES') or (self.option == 'NO')) and (self.question.is_yes_no_question):
             return
@@ -111,7 +112,7 @@ def repitedOrder(self):
     try:
         QuestionOrder.objects.get(option = self.option, question = self.question)
         raise ValidationError('Duplicated order, please checkout question order')
-                
+
     # duplicated option
     except ValidationError:
         return
