@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
+from django.core.exceptions import ValidationError
 
 from base import mods
 from base.tests import BaseTestCase
@@ -256,3 +257,85 @@ class VotingTestCase(BaseTestCase):
         response = self.client.put('/voting/{}/'.format(voting.pk), data, format='json')
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json(), 'Voting already tallied')
+
+
+class VotingModelTestCase(BaseTestCase):
+
+    def setUp(self):
+        q1 = Question(desc='This is a test yes/no question', is_yes_no_question=True)
+        q1.save()
+
+        q2 = Question(desc='This is NOT a test yes/no question', is_yes_no_question=False)
+        q2.save()
+
+        qo1 = QuestionOption(question = q2, option = 'Primera opcion')
+        qo1.save()
+
+        qo2 = QuestionOption(question = q2, option = 'Segunda opcion')
+        qo2.save()
+
+        qo3 = QuestionOption(question = q2, option = 'Tercera opcion')
+        qo3.save()
+
+        super().setUp()
+
+    def tearDown(self):
+        super().tearDown()
+
+    def test_delete_when_unselect(self):
+        q = Question.objects.get(desc='This is a test yes/no question')
+        q.is_yes_no_question = False
+        q.save()
+
+        self.assertEquals(len(q.options.all()), 0)
+
+    def test_duplicity_yes_and_no(self):
+        q = Question.objects.get(desc='This is a test yes/no question')
+        q.save()
+
+        self.assertEquals(len(q.options.all()), 2)
+        self.assertEquals(q.options.all()[0].question, q)
+        self.assertEquals(q.options.all()[1].question, q)
+        self.assertEquals(q.options.all()[0].option, 'YES')
+        self.assertEquals(q.options.all()[1].option, 'NO')
+        self.assertEquals(q.options.all()[0].number, 0)
+        self.assertEquals(q.options.all()[1].number, 1)
+
+    def test_duplicity_no(self):
+        q = Question.objects.get(desc='This is a test yes/no question')
+        qo = QuestionOption(question = q, number = 1, option = 'NO')
+        qo.save()
+        q.save()
+
+        self.assertEquals(len(q.options.all()), 2)
+        self.assertEquals(q.options.all()[0].question, q)
+        self.assertEquals(q.options.all()[1].question, q)
+        self.assertEquals(q.options.all()[0].option, 'YES')
+        self.assertEquals(q.options.all()[1].option, 'NO')
+        self.assertEquals(q.options.all()[0].number, 0)
+        self.assertEquals(q.options.all()[1].number, 1)
+
+    def test_delete_previous_opt(self):
+        q = Question.objects.get(desc='This is NOT a test yes/no question')
+        q.is_yes_no_question = True
+        q.save()
+
+        self.assertEquals(len(q.options.all()), 2)
+        self.assertEquals(q.options.all()[0].question, q)
+        self.assertEquals(q.options.all()[1].question, q)
+        self.assertEquals(q.options.all()[0].option, 'YES')
+        self.assertEquals(q.options.all()[1].option, 'NO')
+        self.assertEquals(q.options.all()[0].number, 0)
+        self.assertEquals(q.options.all()[1].number, 1)
+
+    def test_duplicity_option(self):
+        q = Question.objects.get(desc='This is NOT a test yes/no question')
+        qo = QuestionOption(question = q, option = 'Primera opcion')
+        qo.save()
+
+        self.assertRaises(ValidationError)
+        self.assertRaisesRegex(ValidationError,"Duplicated option, please checkout question options")
+        self.assertEquals(len(q.options.all()), 3)
+
+
+    
