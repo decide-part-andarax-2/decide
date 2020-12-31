@@ -289,6 +289,7 @@ class VotingModelTestCase(BaseTestCase):
 
         self.assertEquals(len(q.options.all()), 0)
 
+    # don't save others YES/NO if it saves question with YES/NO question selected
     def test_duplicity_yes_and_no(self):
         q = Question.objects.get(desc='This is a test yes/no question')
         q.save()
@@ -301,6 +302,7 @@ class VotingModelTestCase(BaseTestCase):
         self.assertEquals(q.options.all()[0].number, 0)
         self.assertEquals(q.options.all()[1].number, 1)
 
+    # add NO option before select YES/NO question and don't add this one
     def test_duplicity_yes(self):
         q = Question.objects.get(desc='This is a test yes/no question')
         qo = QuestionOption(question = q, number = 2, option = 'YES')
@@ -315,6 +317,7 @@ class VotingModelTestCase(BaseTestCase):
         self.assertEquals(q.options.all()[0].number, 0)
         self.assertEquals(q.options.all()[1].number, 1)
 
+    # add NO option before select YES/NO question and don't add this one
     def test_duplicity_no(self):
         q = Question.objects.get(desc='This is a test yes/no question')
         qo = QuestionOption(question = q, number = 2, option = 'NO')
@@ -329,6 +332,22 @@ class VotingModelTestCase(BaseTestCase):
         self.assertEquals(q.options.all()[0].number, 0)
         self.assertEquals(q.options.all()[1].number, 1)
 
+    # add some option before and don't add this one if YES/NO is selected
+    def add_before_yes_no(self):
+        q = Question.objects.get(desc='This is a test yes/no question')
+        qo = QuestionOption(question = q, number = 2, option = 'Something')
+        qo.save()
+        q.save()
+
+        self.assertEquals(len(q.options.all()), 2)
+        self.assertEquals(q.options.all()[0].question, q)
+        self.assertEquals(q.options.all()[1].question, q)
+        self.assertEquals(q.options.all()[0].option, 'YES')
+        self.assertEquals(q.options.all()[1].option, 'NO')
+        self.assertEquals(q.options.all()[0].number, 0)
+        self.assertEquals(q.options.all()[1].number, 1)
+
+    # previous options are deleted when question is saved like YES/NO question
     def test_delete_previous_opt(self):
         q = Question.objects.get(desc='This is NOT a test yes/no question')
         q.is_yes_no_question = True
@@ -342,6 +361,37 @@ class VotingModelTestCase(BaseTestCase):
         self.assertEquals(q.options.all()[0].number, 0)
         self.assertEquals(q.options.all()[1].number, 1)
 
+    # delete NO option, save and returns YES and NO option
+    def test_delete_no_with_yes_no_selected(self):
+        q = Question.objects.get(desc='This is a test yes/no question')
+        qo = QuestionOption.objects.get(option = 'NO', question = q)
+        QuestionOption.delete(qo)
+        q.save()
+
+        self.assertEquals(len(q.options.all()), 2)
+        self.assertEquals(q.options.all()[0].question, q)
+        self.assertEquals(q.options.all()[1].question, q)
+        self.assertEquals(q.options.all()[0].option, 'YES')
+        self.assertEquals(q.options.all()[1].option, 'NO')
+        self.assertEquals(q.options.all()[0].number, 0)
+        self.assertEquals(q.options.all()[1].number, 1)
+
+    # delete YES option, save and returns YES and NO option
+    def test_delete_yes_with_yes_no_selected(self):
+        q = Question.objects.get(desc='This is a test yes/no question')
+        qo = QuestionOption.objects.get(option = 'YES', question = q)
+        QuestionOption.delete(qo)
+        q.save()
+
+        self.assertEquals(len(q.options.all()), 2)
+        self.assertEquals(q.options.all()[0].question, q)
+        self.assertEquals(q.options.all()[1].question, q)
+        self.assertEquals(q.options.all()[0].option, 'YES')
+        self.assertEquals(q.options.all()[1].option, 'NO')
+        self.assertEquals(q.options.all()[0].number, 0)
+        self.assertEquals(q.options.all()[1].number, 1)
+
+    # question cannot contain 2 different options with the same "name"
     def test_duplicity_option(self):
         q = Question.objects.get(desc='This is NOT a test yes/no question')
         qo = QuestionOption(question = q, option = 'Primera opcion')
