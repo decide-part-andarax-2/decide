@@ -332,6 +332,28 @@ class VotingModelTestCase(BaseTestCase):
         self.assertEquals(q.options.all()[0].number, 0)
         self.assertEquals(q.options.all()[1].number, 1)
 
+    # verify when selected YES/NO options that adds these
+    def add_yes_no_question(self):
+
+        # first: no option selected
+        q = Question.objects.get(desc='Verify that adds YES/NO question')
+        q.is_yes_no_question = False
+        q.save()
+
+        self.assertEquals(len(q.options.all()), 0)
+
+        # second: select YES/NO question
+        q.is_yes_no_question = True
+        q.save()
+
+        self.assertEquals(len(q.options.all()), 2)
+        self.assertEquals(q.options.all()[0].question, q)
+        self.assertEquals(q.options.all()[1].question, q)
+        self.assertEquals(q.options.all()[0].option, 'YES')
+        self.assertEquals(q.options.all()[1].option, 'NO')
+        self.assertEquals(q.options.all()[0].number, 0)
+        self.assertEquals(q.options.all()[1].number, 1)
+
     # add some option before and don't add this one if YES/NO is selected
     def add_before_yes_no(self):
         q = Question.objects.get(desc='This is a test yes/no question')
