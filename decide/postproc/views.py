@@ -102,6 +102,38 @@ class PostProcView(APIView):
         out.sort(key=lambda x: -x['votes'])
         return Response(out)
 
+    def borda(self, order_options):
+        out = []
+
+        for ord in order_options:
+            if not ord['option'] in out:
+                out.append({
+                    **ord,
+                    'postproc': 0,
+                })
+        numOptions = out.max(key=lambda x: -x['number'])
+        votos = [0]
+        i=1
+        while i<numOptions:
+            votos.append(0)
+            i+1
+
+        for ord in order_options:
+            opcion = ord['number']
+            mult = ord['order_number']
+            votos[opcion] = votos[opcion] + mult*ord['votes']
+
+        cont=1
+        while cont<numOptions:
+            out[cont]['postproc'] = votos[cont]
+
+        out.sort(key=lambda x: -x['postproc'])
+        return Response(out)
+
+
+
+
+
     def post(self, request):
         """
          * type: IDENTITY | DHONT | RELATIVA | ABSOLUTA
