@@ -380,3 +380,31 @@ class PostProcTestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
         values = response.json()
         self.assertEqual(values, expected_result)
+
+        def test_borda2(self):
+        data = {
+            'type': 'BORDA',
+            'order_options': [
+                {'option': 'Option 1', 'number': 1, 'order_number': '1', 'votes': 50},
+                {'option': 'Option 2', 'number': 2, 'order_number': '1', 'votes': 50},
+                {'option': 'Option 3', 'number': 3, 'order_number': '1', 'votes': 0},
+                {'option': 'Option 1', 'number': 1, 'order_number': '2', 'votes': 20},
+                {'option': 'Option 2', 'number': 2, 'order_number': '2', 'votes': 20},
+                {'option': 'Option 3', 'number': 3, 'order_number': '2', 'votes': 60},
+                {'option': 'Option 1', 'number': 1, 'order_number': '3', 'votes': 30},
+                {'option': 'Option 2', 'number': 2, 'order_number': '3', 'votes': 30},
+                {'option': 'Option 3', 'number': 3, 'order_number': '3', 'votes': 40},
+            ]
+        }
+
+        expected_result = [
+                {'option': 'Option 1', 'number': 1, 'order_number': '1', 'votes': 50, 'postproc': 220},
+                {'option': 'Option 2', 'number': 2, 'order_number': '1', 'votes': 50, 'postproc': 220},
+                {'option': 'Option 3', 'number': 3, 'order_number': '1', 'votes': 0, 'postproc': 160},
+                
+        ]
+
+        response = self.client.post('/postproc/', data, format='json')
+        self.assertEqual(response.status_code, 200)
+        values = response.json()
+        self.assertEqual(values, expected_result)
