@@ -396,6 +396,49 @@ class VotingViewsTestCase(StaticLiveServerTestCase):
         if len(wh_now) > len(wh_then):
             return set(wh_now).difference(set(wh_then)).pop()
 
+    def test_create_voting_blank_url(self):
+        User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
+        #Proceso para loguearse como administrador
+        self.driver.get(f'{self.live_server_url}/admin/')
+        self.driver.find_element_by_id('id_username').send_keys("superuser")
+        self.driver.find_element_by_id('id_password').send_keys("superuser", Keys.ENTER)
+        #Entramos al formulario para crear una votación
+        time.sleep(1)
+        # xpath=//a[contains(@href, '/admin/voting/voting/add/')]
+        self.driver.find_element(By.CSS_SELECTOR, ".model-voting .addlink").click()
+        time.sleep(1)
+        self.driver.find_element_by_id('id_name').send_keys("Voting selenium test")
+        self.driver.find_element_by_id('id_desc').send_keys("Voting selenium test desc")
+        self.driver.find_element_by_id('id_question').click()
+        self.vars["window_handles"] = self.driver.window_handles
+        #Proceso para añadir una pregunta y sus opciones
+        self.driver.find_element(By.CSS_SELECTOR, "#add_id_question > img").click()
+        self.vars["win2433"] = self.wait_for_window(2000)
+        self.vars["root"] = self.driver.current_window_handle
+        self.driver.switch_to.window(self.vars["win2433"])
+        self.driver.find_element(By.ID, "id_desc").click()
+        self.driver.find_element(By.ID, "id_desc").send_keys("Question description")
+        self.driver.find_element(By.ID, "id_options-0-option").click()
+        self.driver.find_element(By.ID, "id_options-0-option").send_keys("Option 1")
+        self.driver.find_element(By.ID, "id_options-1-option").click()
+        self.driver.find_element(By.ID, "id_options-1-option").send_keys("Option 2")
+        self.driver.find_element(By.NAME, "_save").click()
+        self.driver.switch_to.window(self.vars["root"])
+        #Vuelta a la vista para crear una votación, y creación de un Auth
+        self.vars["window_handles"] = self.driver.window_handles
+        self.driver.find_element(By.CSS_SELECTOR, "#add_id_auths > img").click()
+        self.vars["win1901"] = self.wait_for_window(2000)
+        self.driver.switch_to.window(self.vars["win1901"])
+        self.driver.find_element(By.ID, "id_name").send_keys("auth")
+        self.driver.find_element(By.ID, "id_url").click()
+        self.driver.find_element(By.ID, "id_url").send_keys(f'{self.live_server_url}')
+        self.driver.find_element(By.NAME, "_save").click()
+        #Proceso para guardar la votación, y comprobar el error resultante
+        self.driver.switch_to.window(self.vars["root"])
+        self.driver.find_element(By.NAME, "_save").click()
+        self.assertEqual("Please correct the error below.", self.driver.find_element_by_xpath("//form[@id='voting_form']/div/p").text)
+        self.assertEqual("This field is required.", self.driver.find_element_by_xpath("//form[@id='voting_form']/div/fieldset/div[4]/ul/li").text)
+
     def test_view_create_voting(self):
         User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
         #Proceso para loguearse como administrador
