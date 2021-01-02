@@ -1,6 +1,7 @@
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+import copy
 
 
 class PostProcView(APIView):
@@ -87,7 +88,7 @@ class PostProcView(APIView):
             out.append({
                 **opt,
                 'postproc': 0,
-            });
+            })
 
         asientos = 0
         while asientos < seats:
@@ -100,7 +101,58 @@ class PostProcView(APIView):
             asientos += 1
 
         out.sort(key=lambda x: -x['votes'])
-        return Response(out)
+        return out
+    
+    def paridad (self, candidates, seats):
+        
+        seated = []
+        remaining = seats
+        men = []
+        women = []
+        
+        for cand in candidates:
+            if (cand['gender']=='H'):
+                men.append(cand)
+            if (cand['gender']=='M'):
+                women.append(cand)
+        if (candidates[0]['gender']=='H'):
+            while (remaining > 0):
+                if (men.__len__()>0):
+                    seated.append(men[0])
+                    men.pop(0)
+                    remaining = remaining - 1
+                if (remaining == 0):
+                    break   
+                if (women.__len__()>0):    
+                    seated.append(women[0])
+                    women.pop(0)
+                    remaining = remaining - 1
+        if (candidates[0]['gender']=='M'):
+            while (remaining > 0):
+                if (women.__len__()>0): 
+                    seated.append(women[0])
+                    women.pop(0)
+                    remaining = remaining - 1
+                if (remaining == 0):
+                    break   
+                if (men.__len__()>0):
+                    seated.append(men[0])
+                    men.pop(0)
+                    remaining = remaining - 1
+        return seated
+    
+    def aplicarParidad(self,results):
+        results2 = []
+        for r in results:
+            candidates = r.get('candidates')
+            seats = r.get('postproc')
+            results2.append({
+                **r,
+                'seated': self.paridad(candidates, seats)
+            })
+            
+        return results2    
+            
 
     def post(self, request):
         """
@@ -119,6 +171,7 @@ class PostProcView(APIView):
         t = request.data.get('type')
         opts = request.data.get('options', [])
         s = request.data.get('seats')
+        p = request.data.get('paridad')
 
         if len(opts) == 0:
             return Response({}, status=status.HTTP_400_BAD_REQUEST)
@@ -133,7 +186,11 @@ class PostProcView(APIView):
             if(s==None):
                 return Response({}, status=status.HTTP_400_BAD_REQUEST)
             else:
-                return self.dhont(opts, s)
+                if (p==True):
+                   results = self.dhont(opts, s)
+                   return Response(self.aplicarParidad(results))
+                else:    
+                    return Response(self.dhont(opts, s))
         else:
             return Response({}, status=status.HTTP_400_BAD_REQUEST)
         return Response({})
