@@ -104,28 +104,39 @@ class PostProcView(APIView):
 
     def borda(self, order_options):
         out = []
-
+        aux = []
         for ord in order_options:
-            if not ord['option'] in out:
+            if ord['option'] not in aux:
                 out.append({
                     **ord,
                     'postproc': 0,
                 })
-        numOptions = out.max(key=lambda x: -x['number'])
-        votos = [0]
-        i=1
-        while i<numOptions:
+            aux.append(ord['option'])
+        numOptions = max(out,key=lambda x: x['number'])['number']
+
+        puntos = [0]
+        j = numOptions
+        while j>=1:
+            puntos.append(j)
+            j-=1
+
+        votos = []
+        i=0
+        while i<=numOptions:
             votos.append(0)
-            i+1
+            i+=1
 
         for ord in order_options:
-            opcion = ord['number']
-            mult = ord['order_number']
-            votos[opcion] = votos[opcion] + mult*ord['votes']
+            opcion = int(ord['number'])
+            mult = puntos[int(ord['order_number'])]
+            votos[opcion] = votos[opcion] + mult*int(ord['votes'])
 
         cont=1
-        while cont<numOptions:
+        while cont<=numOptions:
             out[cont]['postproc'] = votos[cont]
+            cont+=1
+
+
 
         out.sort(key=lambda x: -x['postproc'])
         return Response(out)

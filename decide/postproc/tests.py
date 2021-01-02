@@ -379,6 +379,7 @@ class PostProcTestCase(APITestCase):
         response = self.client.post('/postproc/', data, format='json')
         self.assertEqual(response.status_code, 200)
         values = response.json()
+        print(values)
         self.assertEqual(values, expected_result)
 
     def test_borda2(self):
