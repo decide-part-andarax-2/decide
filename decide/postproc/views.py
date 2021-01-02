@@ -150,9 +150,10 @@ class PostProcView(APIView):
 
         t = request.data.get('type')
         opts = request.data.get('options', [])
+        order_opts = request.data.get('order_options', [])
         s = request.data.get('seats')
 
-        if len(opts) == 0:
+        if len(opts) == 0 and len(order_opts) == 0:
             return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
         if t == 'IDENTITY':
@@ -161,6 +162,8 @@ class PostProcView(APIView):
             return self.relativa(opts)
         elif t == 'ABSOLUTA':
             return self.absoluta(opts)
+        elif t == 'BORDA':
+            return self.borda(order_opts)
         elif t == 'DHONT':
             if(s==None):
                 return Response({}, status=status.HTTP_400_BAD_REQUEST)
