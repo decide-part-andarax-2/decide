@@ -48,7 +48,7 @@ class Voting(models.Model):
     name = models.CharField(max_length=200)
     desc = models.TextField(blank=True, null=True)
     question = models.ForeignKey(Question, related_name='voting', on_delete=models.CASCADE)
-    alpha = RegexValidator("^[0-9a-zA-Z]*$", "Sólo se permiten letras y números.")
+    alpha = RegexValidator("^[0-9a-zA-Z]*$", "Only letters and numbers are allowed.")
     link = models.CharField(max_length=30, default="", unique=True ,validators=[alpha])
 
     start_date = models.DateTimeField(blank=True, null=True)
