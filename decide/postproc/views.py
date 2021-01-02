@@ -131,9 +131,9 @@ class PostProcView(APIView):
             mult = puntos[int(ord['order_number'])]
             votos[opcion] = votos[opcion] + mult*int(ord['votes'])
 
-        cont=1
-        while cont<=numOptions:
-            out[cont]['postproc'] = votos[cont]
+        cont=0
+        while cont<numOptions:
+            out[cont]['postproc'] = votos[cont+1]
             cont+=1
 
 
