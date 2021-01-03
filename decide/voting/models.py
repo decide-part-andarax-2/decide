@@ -6,7 +6,9 @@ from django.core.validators import RegexValidator
 
 from base import mods
 from base.models import Auth, Key
-
+import shutil
+import tarfile
+import os
 
 class Question(models.Model):
     desc = models.TextField()
@@ -121,7 +123,10 @@ class Voting(models.Model):
         order_options = self.question.order_options.all()
 
         opts = []
-        t_file = open("voting/files/v" + str(self.id) + ".txt", "w")
+        #Abrimos el fichero donde se guardaran los resultados y el comprimido donde se 
+        #guardaran estos ficheros
+        t_file = open("voting/v" + str(self.id) + ".txt", "w")
+
         if options.count()!=0:
             t_file.write("Results from voting with ID " + str(self.id) + ":\n")
             for opt in options:
@@ -152,11 +157,20 @@ class Voting(models.Model):
                 })
                 t_file.write("Option " + str(order_option.number) + ": " + order_option.option + " -> " + str(votes) + " votes in position " + str(order_option.order_number) + "\n")
 
+        t_file.close()
         data = { 'type': 'IDENTITY', 'options': opts, 'order_options':ords }
         postp = mods.post('postproc', json=data)
 
         self.postproc = postp
         self.save()
+
+        #Comprimimos el fichero
+        #comprimido.add("voting/results", "tar", "voting/files")
+        comprimido = tarfile.open('voting/results.tar', mode='a')
+        comprimido.add("voting/v" + str(self.id) + ".txt")
+        comprimido.close()
+        os.remove("voting/v" + str(self.id) + ".txt")
+
 
     def __str__(self):
         return self.name
