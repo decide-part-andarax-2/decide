@@ -184,7 +184,10 @@ class PostProcView(APIView):
         elif t == 'ABSOLUTA':
             return self.absoluta(opts)
         elif t == 'BORDA':
-            return self.borda(order_opts)
+            if len(order_opts) == 0:
+                return Response({}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return self.borda(order_opts)
         elif t == 'DHONT':
             if(s==None):
                 return Response({}, status=status.HTTP_400_BAD_REQUEST)

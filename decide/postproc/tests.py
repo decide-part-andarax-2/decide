@@ -409,3 +409,27 @@ class PostProcTestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
         values = response.json()
         self.assertEqual(values, expected_result)
+
+    #Test en el que se le pasa una votación normal, no una con order_options
+    def test_no_order_options(self):
+
+        data = {
+            'type': 'BORDA',
+            'options': [
+                {'option': 'Option 1', 'number': 1, 'votes': 10},
+                {'option': 'Option 2', 'number': 2, 'votes': 5},
+                {'option': 'Option 3', 'number': 3, 'votes': 6},
+                {'option': 'Option 4', 'number': 4, 'votes': 8},
+                {'option': 'Option 3', 'number': 3, 'votes': 0},
+
+            ],
+            'order_options': []
+        }
+
+        expected_result = {}
+
+        response = self.client.post('/postproc/', data, format='json')
+        self.assertEqual(response.status_code, 400)
+
+        values = response.json()
+        self.assertEqual(values, expected_result)
