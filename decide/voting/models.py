@@ -6,7 +6,6 @@ from django.core.validators import RegexValidator
 
 from base import mods
 from base.models import Auth, Key
-import shutil
 import tarfile
 import os
 
