@@ -1,5 +1,6 @@
 import random
 import itertools
+import time
 from django.utils import timezone
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -7,6 +8,7 @@ from django.test import TestCase
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
 from django.core.exceptions import ValidationError
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 
 from base import mods
 from base.tests import BaseTestCase
@@ -16,6 +18,11 @@ from mixnet.mixcrypt import MixCrypt
 from mixnet.models import Auth
 from voting.models import Voting, Question, QuestionOption, QuestionOrder
 
+from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
 
 class VotingTestCase(BaseTestCase):
 
@@ -308,7 +315,7 @@ class VotingModelTestCase(BaseTestCase):
         self.assertEquals(q.options.all()[0].number, 0)
         self.assertEquals(q.options.all()[1].number, 1)
 
-    # add NO option before select YES/NO question and don't add this one
+    # duplicate YES option
     def test_duplicity_yes(self):
         q = Question.objects.get(desc='This is a test yes/no question')
         qo = QuestionOption(question = q, number = 2, option = 'YES')
@@ -323,7 +330,7 @@ class VotingModelTestCase(BaseTestCase):
         self.assertEquals(q.options.all()[0].number, 0)
         self.assertEquals(q.options.all()[1].number, 1)
 
-    # add NO option before select YES/NO question and don't add this one
+    # duplicate NO option
     def test_duplicity_no(self):
         q = Question.objects.get(desc='This is a test yes/no question')
         qo = QuestionOption(question = q, number = 2, option = 'NO')
@@ -432,3 +439,64 @@ class VotingModelTestCase(BaseTestCase):
         self.assertRaises(ValidationError)
         self.assertRaisesRegex(ValidationError,"Duplicated order, please checkout question order")
         self.assertEquals(len(q.order_options.all()), 1)
+
+class VotingViewTestCase(StaticLiveServerTestCase):
+
+    def setUp(self):
+        
+        # Load base test functionality for decide
+        self.base = BaseTestCase()
+        self.base.setUp()
+
+        # self.vars = {}
+
+        options = webdriver.ChromeOptions()
+        options.headless = True
+        self.driver = webdriver.Chrome(options=options)
+        super().setUp()
+
+    def tearDown(self):
+        super().tearDown()
+        self.driver.quit()
+
+        self.base.tearDown()
+
+    def wait_for_window(self, timeout = 2):
+        time.sleep(round(timeout / 1000))
+        wh_now = self.driver.window_handles
+        wh_then = self.vars["window_handles"]
+        if len(wh_now) > len(wh_then):
+            return set(wh_now).difference(set(wh_then)).pop()
+
+
+    def test_duplicity_yes(self):
+
+        # add the user and login
+        User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
+        self.driver.get(f'{self.live_server_url}/admin/')
+        self.driver.find_element_by_id('id_username').send_keys("superuser")
+        self.driver.find_element_by_id('id_password').send_keys("superuser", Keys.ENTER)
+
+        driver = self.driver
+        driver.find_element_by_xpath("(//a[contains(text(),'Add')])[9]").click()
+        driver.find_element_by_id("id_desc").click()
+        driver.find_element_by_id("id_desc").clear()
+        driver.find_element_by_id("id_desc").send_keys("Test duplicity with yes")
+        driver.find_element_by_id("id_is_yes_no_question").click()
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Test duplicity with yes')])[2]").click()
+        self.assertEqual("YES", driver.find_element_by_id("id_options-0-option").text)
+        self.assertEqual("NO", driver.find_element_by_id("id_options-1-option").text)
+        self.assertEqual("0", driver.find_element_by_id("id_options-0-number").get_attribute("value"))
+        self.assertEqual("1", driver.find_element_by_id("id_options-1-number").get_attribute("value"))
+        self.assertEqual("", driver.find_element_by_id("id_options-2-option").get_attribute("value"))
+        driver.find_element_by_id("id_options-2-option").clear()
+        driver.find_element_by_id("id_options-2-option").send_keys("YES")
+        driver.find_element_by_xpath("//tr[@id='options-2']/td[4]").click()
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Test duplicity with yes')])[2]").click()
+        self.assertEqual("0", driver.find_element_by_id("id_options-0-number").get_attribute("value"))
+        self.assertEqual("YES", driver.find_element_by_id("id_options-0-option").text)
+        self.assertEqual("1", driver.find_element_by_id("id_options-1-number").get_attribute("value"))
+        self.assertEqual("NO", driver.find_element_by_id("id_options-1-option").text)
+        self.assertEqual("", driver.find_element_by_id("id_options-2-option").get_attribute("value"))
