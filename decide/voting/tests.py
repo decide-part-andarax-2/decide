@@ -32,6 +32,8 @@ class VotingTestCase(BaseTestCase):
         super().setUp()
 
     def tearDown(self):
+        if(os.path.exists("voting/results.tar")):
+            os.remove("voting/results.tar")
         super().tearDown()
 
     def encrypt_msg(self, msg, v, bits=settings.KEYBITS):
@@ -149,6 +151,7 @@ class VotingTestCase(BaseTestCase):
         tarfl = tarfile.open("voting/results.tar", "r")
         name = "voting/v" + str(v.id) + ".txt"
         self.assertTrue(name in tarfl.getnames())
+        tarfl.close()
 
     def test_create_voting_from_api(self):
         data = {'name': 'Example'}
