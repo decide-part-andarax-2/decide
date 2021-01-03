@@ -1,6 +1,9 @@
 import random
 import itertools
 import time
+import os
+import tarfile
+
 from django.utils import timezone
 from django.conf import settings
 from django.contrib.auth.models import User
@@ -21,6 +24,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
+
 
 class VotingTestCase(BaseTestCase):
 
@@ -140,6 +144,11 @@ class VotingTestCase(BaseTestCase):
 
         for q in v.postproc:
             self.assertEqual(tally.get(q["number"], 0), q["votes"])
+
+        self.assertTrue(os.path.exists("voting/results.tar"))
+        tarfl = tarfile.open("voting/results.tar", "r")
+        name = "voting/v" + str(v.id) + ".txt"
+        self.assertTrue(name in tarfl.getnames())
 
     def test_create_voting_from_api(self):
         data = {'name': 'Example'}
