@@ -500,3 +500,28 @@ class VotingViewTestCase(StaticLiveServerTestCase):
         self.assertEqual("1", driver.find_element_by_id("id_options-1-number").get_attribute("value"))
         self.assertEqual("NO", driver.find_element_by_id("id_options-1-option").text)
         self.assertEqual("", driver.find_element_by_id("id_options-2-option").get_attribute("value"))
+        
+    
+    def test_delete_when_unselect(self):
+
+        User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
+        self.driver.get(f'{self.live_server_url}/admin/')
+        self.driver.find_element_by_id('id_username').send_keys("superuser")
+        self.driver.find_element_by_id('id_password').send_keys("superuser", Keys.ENTER)
+
+        driver = self.driver
+        driver.find_element_by_xpath("(//a[contains(text(),'Add')])[9]").click()
+        driver.find_element_by_id("id_desc").click()
+        driver.find_element_by_id("id_desc").clear()
+        driver.find_element_by_id("id_desc").send_keys("Delete when unselected")
+        driver.find_element_by_xpath("//form[@id='question_form']/div/fieldset/div[2]/div/label").click()
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Delete when unselected')])[2]").click()
+        driver.find_element_by_xpath("//form[@id='question_form']/div/fieldset/div[2]/div/label").click()
+        self.assertEqual("YES", driver.find_element_by_id("id_options-0-option").text)
+        self.assertEqual("NO", driver.find_element_by_id("id_options-1-option").text)
+        self.assertEqual("0", driver.find_element_by_id("id_options-0-number").get_attribute("value"))
+        self.assertEqual("1", driver.find_element_by_id("id_options-1-number").get_attribute("value"))
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Delete when unselected')])[2]").click()
+        self.assertEqual("", driver.find_element_by_id("id_options-0-option").get_attribute("value"))
