@@ -121,7 +121,9 @@ class Voting(models.Model):
         order_options = self.question.order_options.all()
 
         opts = []
+        t_file = open("voting/files/v" + str(self.id) + ".txt", "w")
         if options.count()!=0:
+            t_file.write("Results from voting with ID " + str(self.id) + ":\n")
             for opt in options:
                 if isinstance(tally, list):
                     votes = tally.count(opt.number)
@@ -132,9 +134,11 @@ class Voting(models.Model):
                     'number': opt.number,
                     'votes': votes
                 })
-
+                t_file.write("Option " + str(opt.number) + ": " + opt.option + " -> " + str(votes) + " votes\n")
+        
         ords = []
         if order_options.count()!=0:
+            t_file.write("Results from ordered voting with ID" + str(self.id) + ":\n")
             for order_option in order_options:
                 if isinstance(tally, list):
                     votes = tally.count(order_option.order_number)
@@ -146,6 +150,7 @@ class Voting(models.Model):
                     'order_number': order_option.order_number,
                     'votes': votes
                 })
+                t_file.write("Option " + str(order_option.number) + ": " + order_option.option + " -> " + str(votes) + " votes in position " + str(order_option.order_number) + "\n")
 
         data = { 'type': 'IDENTITY', 'options': opts, 'order_options':ords }
         postp = mods.post('postproc', json=data)
