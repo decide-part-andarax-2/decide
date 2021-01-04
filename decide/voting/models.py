@@ -2,18 +2,71 @@ from django.db import models
 from django.contrib.postgres.fields import JSONField
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.core.validators import RegexValidator
+from django.core.exceptions import ValidationError
 
 from base import mods
 from base.models import Auth, Key
-import tarfile
-import os
+
 
 class Question(models.Model):
     desc = models.TextField()
+    is_yes_no_question = models.BooleanField(default=False)
+
+    def save(self):
+
+        super().save()
+
+        try:
+            # try to get the question options yes and no options
+            option_yes = QuestionOption.objects.get(option = 'YES', question = self)
+            option_no = QuestionOption.objects.get(option = 'NO', question = self)
+            
+            # if they exist but it is not a yes/no question, we delete these options 
+            if not self.is_yes_no_question:
+                QuestionOption.objects.get(pk=option_yes.id).delete()
+                QuestionOption.objects.get(pk=option_no.id).delete()
+
+        # only if don't have any yes and no options
+        except:
+
+            # if it's a yes or no question    
+            if self.is_yes_no_question:
+
+                # delete all the options that are not yes/no options
+                try:
+                    options = QuestionOption.objects.all().filter(question = self)
+                    for element in options:
+                        QuestionOption.objects.get(pk=element.id).delete()
+                except:
+                    pass
+
+                # YES
+                question_yes = QuestionOption(option = 'YES', number = 0, question = self)
+                question_yes.save()
+
+                # NO
+                question_no = QuestionOption(option = 'NO', number = 1, question = self)
+                question_no.save()
 
     def __str__(self):
         return self.desc
+
+
+# Auxiliar method save option without repiting
+def repitedOption(self):
+
+    # if exists -> don't save
+    try:
+        QuestionOption.objects.get(option = self.option, question = self.question)
+        raise ValidationError('Duplicated option, please checkout question options')
+
+    # duplicated option
+    except ValidationError:
+        return
+
+    # if not exists -> save
+    except:
+        return QuestionOption.super_save(self)
 
 
 class QuestionOption(models.Model):
@@ -21,13 +74,52 @@ class QuestionOption(models.Model):
     number = models.PositiveIntegerField(blank=True, null=True)
     option = models.TextField()
 
-    def save(self):
-        if not self.number:
-            self.number = self.question.options.count() + 2
+    def super_save(self):
         return super().save()
+
+    def save(self):
+
+        # if it is not a yes/no question, we manage the option
+        if not self.question.is_yes_no_question:
+            if not self.number:
+                self.number = self.question.options.count() + 2
+
+            repitedOption(self)
+
+        # if it is a yes/no question
+        else:
+            # if the option is not 'YES' or 'NO', don't save it
+            if (self.option == 'YES') or (self.option == 'NO'):
+                repitedOption(self)
+            else:
+                return
+
+    def delete(self):
+
+        # if the question is a yes/no question, we can not delete the 'YES' or 'NO' options
+        if ((self.option == 'YES') or (self.option == 'NO')) and (self.question.is_yes_no_question):
+            return
+        else:
+            return super().delete()        
 
     def __str__(self):
         return '{} ({})'.format(self.option, self.number)
+
+# Auxiliar method save order without repiting
+def repitedOrder(self):
+
+    # if exists -> don't save
+    try:
+        QuestionOrder.objects.get(option = self.option, question = self.question)
+        raise ValidationError('Duplicated order, please checkout question order')
+
+    # duplicated option
+    except ValidationError:
+        return
+
+    # if not exists -> save
+    except:
+        return QuestionOrder.super_save(self)
 
 class QuestionOrder(models.Model):
     question = models.ForeignKey(Question, related_name='order_options', on_delete=models.CASCADE)
@@ -35,12 +127,16 @@ class QuestionOrder(models.Model):
     number = models.PositiveIntegerField(blank=True, null=True)
     option = models.TextField()
 
+    def super_save(self):
+        return super().save()
+
     def save(self):
         if not self.number:
             self.number = self.question.order_options.count() + 2
         if not self.order_number:
             self.order_number = self.question.order_options.count() + 2
-        return super().save()
+
+        repitedOrder(self)
 
     def __str__(self):
         return '{} ({})'.format(self.option, self.number)
