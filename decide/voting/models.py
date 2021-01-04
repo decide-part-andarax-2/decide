@@ -122,8 +122,7 @@ class Voting(models.Model):
         order_options = self.question.order_options.all()
 
         opts = []
-        #Abrimos el fichero donde se guardaran los resultados y el comprimido donde se 
-        #guardaran estos ficheros
+        #Abrimos el fichero donde se guardaran los resultados y el comprimido donde se guardaran estos ficheros
         t_file = open("voting/v" + str(self.id) + ".txt", "w")
 
         if options.count()!=0:
@@ -139,7 +138,7 @@ class Voting(models.Model):
                     'votes': votes
                 })
                 t_file.write("Option " + str(opt.number) + ": " + opt.option + " -> " + str(votes) + " votes\n")
-        
+
         ords = []
         if order_options.count()!=0:
             t_file.write("Results from ordered voting with ID" + str(self.id) + ":\n")
