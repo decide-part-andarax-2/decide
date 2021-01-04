@@ -1,12 +1,16 @@
 import random
 import itertools
 import time
+import os
+import tarfile
+
 from django.utils import timezone
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.test import TestCase
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
+from django.core.exceptions import ValidationError
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 
 from base import mods
@@ -22,12 +26,15 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 
+
 class VotingTestCase(BaseTestCase):
 
     def setUp(self):
         super().setUp()
 
     def tearDown(self):
+        if(os.path.exists("voting/results.tar")):
+            os.remove("voting/results.tar")
         super().tearDown()
 
     def encrypt_msg(self, msg, v, bits=settings.KEYBITS):
@@ -140,6 +147,29 @@ class VotingTestCase(BaseTestCase):
 
         for q in v.postproc:
             self.assertEqual(tally.get(q["number"], 0), q["votes"])
+
+    def test_postproc_voting_compressed(self):
+        v = self.create_voting()
+        self.create_voters(v)
+
+        v.create_pubkey()
+        v.start_date = timezone.now()
+        v.save()
+
+        self.store_votes(v)
+
+        self.login()  # set token
+        v.tally_votes(self.token)
+
+        tally = v.tally
+        tally.sort()
+        tally = {k: len(list(x)) for k, x in itertools.groupby(tally)}
+
+        self.assertTrue(os.path.exists("voting/results.tar"))
+        tarfl = tarfile.open("voting/results.tar", "r")
+        name = "voting/v" + str(v.id) + ".txt"
+        self.assertTrue(name in tarfl.getnames())
+        tarfl.close()
 
     def test_create_voting_from_api(self):
         data = {'name': 'Example'}
@@ -267,6 +297,28 @@ class VotingTestCase(BaseTestCase):
 
 class VotingModelTestCase(BaseTestCase):
     def setUp(self):
+      
+        q1 = Question(desc='This is a test yes/no question', is_yes_no_question=True)
+        q1.save()
+
+        q2 = Question(desc='This is NOT a test yes/no question', is_yes_no_question=False)
+        q2.save()
+
+        q3 = Question(desc='This contain an order question', is_yes_no_question=False)
+        q3.save()
+
+        qo1 = QuestionOption(question = q2, option = 'Primera opcion')
+        qo1.save()
+
+        qo2 = QuestionOption(question = q2, option = 'Segunda opcion')
+        qo2.save()
+
+        qo3 = QuestionOption(question = q2, option = 'Tercera opcion')
+        qo3.save()
+
+        qord1 = QuestionOrder(question = q3, option = 'First order')
+        qord1.save()
+      
         q=Question(desc="Esta es la descripcion")
         q.save()
 
@@ -294,7 +346,145 @@ class VotingModelTestCase(BaseTestCase):
         super().tearDown()
         self.v=None
         self.v2=None
+    
+    # don't save others YES/NO if it saves question with YES/NO question selected
+    def test_duplicity_yes_and_no(self):
+        q = Question.objects.get(desc='This is a test yes/no question')
+        q.save()
 
+        self.assertEquals(len(q.options.all()), 2)
+        self.assertEquals(q.options.all()[0].question, q)
+        self.assertEquals(q.options.all()[1].question, q)
+        self.assertEquals(q.options.all()[0].option, 'YES')
+        self.assertEquals(q.options.all()[1].option, 'NO')
+        self.assertEquals(q.options.all()[0].number, 0)
+        self.assertEquals(q.options.all()[1].number, 1)
+
+    # duplicate YES option
+    def test_duplicity_yes(self):
+        q = Question.objects.get(desc='This is a test yes/no question')
+        qo = QuestionOption(question = q, number = 2, option = 'YES')
+        qo.save()
+        q.save()
+
+        self.assertEquals(len(q.options.all()), 2)
+        self.assertEquals(q.options.all()[0].question, q)
+        self.assertEquals(q.options.all()[1].question, q)
+        self.assertEquals(q.options.all()[0].option, 'YES')
+        self.assertEquals(q.options.all()[1].option, 'NO')
+        self.assertEquals(q.options.all()[0].number, 0)
+        self.assertEquals(q.options.all()[1].number, 1)
+
+    # duplicate NO option
+    def test_duplicity_no(self):
+        q = Question.objects.get(desc='This is a test yes/no question')
+        qo = QuestionOption(question = q, number = 2, option = 'NO')
+        qo.save()
+        q.save()
+
+        self.assertEquals(len(q.options.all()), 2)
+        self.assertEquals(q.options.all()[0].question, q)
+        self.assertEquals(q.options.all()[1].question, q)
+        self.assertEquals(q.options.all()[0].option, 'YES')
+        self.assertEquals(q.options.all()[1].option, 'NO')
+        self.assertEquals(q.options.all()[0].number, 0)
+        self.assertEquals(q.options.all()[1].number, 1)
+
+    # verify when selected YES/NO options that adds these
+    def test_add_yes_no_question(self):
+        q = Question.objects.get(desc='This is NOT a test yes/no question')
+        q.is_yes_no_question = True
+        q.save()
+
+        self.assertEquals(len(q.options.all()), 2)
+        self.assertEquals(q.options.all()[0].question, q)
+        self.assertEquals(q.options.all()[1].question, q)
+        self.assertEquals(q.options.all()[0].option, 'YES')
+        self.assertEquals(q.options.all()[1].option, 'NO')
+        self.assertEquals(q.options.all()[0].number, 0)
+        self.assertEquals(q.options.all()[1].number, 1)
+
+    # add some option before and don't add this one if YES/NO is selected
+    def test_add_before_yes_no(self):
+        q = Question.objects.get(desc='This is a test yes/no question')
+        qo = QuestionOption(question = q, number = 2, option = 'Something')
+        qo.save()
+        q.save()
+
+        self.assertEquals(len(q.options.all()), 2)
+        self.assertEquals(q.options.all()[0].question, q)
+        self.assertEquals(q.options.all()[1].question, q)
+        self.assertEquals(q.options.all()[0].option, 'YES')
+        self.assertEquals(q.options.all()[1].option, 'NO')
+        self.assertEquals(q.options.all()[0].number, 0)
+        self.assertEquals(q.options.all()[1].number, 1)
+
+    # previous options are deleted when question is saved like YES/NO question
+    def test_delete_previous_opt(self):
+        q = Question.objects.get(desc='This is NOT a test yes/no question')
+        q.is_yes_no_question = True
+        q.save()
+
+        self.assertEquals(len(q.options.all()), 2)
+        self.assertEquals(q.options.all()[0].question, q)
+        self.assertEquals(q.options.all()[1].question, q)
+        self.assertEquals(q.options.all()[0].option, 'YES')
+        self.assertEquals(q.options.all()[1].option, 'NO')
+        self.assertEquals(q.options.all()[0].number, 0)
+        self.assertEquals(q.options.all()[1].number, 1)
+
+    # delete NO option, save and returns YES and NO option
+    def test_delete_no_with_yes_no_selected(self):
+        q = Question.objects.get(desc='This is a test yes/no question')
+        qo = QuestionOption.objects.get(option = 'NO', question = q)
+        QuestionOption.delete(qo)
+        q.save()
+
+        self.assertEquals(len(q.options.all()), 2)
+        self.assertEquals(q.options.all()[0].question, q)
+        self.assertEquals(q.options.all()[1].question, q)
+        self.assertEquals(q.options.all()[0].option, 'YES')
+        self.assertEquals(q.options.all()[1].option, 'NO')
+        self.assertEquals(q.options.all()[0].number, 0)
+        self.assertEquals(q.options.all()[1].number, 1)
+
+    # delete YES option, save and returns YES and NO option
+    def test_delete_yes_with_yes_no_selected(self):
+        q = Question.objects.get(desc='This is a test yes/no question')
+        qo = QuestionOption.objects.get(option = 'YES', question = q)
+        QuestionOption.delete(qo)
+        q.save()
+
+        self.assertEquals(len(q.options.all()), 2)
+        self.assertEquals(q.options.all()[0].question, q)
+        self.assertEquals(q.options.all()[1].question, q)
+        self.assertEquals(q.options.all()[0].option, 'YES')
+        self.assertEquals(q.options.all()[1].option, 'NO')
+        self.assertEquals(q.options.all()[0].number, 0)
+        self.assertEquals(q.options.all()[1].number, 1)
+
+    # question cannot contain 2 different options with the same "name"
+    def test_duplicity_option(self):
+        q = Question.objects.get(desc='This is NOT a test yes/no question')
+        qo = QuestionOption(question = q, option = 'Primera opcion')
+        qo.save()
+        q.save()
+
+        self.assertRaises(ValidationError)
+        self.assertRaisesRegex(ValidationError,"Duplicated option, please checkout question options")
+        self.assertEquals(len(q.options.all()), 3)
+
+    # question cannot contain 2 different order with the same "name"
+    def test_duplicity_order(self):
+        q = Question.objects.get(desc='This contain an order question')
+        qo = QuestionOrder(question = q, option = 'First order')
+        qo.save()
+        q.save()
+
+        self.assertRaises(ValidationError)
+        self.assertRaisesRegex(ValidationError,"Duplicated order, please checkout question order")
+        self.assertEquals(len(q.order_options.all()), 1)
+    
     def test_exists(self):
         v=Voting.objects.get(name="Votacion")
         self.assertEquals(v.question.options.all()[0].option,"opcion1")
@@ -367,6 +557,14 @@ class VotingModelTestCase(BaseTestCase):
 
         self.assertRaises(ValueError)
         self.assertRaisesRegex(ValueError,"ValueError: invalid literal for int() with base 10: {}".format(order_number))
+        
+    def test_delete_when_unselect(self):
+        q = Question.objects.get(desc='This is a test yes/no question')
+        q.is_yes_no_question = False
+        q.save()
+
+        self.assertEquals(len(q.options.all()), 0)
+
 
 class VotingViewsTestCase(StaticLiveServerTestCase):
 
@@ -395,6 +593,147 @@ class VotingViewsTestCase(StaticLiveServerTestCase):
         wh_then = self.vars["window_handles"]
         if len(wh_now) > len(wh_then):
             return set(wh_now).difference(set(wh_then)).pop()
+    
+    def test_duplicity_yes(self):
+
+        # add the user and login
+        User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
+        self.driver.get(f'{self.live_server_url}/admin/')
+        self.driver.find_element_by_id('id_username').send_keys("superuser")
+        self.driver.find_element_by_id('id_password').send_keys("superuser", Keys.ENTER)
+
+        driver = self.driver
+        driver.find_element_by_xpath("//a[contains(@href, '/admin/voting/question/add/')]").click()
+        driver.find_element_by_id("id_desc").click()
+        driver.find_element_by_id("id_desc").clear()
+        driver.find_element_by_id("id_desc").send_keys("Test duplicity with yes")
+        driver.find_element_by_id("id_is_yes_no_question").click()
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Test duplicity with yes')])[2]").click()
+        self.assertEqual("YES", driver.find_element_by_id("id_options-0-option").text)
+        self.assertEqual("NO", driver.find_element_by_id("id_options-1-option").text)
+        self.assertEqual("0", driver.find_element_by_id("id_options-0-number").get_attribute("value"))
+        self.assertEqual("1", driver.find_element_by_id("id_options-1-number").get_attribute("value"))
+        self.assertEqual("", driver.find_element_by_id("id_options-2-option").get_attribute("value"))
+        driver.find_element_by_id("id_options-2-option").clear()
+        driver.find_element_by_id("id_options-2-option").send_keys("YES")
+        driver.find_element_by_xpath("//tr[@id='options-2']/td[4]").click()
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Test duplicity with yes')])[2]").click()
+        self.assertEqual("0", driver.find_element_by_id("id_options-0-number").get_attribute("value"))
+        self.assertEqual("YES", driver.find_element_by_id("id_options-0-option").text)
+        self.assertEqual("1", driver.find_element_by_id("id_options-1-number").get_attribute("value"))
+        self.assertEqual("NO", driver.find_element_by_id("id_options-1-option").text)
+        self.assertEqual("", driver.find_element_by_id("id_options-2-option").get_attribute("value"))
+
+    
+    def test_delete_when_unselect(self):
+
+        User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
+        self.driver.get(f'{self.live_server_url}/admin/')
+        self.driver.find_element_by_id('id_username').send_keys("superuser")
+        self.driver.find_element_by_id('id_password').send_keys("superuser", Keys.ENTER)
+
+        driver = self.driver
+        driver.find_element_by_xpath("//a[contains(@href, '/admin/voting/question/add/')]").click()
+        driver.find_element_by_id("id_desc").click()
+        driver.find_element_by_id("id_desc").clear()
+        driver.find_element_by_id("id_desc").send_keys("Delete when unselected")
+        driver.find_element_by_xpath("//form[@id='question_form']/div/fieldset/div[2]/div/label").click()
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Delete when unselected')])[2]").click()
+        driver.find_element_by_xpath("//form[@id='question_form']/div/fieldset/div[2]/div/label").click()
+        self.assertEqual("YES", driver.find_element_by_id("id_options-0-option").text)
+        self.assertEqual("NO", driver.find_element_by_id("id_options-1-option").text)
+        self.assertEqual("0", driver.find_element_by_id("id_options-0-number").get_attribute("value"))
+        self.assertEqual("1", driver.find_element_by_id("id_options-1-number").get_attribute("value"))
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Delete when unselected')])[2]").click()
+        self.assertEqual("", driver.find_element_by_id("id_options-0-option").get_attribute("value"))
+
+
+    def test_delete_previous_opt(self):
+
+        User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
+        self.driver.get(f'{self.live_server_url}/admin/')
+        self.driver.find_element_by_id('id_username').send_keys("superuser")
+        self.driver.find_element_by_id('id_password').send_keys("superuser", Keys.ENTER)
+        
+        driver = self.driver
+        driver.find_element_by_xpath("//a[contains(@href, '/admin/voting/question/add/')]").click()
+        driver.find_element_by_id("id_desc").clear()
+        driver.find_element_by_id("id_desc").send_keys("Delete options")
+        driver.find_element_by_id("id_options-0-option").click()
+        driver.find_element_by_id("id_options-0-option").clear()
+        driver.find_element_by_id("id_options-0-option").send_keys("First Option")
+        driver.find_element_by_id("id_options-1-option").click()
+        driver.find_element_by_id("id_options-1-option").clear()
+        driver.find_element_by_id("id_options-1-option").send_keys("Second Option")
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Delete options')])[2]").click()
+        driver.find_element_by_id("id_is_yes_no_question").click()
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Delete options')])[2]").click()
+        self.assertEqual("YES", driver.find_element_by_id("id_options-0-option").text)
+        self.assertEqual("NO", driver.find_element_by_id("id_options-1-option").text)
+        self.assertNotRegexpMatches(driver.find_element_by_css_selector("BODY").text, r"^[\s\S]*id=id_options-2-option[\s\S]*$")
+        self.assertNotRegexpMatches(driver.find_element_by_css_selector("BODY").text, r"^[\s\S]*id=id_options-3-option[\s\S]*$")
+        self.assertNotRegexpMatches(driver.find_element_by_css_selector("BODY").text, r"^[\s\S]*id=id_options-4-option[\s\S]*$")
+
+
+    def test_duplicity_no(self):
+
+        User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
+        self.driver.get(f'{self.live_server_url}/admin/')
+        self.driver.find_element_by_id('id_username').send_keys("superuser")
+        self.driver.find_element_by_id('id_password').send_keys("superuser", Keys.ENTER)
+
+        driver = self.driver
+        driver.find_element_by_xpath("//a[contains(@href, '/admin/voting/question/add/')]").click()
+        driver.find_element_by_id("id_desc").click()
+        driver.find_element_by_id("id_desc").clear()
+        driver.find_element_by_id("id_desc").send_keys("Test duplicity with yes")
+        driver.find_element_by_id("id_is_yes_no_question").click()
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Test duplicity with yes')])[2]").click()
+        self.assertEqual("YES", driver.find_element_by_id("id_options-0-option").text)
+        self.assertEqual("NO", driver.find_element_by_id("id_options-1-option").text)
+        self.assertEqual("0", driver.find_element_by_id("id_options-0-number").get_attribute("value"))
+        self.assertEqual("1", driver.find_element_by_id("id_options-1-number").get_attribute("value"))
+        self.assertEqual("", driver.find_element_by_id("id_options-2-option").get_attribute("value"))
+        driver.find_element_by_id("id_options-2-option").clear()
+        driver.find_element_by_id("id_options-2-option").send_keys("NO")
+        driver.find_element_by_xpath("//tr[@id='options-2']/td[4]").click()
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Test duplicity with yes')])[2]").click()
+        self.assertEqual("0", driver.find_element_by_id("id_options-0-number").get_attribute("value"))
+        self.assertEqual("YES", driver.find_element_by_id("id_options-0-option").text)
+        self.assertEqual("1", driver.find_element_by_id("id_options-1-number").get_attribute("value"))
+        self.assertEqual("NO", driver.find_element_by_id("id_options-1-option").text)
+        self.assertEqual("", driver.find_element_by_id("id_options-2-option").get_attribute("value"))
+
+
+    def test_duplicity_yes_and_no(self):
+
+        User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
+        self.driver.get(f'{self.live_server_url}/admin/')
+        self.driver.find_element_by_id('id_username').send_keys("superuser")
+        self.driver.find_element_by_id('id_password').send_keys("superuser", Keys.ENTER)
+
+        driver = self.driver
+        driver.find_element_by_xpath("//a[contains(@href, '/admin/voting/question/add/')]").click()
+        driver.find_element_by_id("id_desc").clear()
+        driver.find_element_by_id("id_desc").send_keys("Duplicity")
+        driver.find_element_by_xpath("//form[@id='question_form']/div/fieldset/div[2]/div/label").click()
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Duplicity')])[2]").click()
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Duplicity')])[2]").click()
+        self.assertEqual("0", driver.find_element_by_id("id_options-0-number").get_attribute("value"))
+        self.assertEqual("YES", driver.find_element_by_id("id_options-0-option").text)
+        self.assertEqual("1", driver.find_element_by_id("id_options-1-number").get_attribute("value"))
+        self.assertEqual("NO", driver.find_element_by_id("id_options-1-option").text)
+        self.assertEqual("", driver.find_element_by_id("id_options-2-option").get_attribute("value"))
 
     def test_create_voting_blank_url(self):
         User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
@@ -482,6 +821,172 @@ class VotingViewsTestCase(StaticLiveServerTestCase):
         self.driver.find_element(By.NAME, "_save").click()
         self.assertEqual("Please correct the error below.", self.driver.find_element_by_xpath("//form[@id='voting_form']/div/p").text)
         self.assertEqual("Only letters and numbers are allowed.", self.driver.find_element_by_xpath("//form[@id='voting_form']/div/fieldset/div[4]/ul/li").text)
+
+
+    def test_delete_yes_with_yes_no_selected(self):
+
+        User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
+        self.driver.get(f'{self.live_server_url}/admin/')
+        self.driver.find_element_by_id('id_username').send_keys("superuser")
+        self.driver.find_element_by_id('id_password').send_keys("superuser", Keys.ENTER)
+
+        driver = self.driver
+        driver.find_element_by_xpath("//a[contains(@href, '/admin/voting/question/add/')]").click()
+        driver.find_element_by_id("id_desc").click()
+        driver.find_element_by_id("id_desc").clear()
+        driver.find_element_by_id("id_desc").send_keys("Test delete yes with YES/NO selected")
+        driver.find_element_by_id("id_is_yes_no_question").click()
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Test delete yes with YES/NO selected')])[2]").click()
+        self.assertEqual("0", driver.find_element_by_id("id_options-0-number").get_attribute("value"))
+        self.assertEqual("YES", driver.find_element_by_id("id_options-0-option").text)
+        self.assertEqual("1", driver.find_element_by_id("id_options-1-number").get_attribute("value"))
+        self.assertEqual("NO", driver.find_element_by_id("id_options-1-option").text)
+        self.assertEqual("", driver.find_element_by_id("id_options-2-option").get_attribute("value"))
+        driver.find_element_by_id("id_options-0-DELETE").click()
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Test delete yes with YES/NO selected')])[2]").click()
+        self.assertEqual("0", driver.find_element_by_id("id_options-0-number").get_attribute("value"))
+        self.assertEqual("YES", driver.find_element_by_id("id_options-0-option").text)
+        self.assertEqual("1", driver.find_element_by_id("id_options-1-number").get_attribute("value"))
+        self.assertEqual("NO", driver.find_element_by_id("id_options-1-option").text)
+        self.assertEqual("", driver.find_element_by_id("id_options-2-option").get_attribute("value"))
+
+
+    def test_delete_no_with_yes_no_selected(self):
+
+        User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
+        self.driver.get(f'{self.live_server_url}/admin/')
+        self.driver.find_element_by_id('id_username').send_keys("superuser")
+        self.driver.find_element_by_id('id_password').send_keys("superuser", Keys.ENTER)
+
+        driver = self.driver
+        driver.find_element_by_xpath("//a[contains(@href, '/admin/voting/question/add/')]").click()
+        driver.find_element_by_id("id_desc").click()
+        driver.find_element_by_id("id_desc").clear()
+        driver.find_element_by_id("id_desc").send_keys("Test delete no with YES/NO selected")
+        driver.find_element_by_id("id_is_yes_no_question").click()
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Test delete no with YES/NO selected')])[2]").click()
+        self.assertEqual("0", driver.find_element_by_id("id_options-0-number").get_attribute("value"))
+        self.assertEqual("YES", driver.find_element_by_id("id_options-0-option").text)
+        self.assertEqual("1", driver.find_element_by_id("id_options-1-number").get_attribute("value"))
+        self.assertEqual("NO", driver.find_element_by_id("id_options-1-option").text)
+        self.assertEqual("", driver.find_element_by_id("id_options-2-option").get_attribute("value"))
+        driver.find_element_by_id("id_options-1-DELETE").click()
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Test delete no with YES/NO selected')])[2]").click()
+        self.assertEqual("0", driver.find_element_by_id("id_options-0-number").get_attribute("value"))
+        self.assertEqual("YES", driver.find_element_by_id("id_options-0-option").text)
+        self.assertEqual("1", driver.find_element_by_id("id_options-1-number").get_attribute("value"))
+        self.assertEqual("NO", driver.find_element_by_id("id_options-1-option").text)
+        self.assertEqual("", driver.find_element_by_id("id_options-2-option").get_attribute("value"))
+
+    def test_add_before_yes_no(self):
+
+        User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
+        self.driver.get(f'{self.live_server_url}/admin/')
+        self.driver.find_element_by_id('id_username').send_keys("superuser")
+        self.driver.find_element_by_id('id_password').send_keys("superuser", Keys.ENTER)
+
+        driver = self.driver
+        driver.find_element_by_xpath("//a[contains(@href, '/admin/voting/question/add/')]").click()
+        driver.find_element_by_id("id_desc").clear()
+        driver.find_element_by_id("id_desc").send_keys("Test add before YES/NO question")
+        driver.find_element_by_id("id_is_yes_no_question").click()
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Test add before YES/NO question')])[2]").click()
+        self.assertEqual("0", driver.find_element_by_id("id_options-0-number").get_attribute("value"))
+        self.assertEqual("YES", driver.find_element_by_id("id_options-0-option").text)
+        self.assertEqual("1", driver.find_element_by_id("id_options-1-number").get_attribute("value"))
+        self.assertEqual("NO", driver.find_element_by_id("id_options-1-option").text)
+        self.assertEqual("", driver.find_element_by_id("id_options-2-option").get_attribute("value"))
+        driver.find_element_by_id("id_options-2-option").clear()
+        driver.find_element_by_id("id_options-2-option").send_keys("Something")
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Test add before YES/NO question')])[2]").click()
+        self.assertEqual("0", driver.find_element_by_id("id_options-0-number").get_attribute("value"))
+        self.assertEqual("YES", driver.find_element_by_id("id_options-0-option").text)
+        self.assertEqual("1", driver.find_element_by_id("id_options-1-number").get_attribute("value"))
+        self.assertEqual("NO", driver.find_element_by_id("id_options-1-option").text)
+        self.assertEqual("", driver.find_element_by_id("id_options-2-option").get_attribute("value"))
+
+
+    def test_add_yes_no_question(self):
+
+        User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
+        self.driver.get(f'{self.live_server_url}/admin/')
+        self.driver.find_element_by_id('id_username').send_keys("superuser")
+        self.driver.find_element_by_id('id_password').send_keys("superuser", Keys.ENTER)
+
+        driver = self.driver
+        driver.find_element_by_xpath("//a[contains(@href, '/admin/voting/question/add/')]").click()
+        driver.find_element_by_id("id_desc").clear()
+        driver.find_element_by_id("id_desc").send_keys("Test add YES/NO question")
+        driver.find_element_by_id("id_is_yes_no_question").click()
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Test add YES/NO question')])[2]").click()
+        self.assertEqual("0", driver.find_element_by_id("id_options-0-number").get_attribute("value"))
+        self.assertEqual("YES", driver.find_element_by_id("id_options-0-option").text)
+        self.assertEqual("1", driver.find_element_by_id("id_options-1-number").get_attribute("value"))
+        self.assertEqual("NO", driver.find_element_by_id("id_options-1-option").text)
+        self.assertEqual("", driver.find_element_by_id("id_options-2-option").get_attribute("value"))
+
+
+    def test_duplicity_order(self):
+
+        User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
+        self.driver.get(f'{self.live_server_url}/admin/')
+        self.driver.find_element_by_id('id_username').send_keys("superuser")
+        self.driver.find_element_by_id('id_password').send_keys("superuser", Keys.ENTER)
+
+        driver = self.driver
+        driver.find_element_by_xpath("//a[contains(@href, '/admin/voting/question/add/')]").click()
+        driver.find_element_by_id("id_desc").clear()
+        driver.find_element_by_id("id_desc").send_keys("Test duplicity order name")
+        driver.find_element_by_id("id_order_options-0-option").click()
+        driver.find_element_by_xpath("//tr[@id='order_options-0']/td[4]").click()
+        driver.find_element_by_id("id_order_options-0-option").clear()
+        driver.find_element_by_id("id_order_options-0-option").send_keys("Hi Pepito")
+        driver.find_element_by_id("id_order_options-1-option").click()
+        driver.find_element_by_id("id_order_options-1-option").clear()
+        driver.find_element_by_id("id_order_options-1-option").send_keys("Hi Pepito")
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Test duplicity order name')])[2]").click()
+        self.assertEqual("Hi Pepito", driver.find_element_by_id("id_order_options-0-option").text)
+        self.assertEqual("", driver.find_element_by_id("id_order_options-1-option").get_attribute("value"))
+
+    
+    def test_duplicity_option(self):
+
+        User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
+        self.driver.get(f'{self.live_server_url}/admin/')
+        self.driver.find_element_by_id('id_username').send_keys("superuser")
+        self.driver.find_element_by_id('id_password').send_keys("superuser", Keys.ENTER)
+
+        driver = self.driver
+        driver.find_element_by_xpath("//a[contains(@href, '/admin/voting/question/add/')]").click()
+        driver.find_element_by_id("id_desc").clear()
+        driver.find_element_by_id("id_desc").send_keys("Duplicity Option")
+        driver.find_element_by_id("id_options-0-option").click()
+        driver.find_element_by_id("id_options-0-option").clear()
+        driver.find_element_by_id("id_options-0-option").send_keys("First Option")
+        driver.find_element_by_id("id_options-1-option").click()
+        driver.find_element_by_id("id_options-1-option").clear()
+        driver.find_element_by_id("id_options-1-option").send_keys("Second Option")
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Duplicity Option')])[2]").click()
+        driver.find_element_by_id("id_options-2-option").click()
+        driver.find_element_by_id("id_options-2-option").clear()
+        driver.find_element_by_id("id_options-2-option").send_keys("First Option")
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Duplicity Option')])[2]").click()
+        self.assertEqual("2", driver.find_element_by_id("id_options-0-number").get_attribute("value"))
+        self.assertEqual("First Option", driver.find_element_by_id("id_options-0-option").text)
+        self.assertEqual("3", driver.find_element_by_id("id_options-1-number").get_attribute("value"))
+        self.assertEqual("Second Option", driver.find_element_by_id("id_options-1-option").text)
+        self.assertEqual("", driver.find_element_by_id("id_options-2-number").get_attribute("value"))
+        self.assertEqual("", driver.find_element_by_id("id_options-2-option").text)
 
     def test_view_create_voting(self):
         User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
@@ -694,7 +1199,7 @@ class VotingViewsTestCase(StaticLiveServerTestCase):
         self.driver.find_element_by_name("_save").click()
         self.assertEqual("Please correct the error below.", self.driver.find_element_by_xpath("//form[@id='question_form']/div/p").text)
         self.assertEqual("Ensure this value is greater than or equal to 0.", self.driver.find_element_by_xpath("//tr[@id='order_options-1']/td[2]/ul/li").text)
-
+    
     def test_add_order_number_to_question(self):
         User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
         #Proceso para loguearse como administrador

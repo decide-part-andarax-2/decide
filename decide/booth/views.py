@@ -55,3 +55,4 @@ class BoothViewUrl(TemplateView):
 
         return context
 
+

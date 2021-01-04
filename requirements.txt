@@ -13,4 +13,3 @@ selenium
 social-auth-app-django
 freezegun
 pyotp
-

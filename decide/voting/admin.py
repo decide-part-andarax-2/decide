@@ -21,7 +21,6 @@ def stop(ModelAdmin, request, queryset):
         v.end_date = timezone.now()
         v.save()
 
-
 def tally(ModelAdmin, request, queryset):
     for v in queryset.filter(end_date__lt=timezone.now()):
         token = request.session.get('auth-token', '')
