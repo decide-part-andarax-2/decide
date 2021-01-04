@@ -500,8 +500,8 @@ class VotingViewTestCase(StaticLiveServerTestCase):
         self.assertEqual("1", driver.find_element_by_id("id_options-1-number").get_attribute("value"))
         self.assertEqual("NO", driver.find_element_by_id("id_options-1-option").text)
         self.assertEqual("", driver.find_element_by_id("id_options-2-option").get_attribute("value"))
-        
-    
+
+
     def test_delete_when_unselect(self):
 
         User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
@@ -555,7 +555,7 @@ class VotingViewTestCase(StaticLiveServerTestCase):
         self.assertNotRegexpMatches(driver.find_element_by_css_selector("BODY").text, r"^[\s\S]*id=id_options-3-option[\s\S]*$")
         self.assertNotRegexpMatches(driver.find_element_by_css_selector("BODY").text, r"^[\s\S]*id=id_options-4-option[\s\S]*$")
 
-    
+
     def test_duplicity_no(self):
 
         User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
@@ -609,3 +609,138 @@ class VotingViewTestCase(StaticLiveServerTestCase):
         self.assertEqual("1", driver.find_element_by_id("id_options-1-number").get_attribute("value"))
         self.assertEqual("NO", driver.find_element_by_id("id_options-1-option").text)
         self.assertEqual("", driver.find_element_by_id("id_options-2-option").get_attribute("value"))
+
+
+    def test_delete_yes_with_yes_no_selected(self):
+
+        User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
+        self.driver.get(f'{self.live_server_url}/admin/')
+        self.driver.find_element_by_id('id_username').send_keys("superuser")
+        self.driver.find_element_by_id('id_password').send_keys("superuser", Keys.ENTER)
+
+        driver = self.driver
+        driver.find_element_by_xpath("(//a[contains(text(),'Add')])[9]").click()
+        driver.find_element_by_id("id_desc").click()
+        driver.find_element_by_id("id_desc").clear()
+        driver.find_element_by_id("id_desc").send_keys("Test delete yes with YES/NO selected")
+        driver.find_element_by_id("id_is_yes_no_question").click()
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Test delete yes with YES/NO selected')])[2]").click()
+        self.assertEqual("0", driver.find_element_by_id("id_options-0-number").get_attribute("value"))
+        self.assertEqual("YES", driver.find_element_by_id("id_options-0-option").text)
+        self.assertEqual("1", driver.find_element_by_id("id_options-1-number").get_attribute("value"))
+        self.assertEqual("NO", driver.find_element_by_id("id_options-1-option").text)
+        self.assertEqual("", driver.find_element_by_id("id_options-2-option").get_attribute("value"))
+        driver.find_element_by_id("id_options-0-DELETE").click()
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Test delete yes with YES/NO selected')])[2]").click()
+        self.assertEqual("0", driver.find_element_by_id("id_options-0-number").get_attribute("value"))
+        self.assertEqual("YES", driver.find_element_by_id("id_options-0-option").text)
+        self.assertEqual("1", driver.find_element_by_id("id_options-1-number").get_attribute("value"))
+        self.assertEqual("NO", driver.find_element_by_id("id_options-1-option").text)
+        self.assertEqual("", driver.find_element_by_id("id_options-2-option").get_attribute("value"))
+
+
+    def test_delete_no_with_yes_no_selected(self):
+
+        User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
+        self.driver.get(f'{self.live_server_url}/admin/')
+        self.driver.find_element_by_id('id_username').send_keys("superuser")
+        self.driver.find_element_by_id('id_password').send_keys("superuser", Keys.ENTER)
+
+        driver = self.driver
+        driver.find_element_by_xpath("(//a[contains(text(),'Add')])[9]").click()
+        driver.find_element_by_id("id_desc").click()
+        driver.find_element_by_id("id_desc").clear()
+        driver.find_element_by_id("id_desc").send_keys("Test delete no with YES/NO selected")
+        driver.find_element_by_id("id_is_yes_no_question").click()
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Test delete no with YES/NO selected')])[2]").click()
+        self.assertEqual("0", driver.find_element_by_id("id_options-0-number").get_attribute("value"))
+        self.assertEqual("YES", driver.find_element_by_id("id_options-0-option").text)
+        self.assertEqual("1", driver.find_element_by_id("id_options-1-number").get_attribute("value"))
+        self.assertEqual("NO", driver.find_element_by_id("id_options-1-option").text)
+        self.assertEqual("", driver.find_element_by_id("id_options-2-option").get_attribute("value"))
+        driver.find_element_by_id("id_options-1-DELETE").click()
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Test delete no with YES/NO selected')])[2]").click()
+        self.assertEqual("0", driver.find_element_by_id("id_options-0-number").get_attribute("value"))
+        self.assertEqual("YES", driver.find_element_by_id("id_options-0-option").text)
+        self.assertEqual("1", driver.find_element_by_id("id_options-1-number").get_attribute("value"))
+        self.assertEqual("NO", driver.find_element_by_id("id_options-1-option").text)
+        self.assertEqual("", driver.find_element_by_id("id_options-2-option").get_attribute("value"))
+
+    def test_add_before_yes_no(self):
+
+        User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
+        self.driver.get(f'{self.live_server_url}/admin/')
+        self.driver.find_element_by_id('id_username').send_keys("superuser")
+        self.driver.find_element_by_id('id_password').send_keys("superuser", Keys.ENTER)
+
+        driver = self.driver
+        driver.find_element_by_xpath("(//a[contains(text(),'Add')])[9]").click()
+        driver.find_element_by_id("id_desc").clear()
+        driver.find_element_by_id("id_desc").send_keys("Test add before YES/NO question")
+        driver.find_element_by_id("id_is_yes_no_question").click()
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Test add before YES/NO question')])[2]").click()
+        self.assertEqual("0", driver.find_element_by_id("id_options-0-number").get_attribute("value"))
+        self.assertEqual("YES", driver.find_element_by_id("id_options-0-option").text)
+        self.assertEqual("1", driver.find_element_by_id("id_options-1-number").get_attribute("value"))
+        self.assertEqual("NO", driver.find_element_by_id("id_options-1-option").text)
+        self.assertEqual("", driver.find_element_by_id("id_options-2-option").get_attribute("value"))
+        driver.find_element_by_id("id_options-2-option").clear()
+        driver.find_element_by_id("id_options-2-option").send_keys("Something")
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Test add before YES/NO question')])[2]").click()
+        self.assertEqual("0", driver.find_element_by_id("id_options-0-number").get_attribute("value"))
+        self.assertEqual("YES", driver.find_element_by_id("id_options-0-option").text)
+        self.assertEqual("1", driver.find_element_by_id("id_options-1-number").get_attribute("value"))
+        self.assertEqual("NO", driver.find_element_by_id("id_options-1-option").text)
+        self.assertEqual("", driver.find_element_by_id("id_options-2-option").get_attribute("value"))
+
+
+    def add_yes_no_question(self):
+
+        User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
+        self.driver.get(f'{self.live_server_url}/admin/')
+        self.driver.find_element_by_id('id_username').send_keys("superuser")
+        self.driver.find_element_by_id('id_password').send_keys("superuser", Keys.ENTER)
+
+        driver = self.driver
+        driver.find_element_by_xpath("(//a[contains(text(),'Add')])[9]").click()
+        driver.find_element_by_id("id_desc").clear()
+        driver.find_element_by_id("id_desc").send_keys("Test add YES/NO question")
+        driver.find_element_by_id("id_is_yes_no_question").click()
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Test add YES/NO question')])[2]").click()
+        self.assertEqual("0", driver.find_element_by_id("id_options-0-number").get_attribute("value"))
+        self.assertEqual("YES", driver.find_element_by_id("id_options-0-option").text)
+        self.assertEqual("1", driver.find_element_by_id("id_options-1-number").get_attribute("value"))
+        self.assertEqual("NO", driver.find_element_by_id("id_options-1-option").text)
+        self.assertEqual("", driver.find_element_by_id("id_options-2-option").get_attribute("value"))
+
+
+    def test_duplicity_order(self):
+
+        User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
+        self.driver.get(f'{self.live_server_url}/admin/')
+        self.driver.find_element_by_id('id_username').send_keys("superuser")
+        self.driver.find_element_by_id('id_password').send_keys("superuser", Keys.ENTER)
+
+        driver = self.driver
+        driver.find_element_by_xpath("(//a[contains(text(),'Add')])[9]").click()
+        driver.find_element_by_id("id_desc").clear()
+        driver.find_element_by_id("id_desc").send_keys("Test duplicity order name")
+        driver.find_element_by_id("id_order_options-0-option").click()
+        driver.find_element_by_xpath("//tr[@id='order_options-0']/td[4]").click()
+        driver.find_element_by_id("id_order_options-0-option").clear()
+        driver.find_element_by_id("id_order_options-0-option").send_keys("Hi Pepito")
+        driver.find_element_by_id("id_order_options-1-option").click()
+        driver.find_element_by_id("id_order_options-1-option").clear()
+        driver.find_element_by_id("id_order_options-1-option").send_keys("Hi Pepito")
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Test duplicity order name')])[2]").click()
+        self.assertEqual("Hi Pepito", driver.find_element_by_id("id_order_options-0-option").text)
+        self.assertEqual("", driver.find_element_by_id("id_order_options-1-option").get_attribute("value"))
+
