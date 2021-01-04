@@ -2,20 +2,38 @@ dist: xenial
 
 services:
   - postgresql
+sudo: required
 addons:
+  chrome: stable
   postgresql: "9.4"
 before_script:
   - psql -U postgres -c "create user decide password 'decide'"
   - psql -U postgres -c "create database test_decide owner decide"
   - psql -U postgres -c "ALTER USER decide CREATEDB"
+  - wget "https://github.com/mozilla/geckodriver/releases/download/v0.24.0/geckodriver-v0.24.0-linux64.tar.gz"
+  - tar xfz geckodriver-v0.24.0-linux64.tar.gz
+  - sudo mv geckodriver /usr/local/bin
+  - 'export DISPLAY=:99.0'
+  - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+  
+  - wget -N http://chromedriver.storage.googleapis.com/87.0.4280.87/chromedriver_linux64.zip -P ~/
+  - unzip ~/chromedriver_linux64.zip -d ~/
+  - rm ~/chromedriver_linux64.zip
+  - sudo mv -f ~/chromedriver /usr/local/share/
+  - sudo chmod +x /usr/local/share/chromedriver
+  - sudo ln -s /usr/local/share/chromedriver /usr/local/bin/chromedriver
+  
 language: python
 python:
   - "3.6"
 install:
   - pip install -r requirements.txt
   - pip install codacy-coverage
+  - pip install webdriver-manager
+  
 script:
   - cd decide
+  - sudo apt-get install firefox
   - coverage run --branch --source=. ./manage.py test --keepdb --with-xunit
   - coverage xml
   - python-codacy-coverage -r coverage.xml

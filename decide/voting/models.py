@@ -145,6 +145,8 @@ class Voting(models.Model):
     name = models.CharField(max_length=200)
     desc = models.TextField(blank=True, null=True)
     question = models.ForeignKey(Question, related_name='voting', on_delete=models.CASCADE)
+    alpha = RegexValidator("^[0-9a-zA-Z]*$", "Sólo se permiten letras y números.")
+    link = models.CharField(max_length=30, default="", unique=True ,validators=[alpha])
 
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
@@ -216,7 +218,11 @@ class Voting(models.Model):
         order_options = self.question.order_options.all()
 
         opts = []
+        #Abrimos el fichero donde se guardaran los resultados y el comprimido donde se guardaran estos ficheros
+        t_file = open("voting/v" + str(self.id) + ".txt", "w")
+
         if options.count()!=0:
+            t_file.write("Results from voting with ID " + str(self.id) + ":\n")
             for opt in options:
                 if isinstance(tally, list):
                     votes = tally.count(opt.number)
@@ -227,9 +233,11 @@ class Voting(models.Model):
                     'number': opt.number,
                     'votes': votes
                 })
+                t_file.write("Option " + str(opt.number) + ": " + opt.option + " -> " + str(votes) + " votes\n")
 
         ords = []
         if order_options.count()!=0:
+            t_file.write("Results from ordered voting with ID" + str(self.id) + ":\n")
             for order_option in order_options:
                 if isinstance(tally, list):
                     votes = tally.count(order_option.order_number)
@@ -241,12 +249,22 @@ class Voting(models.Model):
                     'order_number': order_option.order_number,
                     'votes': votes
                 })
+                t_file.write("Option " + str(order_option.number) + ": " + order_option.option + " -> " + str(votes) + " votes in position " + str(order_option.order_number) + "\n")
 
+        t_file.close()
         data = { 'type': 'IDENTITY', 'options': opts, 'order_options':ords }
         postp = mods.post('postproc', json=data)
 
         self.postproc = postp
         self.save()
+
+        #Comprimimos el fichero
+        #comprimido.add("voting/results", "tar", "voting/files")
+        comprimido = tarfile.open('voting/results.tar', mode='a')
+        comprimido.add("voting/v" + str(self.id) + ".txt")
+        comprimido.close()
+        os.remove("voting/v" + str(self.id) + ".txt")
+
 
     def __str__(self):
         return self.name
