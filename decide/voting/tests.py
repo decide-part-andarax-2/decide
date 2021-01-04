@@ -525,3 +525,32 @@ class VotingViewTestCase(StaticLiveServerTestCase):
         driver.find_element_by_name("_save").click()
         driver.find_element_by_xpath("(//a[contains(text(),'Delete when unselected')])[2]").click()
         self.assertEqual("", driver.find_element_by_id("id_options-0-option").get_attribute("value"))
+
+
+    def test_delete_previous_opt(self):
+
+        User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
+        self.driver.get(f'{self.live_server_url}/admin/')
+        self.driver.find_element_by_id('id_username').send_keys("superuser")
+        self.driver.find_element_by_id('id_password').send_keys("superuser", Keys.ENTER)
+        
+        driver = self.driver
+        driver.find_element_by_xpath("(//a[contains(text(),'Add')])[9]").click()
+        driver.find_element_by_id("id_desc").clear()
+        driver.find_element_by_id("id_desc").send_keys("Delete options")
+        driver.find_element_by_id("id_options-0-option").click()
+        driver.find_element_by_id("id_options-0-option").clear()
+        driver.find_element_by_id("id_options-0-option").send_keys("First Option")
+        driver.find_element_by_id("id_options-1-option").click()
+        driver.find_element_by_id("id_options-1-option").clear()
+        driver.find_element_by_id("id_options-1-option").send_keys("Second Option")
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Delete options')])[2]").click()
+        driver.find_element_by_id("id_is_yes_no_question").click()
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Delete options')])[2]").click()
+        self.assertEqual("YES", driver.find_element_by_id("id_options-0-option").text)
+        self.assertEqual("NO", driver.find_element_by_id("id_options-1-option").text)
+        self.assertNotRegexpMatches(driver.find_element_by_css_selector("BODY").text, r"^[\s\S]*id=id_options-2-option[\s\S]*$")
+        self.assertNotRegexpMatches(driver.find_element_by_css_selector("BODY").text, r"^[\s\S]*id=id_options-3-option[\s\S]*$")
+        self.assertNotRegexpMatches(driver.find_element_by_css_selector("BODY").text, r"^[\s\S]*id=id_options-4-option[\s\S]*$")
