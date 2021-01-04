@@ -104,3 +104,4 @@ ENV/
 
 #vscode dependencies
 .vscode/launch.json
+.vscode/settings.json
