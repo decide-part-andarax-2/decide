@@ -700,7 +700,7 @@ class VotingViewTestCase(StaticLiveServerTestCase):
         self.assertEqual("", driver.find_element_by_id("id_options-2-option").get_attribute("value"))
 
 
-    def add_yes_no_question(self):
+    def test_add_yes_no_question(self):
 
         User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
         self.driver.get(f'{self.live_server_url}/admin/')
@@ -743,4 +743,38 @@ class VotingViewTestCase(StaticLiveServerTestCase):
         driver.find_element_by_xpath("(//a[contains(text(),'Test duplicity order name')])[2]").click()
         self.assertEqual("Hi Pepito", driver.find_element_by_id("id_order_options-0-option").text)
         self.assertEqual("", driver.find_element_by_id("id_order_options-1-option").get_attribute("value"))
+
+    
+    def test_duplicity_option(self):
+
+        User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
+        self.driver.get(f'{self.live_server_url}/admin/')
+        self.driver.find_element_by_id('id_username').send_keys("superuser")
+        self.driver.find_element_by_id('id_password').send_keys("superuser", Keys.ENTER)
+
+        driver = self.driver
+        driver.find_element_by_xpath("(//a[contains(text(),'Add')])[9]").click()
+        driver.find_element_by_id("id_desc").clear()
+        driver.find_element_by_id("id_desc").send_keys("Duplicity Option")
+        driver.find_element_by_id("id_options-0-option").click()
+        driver.find_element_by_id("id_options-0-option").clear()
+        driver.find_element_by_id("id_options-0-option").send_keys("First Option")
+        driver.find_element_by_id("id_options-1-option").click()
+        driver.find_element_by_id("id_options-1-option").clear()
+        driver.find_element_by_id("id_options-1-option").send_keys("Second Option")
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Duplicity Option')])[2]").click()
+        driver.find_element_by_id("id_options-2-option").click()
+        driver.find_element_by_id("id_options-2-option").clear()
+        driver.find_element_by_id("id_options-2-option").send_keys("First Option")
+        driver.find_element_by_name("_save").click()
+        driver.find_element_by_xpath("(//a[contains(text(),'Duplicity Option')])[2]").click()
+        self.assertEqual("2", driver.find_element_by_id("id_options-0-number").get_attribute("value"))
+        self.assertEqual("First Option", driver.find_element_by_id("id_options-0-option").text)
+        self.assertEqual("3", driver.find_element_by_id("id_options-1-number").get_attribute("value"))
+        self.assertEqual("Second Option", driver.find_element_by_id("id_options-1-option").text)
+        self.assertEqual("", driver.find_element_by_id("id_options-2-number").get_attribute("value"))
+        self.assertEqual("", driver.find_element_by_id("id_options-2-option").text)
+
+        
 
