@@ -10,6 +10,7 @@ from django.contrib.auth.models import User
 from django.test import TestCase
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
+from django.core.exceptions import ValidationError
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 
 from base import mods
@@ -557,7 +558,7 @@ class VotingModelTestCase(BaseTestCase):
         self.assertRaises(ValueError)
         self.assertRaisesRegex(ValueError,"ValueError: invalid literal for int() with base 10: {}".format(order_number))
         
-     def test_delete_when_unselect(self):
+    def test_delete_when_unselect(self):
         q = Question.objects.get(desc='This is a test yes/no question')
         q.is_yes_no_question = False
         q.save()
@@ -602,7 +603,7 @@ class VotingViewsTestCase(StaticLiveServerTestCase):
         self.driver.find_element_by_id('id_password').send_keys("superuser", Keys.ENTER)
 
         driver = self.driver
-        driver.find_element_by_xpath("(//a[contains(text(),'Add')])[9]").click()
+        driver.find_element_by_xpath("//a[contains(@href, '/admin/voting/question/add/')]").click()
         driver.find_element_by_id("id_desc").click()
         driver.find_element_by_id("id_desc").clear()
         driver.find_element_by_id("id_desc").send_keys("Test duplicity with yes")
@@ -625,7 +626,7 @@ class VotingViewsTestCase(StaticLiveServerTestCase):
         self.assertEqual("NO", driver.find_element_by_id("id_options-1-option").text)
         self.assertEqual("", driver.find_element_by_id("id_options-2-option").get_attribute("value"))
 
-
+    
     def test_delete_when_unselect(self):
 
         User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
@@ -634,7 +635,7 @@ class VotingViewsTestCase(StaticLiveServerTestCase):
         self.driver.find_element_by_id('id_password').send_keys("superuser", Keys.ENTER)
 
         driver = self.driver
-        driver.find_element_by_xpath("(//a[contains(text(),'Add')])[9]").click()
+        driver.find_element_by_xpath("//a[contains(@href, '/admin/voting/question/add/')]").click()
         driver.find_element_by_id("id_desc").click()
         driver.find_element_by_id("id_desc").clear()
         driver.find_element_by_id("id_desc").send_keys("Delete when unselected")
@@ -659,7 +660,7 @@ class VotingViewsTestCase(StaticLiveServerTestCase):
         self.driver.find_element_by_id('id_password').send_keys("superuser", Keys.ENTER)
         
         driver = self.driver
-        driver.find_element_by_xpath("(//a[contains(text(),'Add')])[9]").click()
+        driver.find_element_by_xpath("//a[contains(@href, '/admin/voting/question/add/')]").click()
         driver.find_element_by_id("id_desc").clear()
         driver.find_element_by_id("id_desc").send_keys("Delete options")
         driver.find_element_by_id("id_options-0-option").click()
@@ -688,7 +689,7 @@ class VotingViewsTestCase(StaticLiveServerTestCase):
         self.driver.find_element_by_id('id_password').send_keys("superuser", Keys.ENTER)
 
         driver = self.driver
-        driver.find_element_by_xpath("(//a[contains(text(),'Add')])[9]").click()
+        driver.find_element_by_xpath("//a[contains(@href, '/admin/voting/question/add/')]").click()
         driver.find_element_by_id("id_desc").click()
         driver.find_element_by_id("id_desc").clear()
         driver.find_element_by_id("id_desc").send_keys("Test duplicity with yes")
@@ -720,7 +721,7 @@ class VotingViewsTestCase(StaticLiveServerTestCase):
         self.driver.find_element_by_id('id_password').send_keys("superuser", Keys.ENTER)
 
         driver = self.driver
-        driver.find_element_by_xpath("(//a[contains(text(),'Add')])[9]").click()
+        driver.find_element_by_xpath("//a[contains(@href, '/admin/voting/question/add/')]").click()
         driver.find_element_by_id("id_desc").clear()
         driver.find_element_by_id("id_desc").send_keys("Duplicity")
         driver.find_element_by_xpath("//form[@id='question_form']/div/fieldset/div[2]/div/label").click()
@@ -743,7 +744,7 @@ class VotingViewsTestCase(StaticLiveServerTestCase):
         self.driver.find_element_by_id('id_password').send_keys("superuser", Keys.ENTER)
 
         driver = self.driver
-        driver.find_element_by_xpath("(//a[contains(text(),'Add')])[9]").click()
+        driver.find_element_by_xpath("//a[contains(@href, '/admin/voting/question/add/')]").click()
         driver.find_element_by_id("id_desc").click()
         driver.find_element_by_id("id_desc").clear()
         driver.find_element_by_id("id_desc").send_keys("Test delete yes with YES/NO selected")
@@ -773,7 +774,7 @@ class VotingViewsTestCase(StaticLiveServerTestCase):
         self.driver.find_element_by_id('id_password').send_keys("superuser", Keys.ENTER)
 
         driver = self.driver
-        driver.find_element_by_xpath("(//a[contains(text(),'Add')])[9]").click()
+        driver.find_element_by_xpath("//a[contains(@href, '/admin/voting/question/add/')]").click()
         driver.find_element_by_id("id_desc").click()
         driver.find_element_by_id("id_desc").clear()
         driver.find_element_by_id("id_desc").send_keys("Test delete no with YES/NO selected")
@@ -802,7 +803,7 @@ class VotingViewsTestCase(StaticLiveServerTestCase):
         self.driver.find_element_by_id('id_password').send_keys("superuser", Keys.ENTER)
 
         driver = self.driver
-        driver.find_element_by_xpath("(//a[contains(text(),'Add')])[9]").click()
+        driver.find_element_by_xpath("//a[contains(@href, '/admin/voting/question/add/')]").click()
         driver.find_element_by_id("id_desc").clear()
         driver.find_element_by_id("id_desc").send_keys("Test add before YES/NO question")
         driver.find_element_by_id("id_is_yes_no_question").click()
@@ -832,7 +833,7 @@ class VotingViewsTestCase(StaticLiveServerTestCase):
         self.driver.find_element_by_id('id_password').send_keys("superuser", Keys.ENTER)
 
         driver = self.driver
-        driver.find_element_by_xpath("(//a[contains(text(),'Add')])[9]").click()
+        driver.find_element_by_xpath("//a[contains(@href, '/admin/voting/question/add/')]").click()
         driver.find_element_by_id("id_desc").clear()
         driver.find_element_by_id("id_desc").send_keys("Test add YES/NO question")
         driver.find_element_by_id("id_is_yes_no_question").click()
@@ -853,7 +854,7 @@ class VotingViewsTestCase(StaticLiveServerTestCase):
         self.driver.find_element_by_id('id_password').send_keys("superuser", Keys.ENTER)
 
         driver = self.driver
-        driver.find_element_by_xpath("(//a[contains(text(),'Add')])[9]").click()
+        driver.find_element_by_xpath("//a[contains(@href, '/admin/voting/question/add/')]").click()
         driver.find_element_by_id("id_desc").clear()
         driver.find_element_by_id("id_desc").send_keys("Test duplicity order name")
         driver.find_element_by_id("id_order_options-0-option").click()
@@ -877,7 +878,7 @@ class VotingViewsTestCase(StaticLiveServerTestCase):
         self.driver.find_element_by_id('id_password').send_keys("superuser", Keys.ENTER)
 
         driver = self.driver
-        driver.find_element_by_xpath("(//a[contains(text(),'Add')])[9]").click()
+        driver.find_element_by_xpath("//a[contains(@href, '/admin/voting/question/add/')]").click()
         driver.find_element_by_id("id_desc").clear()
         driver.find_element_by_id("id_desc").send_keys("Duplicity Option")
         driver.find_element_by_id("id_options-0-option").click()
@@ -899,7 +900,7 @@ class VotingViewsTestCase(StaticLiveServerTestCase):
         self.assertEqual("Second Option", driver.find_element_by_id("id_options-1-option").text)
         self.assertEqual("", driver.find_element_by_id("id_options-2-number").get_attribute("value"))
         self.assertEqual("", driver.find_element_by_id("id_options-2-option").text)
-
+    
     def test_view_create_voting(self):
         User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
         #Proceso para loguearse como administrador
@@ -1111,7 +1112,7 @@ class VotingViewsTestCase(StaticLiveServerTestCase):
         self.driver.find_element_by_name("_save").click()
         self.assertEqual("Please correct the error below.", self.driver.find_element_by_xpath("//form[@id='question_form']/div/p").text)
         self.assertEqual("Ensure this value is greater than or equal to 0.", self.driver.find_element_by_xpath("//tr[@id='order_options-1']/td[2]/ul/li").text)
-
+    
     def test_add_order_number_to_question(self):
         User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
         #Proceso para loguearse como administrador
@@ -1171,3 +1172,4 @@ class VotingViewsTestCase(StaticLiveServerTestCase):
         self.vars["root"] = self.driver.current_window_handle
         self.driver.switch_to.window(self.vars["win8328"])
         self.assertEqual(u"Opcion añadida", self.driver.find_element_by_id("id_order_options-2-option").text)
+    

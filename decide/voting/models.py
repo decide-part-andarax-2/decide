@@ -3,6 +3,9 @@ from django.contrib.postgres.fields import JSONField
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
+import tarfile
+import os
 
 from base import mods
 from base.models import Auth, Key
