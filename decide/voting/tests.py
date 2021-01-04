@@ -146,6 +146,23 @@ class VotingTestCase(BaseTestCase):
 
         for q in v.postproc:
             self.assertEqual(tally.get(q["number"], 0), q["votes"])
+            
+    def test_postproc_voting_compressed(self):
+        v = self.create_voting()
+        self.create_voters(v)
+
+        v.create_pubkey()
+        v.start_date = timezone.now()
+        v.save()
+
+        clear = self.store_votes(v)
+
+        self.login()  # set token
+        v.tally_votes(self.token)
+
+        tally = v.tally
+        tally.sort()
+        tally = {k: len(list(x)) for k, x in itertools.groupby(tally)}
 
         self.assertTrue(os.path.exists("voting/results.tar"))
         tarfl = tarfile.open("voting/results.tar", "r")
