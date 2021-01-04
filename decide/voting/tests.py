@@ -754,3 +754,130 @@ class VotingViewsTestCase(StaticLiveServerTestCase):
         self.vars["root"] = self.driver.current_window_handle
         self.driver.switch_to.window(self.vars["win8328"])
         self.assertEqual(u"Opcion añadida", self.driver.find_element_by_id("id_order_options-2-option").text)
+
+    def test_view_booth_voting(self):
+        User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
+        #Proceso para loguearse como administrador
+        self.driver.get(f'{self.live_server_url}/admin/')
+        time.sleep(1)
+        self.driver.find_element_by_id('id_username').send_keys("superuser")
+        self.driver.find_element_by_id('id_password').send_keys("superuser", Keys.ENTER)
+        #Proceso para añadir una pregunta y sus opciones
+        self.assertTrue(len(self.driver.find_elements_by_id('user-tools')) == 1)
+        time.sleep(1)
+        self.driver.find_element(By.LINK_TEXT, "Votings").click()
+        time.sleep(1)
+        self.driver.find_element(By.CSS_SELECTOR, ".addlink").click()
+        self.driver.find_element_by_id('id_name').send_keys("Voting test")
+        self.driver.find_element_by_id('id_desc').send_keys("Test description")
+        self.driver.find_element_by_id('id_link').send_keys("test")
+        self.driver.find_element_by_id('id_question').click()
+        self.vars["window_handles"] = self.driver.window_handles
+        #Proceso para añadir una pregunta y sus opciones
+        self.driver.find_element(By.CSS_SELECTOR, "#add_id_question > img").click()
+        self.vars["win2433"] = self.wait_for_window(2000)
+        self.vars["root"] = self.driver.current_window_handle
+        self.driver.switch_to.window(self.vars["win2433"])
+        self.driver.find_element(By.ID, "id_desc").click()
+        self.driver.find_element(By.ID, "id_desc").send_keys("Question description")
+        self.driver.find_element(By.ID, "id_options-0-option").click()
+        self.driver.find_element(By.ID, "id_options-0-option").send_keys("Option 1")
+        self.driver.find_element(By.ID, "id_options-1-option").click()
+        self.driver.find_element(By.ID, "id_options-1-option").send_keys("Option 2")
+        self.driver.find_element(By.NAME, "_save").click()
+        self.driver.switch_to.window(self.vars["root"])
+        #Vuelta a la vista para crear una votación, y creación de un Auth
+        self.vars["window_handles"] = self.driver.window_handles
+        self.driver.find_element(By.CSS_SELECTOR, "#add_id_auths > img").click()
+        self.vars["win1901"] = self.wait_for_window(2000)
+        self.driver.switch_to.window(self.vars["win1901"])
+        self.driver.find_element(By.ID, "id_name").send_keys("auth")
+        self.driver.find_element(By.ID, "id_url").click()
+        self.driver.find_element(By.ID, "id_url").send_keys(f'{self.live_server_url}')
+        time.sleep(1)
+        self.driver.find_element(By.NAME, "_save").click()
+        #Proceso para guardar la votación
+        self.driver.switch_to.window(self.vars["root"])
+        self.driver.find_element(By.NAME, "_save").click()
+        time.sleep(1)
+        #Iniciamos la votación
+        self.driver.find_element(By.NAME, "_selected_action").click()
+        self.driver.find_element(By.NAME, "action").click()
+        dropdown = self.driver.find_element(By.NAME, "action")
+        dropdown.find_element(By.XPATH, "//option[. = 'Start']").click()
+        self.driver.find_element(By.CSS_SELECTOR, "option:nth-child(3)").click()
+        self.driver.find_element(By.NAME, "index").click()
+        self.driver.find_element(By.NAME, "_selected_action").click()
+        self.driver.find_element(By.NAME, "action").click()
+        time.sleep(1)
+        #Comprobamos que se accede a la votación en la cabina con la URL
+        self.driver.get(f'{self.live_server_url}/booth/url/test')
+        time.sleep(1)
+        self.driver.find_element(By.XPATH, "//h1[contains(.,' - Voting test')]")
+
+    def test_view_booth_voting_modified(self):
+        User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
+        #Proceso para loguearse como administrador
+        self.driver.get(f'{self.live_server_url}/admin/')
+        time.sleep(1)
+        self.driver.find_element_by_id('id_username').send_keys("superuser")
+        self.driver.find_element_by_id('id_password').send_keys("superuser", Keys.ENTER)
+        #Proceso para añadir una pregunta y sus opciones
+        self.assertTrue(len(self.driver.find_elements_by_id('user-tools')) == 1)
+        time.sleep(1)
+        self.driver.find_element(By.LINK_TEXT, "Votings").click()
+        time.sleep(1)
+        self.driver.find_element(By.CSS_SELECTOR, ".addlink").click()
+        self.driver.find_element_by_id('id_name').send_keys("Voting_test")
+        self.driver.find_element_by_id('id_desc').send_keys("Test description")
+        self.driver.find_element_by_id('id_link').send_keys("test")
+        self.driver.find_element_by_id('id_question').click()
+        self.vars["window_handles"] = self.driver.window_handles
+        #Proceso para añadir una pregunta y sus opciones
+        self.driver.find_element(By.CSS_SELECTOR, "#add_id_question > img").click()
+        self.vars["win2433"] = self.wait_for_window(2000)
+        self.vars["root"] = self.driver.current_window_handle
+        self.driver.switch_to.window(self.vars["win2433"])
+        self.driver.find_element(By.ID, "id_desc").click()
+        self.driver.find_element(By.ID, "id_desc").send_keys("Question description")
+        self.driver.find_element(By.ID, "id_options-0-option").click()
+        self.driver.find_element(By.ID, "id_options-0-option").send_keys("Option 1")
+        self.driver.find_element(By.ID, "id_options-1-option").click()
+        self.driver.find_element(By.ID, "id_options-1-option").send_keys("Option 2")
+        self.driver.find_element(By.NAME, "_save").click()
+        self.driver.switch_to.window(self.vars["root"])
+        #Vuelta a la vista para crear una votación, y creación de un Auth
+        self.vars["window_handles"] = self.driver.window_handles
+        self.driver.find_element(By.CSS_SELECTOR, "#add_id_auths > img").click()
+        self.vars["win1901"] = self.wait_for_window(2000)
+        self.driver.switch_to.window(self.vars["win1901"])
+        self.driver.find_element(By.ID, "id_name").send_keys("auth")
+        self.driver.find_element(By.ID, "id_url").click()
+        self.driver.find_element(By.ID, "id_url").send_keys(f'{self.live_server_url}')
+        time.sleep(1)
+        self.driver.find_element(By.NAME, "_save").click()
+        #Proceso para guardar la votación
+        self.driver.switch_to.window(self.vars["root"])
+        self.driver.find_element(By.NAME, "_save").click()
+        time.sleep(1)
+        #Iniciamos la votación
+        self.driver.find_element(By.NAME, "_selected_action").click()
+        self.driver.find_element(By.NAME, "action").click()
+        dropdown = self.driver.find_element(By.NAME, "action")
+        dropdown.find_element(By.XPATH, "//option[. = 'Start']").click()
+        self.driver.find_element(By.CSS_SELECTOR, "option:nth-child(3)").click()
+        self.driver.find_element(By.NAME, "index").click()
+        self.driver.find_element(By.NAME, "_selected_action").click()
+        self.driver.find_element(By.NAME, "action").click()
+        time.sleep(1)
+        #Modificamos la URL de la votación creada
+        self.driver.find_element(By.XPATH, "//a[contains(.,'Voting_test')]").click()
+        self.driver.find_element_by_id('id_link').clear()
+        self.driver.find_element_by_id('id_link').send_keys("testselenium")
+        time.sleep(1)
+        self.driver.find_element(By.NAME, "_save").click()
+        time.sleep(1)
+        #Comprobamos que se accede a la votación en la cabina con la nueva URL
+        self.driver.get(f'{self.live_server_url}/booth/url/testselenium')
+        time.sleep(1)
+        self.driver.find_element(By.XPATH, "//h1[contains(.,' - Voting_test')]")
