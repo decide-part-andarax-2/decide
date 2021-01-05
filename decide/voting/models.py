@@ -23,8 +23,8 @@ class Question(models.Model):
             # try to get the question options yes and no options
             option_yes = QuestionOption.objects.get(option = 'YES', question = self)
             option_no = QuestionOption.objects.get(option = 'NO', question = self)
-            
-            # if they exist but it is not a yes/no question, we delete these options 
+
+            # if they exist but it is not a yes/no question, we delete these options
             if not self.is_yes_no_question:
                 QuestionOption.objects.get(pk=option_yes.id).delete()
                 QuestionOption.objects.get(pk=option_no.id).delete()
@@ -32,7 +32,7 @@ class Question(models.Model):
         # only if don't have any yes and no options
         except:
 
-            # if it's a yes or no question    
+            # if it's a yes or no question
             if self.is_yes_no_question:
 
                 # delete all the options that are not yes/no options
@@ -171,7 +171,7 @@ class QuestionOption(models.Model):
         if ((self.option == 'YES') or (self.option == 'NO')) and (self.question.is_yes_no_question):
             return
         else:
-            return super().delete()        
+            return super().delete()
 
     def __str__(self):
         return '{} ({})'.format(self.option, self.number)
