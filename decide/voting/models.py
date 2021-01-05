@@ -261,8 +261,6 @@ class Voting(models.Model):
         data = { 'type': votingType, 'options': opts, 'order_options':ords }
         postp = mods.post('postproc', json=data)
 
-        print(data)
-
         self.postproc = postp
         self.save()
 
