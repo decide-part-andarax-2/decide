@@ -3,6 +3,7 @@ import itertools
 import time
 import os
 import tarfile
+import shutil
 
 from django.utils import timezone
 from django.conf import settings
@@ -33,8 +34,8 @@ class VotingTestCase(BaseTestCase):
         super().setUp()
 
     def tearDown(self):
-        if(os.path.exists("voting/results.tar")):
-            os.remove("voting/results.tar")
+        if(os.path.exists("voting/results/")):
+            shutil.rmtree('voting/results')
         super().tearDown()
 
     def encrypt_msg(self, msg, v, bits=settings.KEYBITS):
@@ -165,9 +166,9 @@ class VotingTestCase(BaseTestCase):
         tally.sort()
         tally = {k: len(list(x)) for k, x in itertools.groupby(tally)}
 
-        self.assertTrue(os.path.exists("voting/results.tar"))
-        tarfl = tarfile.open("voting/results.tar", "r")
-        name = "voting/v" + str(v.id) + ".txt"
+        self.assertTrue(os.path.exists("voting/results/results.tar"))
+        tarfl = tarfile.open("voting/results/results.tar", "r")
+        name = "voting/results/v" + str(v.id) + ".txt"
         self.assertTrue(name in tarfl.getnames())
         tarfl.close()
 

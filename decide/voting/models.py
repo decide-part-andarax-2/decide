@@ -223,7 +223,9 @@ class Voting(models.Model):
 
         opts = []
         #Abrimos el fichero donde se guardaran los resultados y el comprimido donde se guardaran estos ficheros
-        t_file = open("voting/v" + str(self.id) + ".txt", "w")
+        if not os.path.exists("voting/results/"):
+            os.mkdir("voting/results")
+        t_file = open("voting/results/v" + str(self.id) + ".txt", "w")
 
         if options.count()!=0:
             t_file.write("Results from voting with ID " + str(self.id) + ":\n")
@@ -266,10 +268,10 @@ class Voting(models.Model):
 
         #Comprimimos el fichero
         #comprimido.add("voting/results", "tar", "voting/files")
-        comprimido = tarfile.open('voting/results.tar', mode='a')
-        comprimido.add("voting/v" + str(self.id) + ".txt")
+        comprimido = tarfile.open('voting/results/results.tar', mode='a')
+        comprimido.add("voting/results/v" + str(self.id) + ".txt")
         comprimido.close()
-        os.remove("voting/v" + str(self.id) + ".txt")
+        os.remove("voting/results/v" + str(self.id) + ".txt")
 
 
     def __str__(self):
