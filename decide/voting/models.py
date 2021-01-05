@@ -135,9 +135,9 @@ class QuestionOrder(models.Model):
 
     def save(self):
         if not self.number:
-            self.number = self.question.order_options.count() + 2
+            self.number = self.question.order_options.count() + 1
         if not self.order_number:
-            self.order_number = self.question.order_options.count() + 2
+            self.order_number = self.question.order_options.count() + 1
 
         repitedOrder(self)
 
@@ -216,6 +216,7 @@ class Voting(models.Model):
         self.do_postproc()
 
     def do_postproc(self):
+        votingType = "IDENTITY"
         tally = self.tally
         options = self.question.options.all()
         order_options = self.question.order_options.all()
@@ -240,6 +241,7 @@ class Voting(models.Model):
 
         ords = []
         if order_options.count()!=0:
+            votingType = "BORDA"
             t_file.write("Results from ordered voting with ID" + str(self.id) + ":\n")
             for order_option in order_options:
                 if isinstance(tally, list):
@@ -253,9 +255,10 @@ class Voting(models.Model):
                     'votes': votes
                 })
                 t_file.write("Option " + str(order_option.number) + ": " + order_option.option + " -> " + str(votes) + " votes in position " + str(order_option.order_number) + "\n")
-
+                
         t_file.close()
-        data = { 'type': 'IDENTITY', 'options': opts, 'order_options':ords }
+        
+        data = { 'type': votingType, 'options': opts, 'order_options':ords }
         postp = mods.post('postproc', json=data)
 
         self.postproc = postp
