@@ -55,10 +55,12 @@ def registro_usuario(request, backend='django.contrib.auth.backends.ModelBackend
             user_form.save()
             username = user_form.cleaned_data["username"]
             phone = extra_form.cleaned_data["phone"]
-            base32secret = extra_form.cleaned_data["base32secret"]
+            base32secret = ""
+            if extra_form.cleaned_data["totp_code"]:
+                base32secret = extra_form.cleaned_data["base32secret"]
             user = User.objects.get(username=username)
             Extra.objects.create(phone=phone, totp_code=base32secret, user=user)
-            login(request, user)
+            login(request, user, backend)
             return redirect(to='inicio')
             
     formularios = {
