@@ -298,7 +298,7 @@ class VotingTestCase(BaseTestCase):
 
 class VotingModelTestCase(BaseTestCase):
     def setUp(self):
-      
+
         q1 = Question(desc='This is a test yes/no question', is_yes_no_question=True)
         q1.save()
 

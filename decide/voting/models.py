@@ -23,8 +23,8 @@ class Question(models.Model):
             # try to get the question options yes and no options
             option_yes = QuestionOption.objects.get(option = 'YES', question = self)
             option_no = QuestionOption.objects.get(option = 'NO', question = self)
-            
-            # if they exist but it is not a yes/no question, we delete these options 
+
+            # if they exist but it is not a yes/no question, we delete these options
             if not self.is_yes_no_question:
                 QuestionOption.objects.get(pk=option_yes.id).delete()
                 QuestionOption.objects.get(pk=option_no.id).delete()
@@ -32,7 +32,7 @@ class Question(models.Model):
         # only if don't have any yes and no options
         except:
 
-            # if it's a yes or no question    
+            # if it's a yes or no question
             if self.is_yes_no_question:
 
                 # delete all the options that are not yes/no options
@@ -71,6 +71,73 @@ def repitedOption(self):
     except:
         return QuestionOption.super_save(self)
 
+# Auxiliar method save order without repiting
+def repitedOrder(self):
+
+    # if exists -> don't save
+    try:
+        QuestionOrder.objects.get(option = self.option, question = self.question)
+        raise ValidationError('Duplicated order, please checkout question order')
+
+    # duplicated option
+    except ValidationError:
+        return
+
+    # if not exists -> save
+    except:
+        return QuestionOrder.super_save(self)
+
+# Auxiliar method to reassing existing number in QuestionOption
+def checkNumberQuestionOption(self, iteration):
+    try:
+        QuestionOption.objects.get(number = self.number, question = self.question)
+        raise ValidationError('Duplicated number, please checkout number value')
+
+    # if repited number
+    except ValidationError:
+        self.number = self.question.options.count() + iteration
+        checkNumberQuestionOption(self,iteration+1)
+        return
+
+    # if not exists -> save
+    except:
+        return
+
+
+# Auxiliar method to reassing existing number in QuestionOrder
+def checkNumberQuestionOrder(self, iteration):
+    
+    try:
+        QuestionOrder.objects.get(number = self.number, question = self.question)
+        raise ValidationError('Duplicated order number, please checkout question order')
+
+    # if repited number
+    except ValidationError:
+        self.number = self.question.order_options.count() + 2+ iteration
+        checkNumberQuestionOrder(self,iteration+1)
+        return
+
+    # if not exists -> save
+    except:
+        return
+
+
+# Auxiliar method to reassing existing number order number
+def checkOrderNumber(self, iteration):
+    
+    try:
+        QuestionOrder.objects.get(order_number = self.order_number, question = self.question)
+        raise ValidationError('Duplicated order number, please checkout question order')
+
+    # if repited number
+    except ValidationError:
+        self.order_number = self.question.order_options.count() + iteration
+        checkOrderNumber(self,iteration+1)
+        return
+
+    # if not exists -> save
+    except:
+        return
 
 class QuestionOption(models.Model):
     question = models.ForeignKey(Question, related_name='options', on_delete=models.CASCADE)
@@ -82,6 +149,7 @@ class QuestionOption(models.Model):
 
     def save(self):
 
+        checkNumberQuestionOption(self,0)
         # if it is not a yes/no question, we manage the option
         if not self.question.is_yes_no_question:
             if not self.number:
@@ -103,26 +171,11 @@ class QuestionOption(models.Model):
         if ((self.option == 'YES') or (self.option == 'NO')) and (self.question.is_yes_no_question):
             return
         else:
-            return super().delete()        
+            return super().delete()
 
     def __str__(self):
         return '{} ({})'.format(self.option, self.number)
 
-# Auxiliar method save order without repiting
-def repitedOrder(self):
-
-    # if exists -> don't save
-    try:
-        QuestionOrder.objects.get(option = self.option, question = self.question)
-        raise ValidationError('Duplicated order, please checkout question order')
-
-    # duplicated option
-    except ValidationError:
-        return
-
-    # if not exists -> save
-    except:
-        return QuestionOrder.super_save(self)
 
 class QuestionOrder(models.Model):
     question = models.ForeignKey(Question, related_name='order_options', on_delete=models.CASCADE)
@@ -139,6 +192,8 @@ class QuestionOrder(models.Model):
         if not self.order_number:
             self.order_number = self.question.order_options.count() + 1
 
+        checkOrderNumber(self,0)
+        checkNumberQuestionOrder(self,0)
         repitedOrder(self)
 
     def __str__(self):
