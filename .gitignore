@@ -105,4 +105,4 @@ ENV/
 #vscode dependencies
 .vscode/launch.json
 .vscode/settings.json
-decide/voting/tests.py
+decide/voting/results/
