@@ -44,9 +44,8 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_framework_swagger',
     'gateway',
+    'qr_code',
     'social_django',
-
-    
 ]
 
 REST_FRAMEWORK = {
@@ -183,7 +182,7 @@ TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 STATIC_URL = '/static/'
 
-#SOCIAL_AUTH_CREATE_USERS = True
+SOCIAL_AUTH_CREATE_USERS = True
 #SOCIAL_AUTH_POSTGRES_JSONFIELD = True
 
 # number of bits for the key, all auths should use the same number of bits
