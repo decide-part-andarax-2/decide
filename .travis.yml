@@ -1,44 +1,67 @@
 dist: xenial
-
 services:
-  - postgresql
+- postgresql
+sudo: required
 addons:
-  postgresql: "9.4"
+  chrome: stable
+  postgresql: '9.4'
 before_script:
-  - psql -U postgres -c "create user decide password 'decide'"
-  - psql -U postgres -c "create database test_decide owner decide"
-  - psql -U postgres -c "ALTER USER decide CREATEDB"
+- psql -U postgres -c "create user decide password 'decide'"
+- psql -U postgres -c "create database test_decide owner decide"
+- psql -U postgres -c "ALTER USER decide CREATEDB"
+- wget "https://github.com/mozilla/geckodriver/releases/download/v0.24.0/geckodriver-v0.24.0-linux64.tar.gz"
+- tar xfz geckodriver-v0.24.0-linux64.tar.gz
+- sudo mv geckodriver /usr/local/bin
+- export DISPLAY=:99.0
+- Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+- wget -N http://chromedriver.storage.googleapis.com/87.0.4280.87/chromedriver_linux64.zip
+  -P ~/
+- unzip ~/chromedriver_linux64.zip -d ~/
+- rm ~/chromedriver_linux64.zip
+- sudo mv -f ~/chromedriver /usr/local/share/
+- sudo chmod +x /usr/local/share/chromedriver
+- sudo ln -s /usr/local/share/chromedriver /usr/local/bin/chromedriver
 language: python
 python:
-  - "3.6"
+- '3.6'
 install:
-  - pip install -r requirements.txt
-  - pip install codacy-coverage
+- pip install -r requirements.txt
+- pip install codacy-coverage
+- pip install webdriver-manager
 script:
-  - cd decide
-  - coverage run --branch --source=. ./manage.py test --keepdb --with-xunit
-  - coverage xml
-  - python-codacy-coverage -r coverage.xml
+- cd decide
+- sudo apt-get install firefox
+- coverage run --branch --source=. ./manage.py test --keepdb --with-xunit
+- coverage xml
+- python-codacy-coverage -r coverage.xml
 notifications:
   email:
     recipients:
-      - edubotdom@alum.us.es
-      - danaremar@alum.us.es
-      - juanogtir@alum.us.es
-      - javvazzam@alum.us.es
-      - jossanrui5@alum.us.es
-      - alesansaa@alum.us.es
-      - alfgonfer@alum.us.es
-      - antrosbar@alum.us.es
-      - antsuabon@alum.us.es
-      - fragonlug@alum.us.es
-      - javnavpli@alum.us.es
-      - javsolgar@alum.us.es
-      - jesgamlar@alum.us.es
-      - julsoutos@alum.us.es
-      - marlasesc@alum.us.es
-      - rafsalcas1@alum.us.es
-      - pabrodgar9@alum.us.es
-      - julgomrod@alum.us.es
-    on_success: always # default: change
-    on_failure: always # default: always
+    - edubotdom@alum.us.es
+    - danaremar@alum.us.es
+    - juanogtir@alum.us.es
+    - javvazzam@alum.us.es
+    - jossanrui5@alum.us.es
+    - alesansaa@alum.us.es
+    - alfgonfer@alum.us.es
+    - antrosbar@alum.us.es
+    - antsuabon@alum.us.es
+    - fragonlug@alum.us.es
+    - javnavpli@alum.us.es
+    - javsolgar@alum.us.es
+    - jesgamlar@alum.us.es
+    - julsoutos@alum.us.es
+    - marlasesc@alum.us.es
+    - rafsalcas1@alum.us.es
+    - pabrodgar9@alum.us.es
+    - julgomrod@alum.us.es
+    on_success: change
+    on_failure: always
+deploy:
+  provider: heroku
+  app: egc-app-decide-pre
+  strategy: git
+  api_key:
+    secure: yVVuB1raxq+byYvYRCC8N0panwBjuohIk8HKP2sMRIuJpDiLE8W1PgqZMRgktesoTHEfE57qb8m1DjqH3CQ33mQ6uVXuzIZjjCoSXnGWXNjfaqnztGEdxH0Ml49L99GtxZ2hHK5z2+d9xsbuHqJ7H0ZJ/jLDaArfWmNbS/uIjZ7dMvKaWsYcVr8i/3MziXLyM3N5gs9Qqt+4KNsRFrYiOejxgpvEdOmbVkTrtgI7I91fCrCO1vCsSh06l0PLa5wGrT6hMeV69SiwEin3Jm5+GsGGyIzq2jDi8nq5F/+3pw3dggxdPWqr5R+YbPyTi9cFvv+4x74M4gujpWYMU2dnvy9OY8uI/t02CwWJhmKAxldEWjvHtCv1kdPoppaI5McpiwmqSJ96nEiyy2SZhEjY849bvCv6jgzY30nDrYiOnoNbKph/a3PJdp5LPGrZHu4taLUMCDhrdMCiTF4r1V/2FRNeAInU+3Gm6e8OIbRY4/04L+NjKBQDnLCS4eoJeXlfBqemqwPUNwOE6EhsHQ+pC0P3XASHYtiEpuBwDw2NqhynNE7FBO5O7BHr4UdzvrRdH5BTBkeJVv3QUsODKGlX5iWgzeWCBT7I0Hygj7ia2gESG+Iz+5flTGS03nWTTxywHADe7QY4Y2cMNO73lmO8gYaV4WYNr1QER+dQOz/nJGo=
+  on:
+    branch: master
