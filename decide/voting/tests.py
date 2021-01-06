@@ -1256,9 +1256,9 @@ class VotingViewsTestCase(StaticLiveServerTestCase):
         self.vars["window_handles"] = self.driver.window_handles
         self.driver.switch_to.window(self.vars["root"])
         self.driver.find_element_by_xpath("//img[@alt='Change']").click()
-        self.vars["win8328"] = self.wait_for_window(2000)
+        self.vars["win8329"] = self.wait_for_window(2000)
         self.vars["root"] = self.driver.current_window_handle
-        self.driver.switch_to.window(self.vars["win8328"])
+        self.driver.switch_to.window(self.vars["win8329"])
         self.assertEqual(u"Opcion añadida", self.driver.find_element_by_id("id_order_options-2-option").text)
 
     def test_view_booth_voting(self):
@@ -1430,9 +1430,9 @@ class OrderVotingTestCase(BaseTestCase):
         self.v2.save()
 
         self.assertEquals(len(q2.order_options.all()), 3)
-        self.assertEquals(q2.order_options.all()[0].order_number, 1)
-        self.assertEquals(q2.order_options.all()[1].order_number, 2)
-        self.assertEquals(q2.order_options.all()[2].order_number, 3)
+        self.assertNotEquals(q2.order_options.all()[0].order_number, q2.order_options.all()[1].order_number)
+        self.assertNotEquals(q2.order_options.all()[1].order_number, q2.order_options.all()[2].order_number)
+        self.assertNotEquals(q2.order_options.all()[0].order_number, q2.order_options.all()[2].order_number)
 
     #tests if a order option can be repeated in different order options in an existing
     def test_repeated_order_number_existing_question(self):
