@@ -12,6 +12,8 @@ from rest_framework.authtoken.models import Token
 
 from django.core import mail
 from base.tests import BaseTestCase
+from freezegun import freeze_time
+import pyotp
 
 from base import mods
 
@@ -30,6 +32,15 @@ class AuthTestCase(APITestCase):
         self.u.email = 'voter1@gmail.com'
         self.u.save()
 
+        self.u2fa = User(username='user2fa')
+        self.u2fa.set_password('123')
+        self.u2fa.email = 'user2fa@gmail.com'
+        self.u2fa.save()
+        extra2fa = Extra(phone='882277336')
+        extra2fa.totp_code = 'S3K3TPI5MYA2M67V'
+        extra2fa.user = self.u2fa
+        extra2fa.save()
+
         u2 = User(username='admin')
         u2.set_password('admin')
         u2.is_superuser = True
@@ -46,10 +57,25 @@ class AuthTestCase(APITestCase):
         token = response.json()
         self.assertTrue(token.get('token'))
 
+    def test_login_2fa(self):
+        base32secret = 'S3K3TPI5MYA2M67V'
+        totp_code = pyotp.TOTP(base32secret).now()
+        data = {'username': 'user2fa', 'password': '123', 'totp_code':totp_code}
+        response = self.client.post('/authentication/login/', data, format='json')
+        self.assertEqual(response.status_code, 200)
+
+        token = response.json()
+        self.assertTrue(token.get('token'))
+
     def test_login_fail(self):
         data = {'username': 'voter1', 'password': '321'}
         response = self.client.post('/authentication/login/', data, format='json')
         self.assertEqual(response.status_code, 400)
+
+    def test_login_fail_bad_totp(self):
+        data = {'username': 'user2fa', 'password': '123', 'totp_code':'error'}
+        response = self.client.post('/authentication/login/', data, format='json')
+        self.assertEqual(response.status_code, 401)
 
     def test_getuser(self):
         data = {'username': 'voter1', 'password': '123'}
@@ -63,6 +89,21 @@ class AuthTestCase(APITestCase):
         user = response.json()
         self.assertEqual(user['id'], self.u.pk)
         self.assertEqual(user['username'], 'voter1')
+
+    def test_getuser_2fa(self):
+        base32secret = 'S3K3TPI5MYA2M67V'
+        totp_code = pyotp.TOTP(base32secret).now()
+        data = {'username': 'user2fa', 'password': '123', 'totp_code':totp_code}
+        response = self.client.post('/authentication/login/', data, format='json')
+        self.assertEqual(response.status_code, 200)
+        token = response.json()
+
+        response = self.client.post('/authentication/getuser/', token, format='json')
+        self.assertEqual(response.status_code, 200)
+
+        user = response.json()
+        self.assertEqual(user['id'], self.u2fa.pk)
+        self.assertEqual(user['username'], 'user2fa')
 
     def test_getuser_invented_token(self):
         token = {'token': 'invented'}
@@ -266,31 +307,55 @@ class FormTestCase(TestCase):
 
     #Formato válido campos extra
     def test_extra_form_correct(self):
-        form_data = {'phone':'999999999', 'double_authentication':'True'}
+        base32secret = pyotp.random_base32()
+        totp_code = pyotp.TOTP(base32secret).now()
+        form_data = {'phone':'999999999', 'totp_code':totp_code, 'base32secret':base32secret}
+        form = ExtraForm(data=form_data)
+        self.assertTrue(form.is_valid())
+
+    #Formato válido campos extra sin codigo totp
+    def test_extra_form_correct_nototp(self):
+        base32secret = pyotp.random_base32()
+        form_data = {'phone':'999999999', 'totp_code':'', 'base32secret':base32secret}
         form = ExtraForm(data=form_data)
         self.assertTrue(form.is_valid())
 
     #Formato incorrecto teléfono (menos de 9 digitos)
     def test_extra_form_incorrect_less_digits(self):
-        form_data = {'phone':'123', 'double_authentication':'True'}
+        base32secret = pyotp.random_base32()
+        totp_code = pyotp.TOTP(base32secret).now()
+        form_data = {'phone':'123', 'totp_code':totp_code, 'base32secret':base32secret}
         form = ExtraForm(data=form_data)
         self.assertFalse(form.is_valid())
 
     #Formato incorrecto teléfono (más de 9 digitos)
     def test_extra_form_incorrect_more_digits(self):
-        form_data = {'phone':'1234567895', 'double_authentication':'True'}
+        base32secret = pyotp.random_base32()
+        totp_code = pyotp.TOTP(base32secret).now()
+        form_data = {'phone':'1234567895', 'totp_code':totp_code, 'base32secret':base32secret}
         form = ExtraForm(data=form_data)
         self.assertFalse(form.is_valid())
 
     #Formato incorrecto teléfono (caracteres que no son digitos)
     def test_extra_form_incorrect_char(self):
-        form_data = {'phone':'123lopujk', 'double_authentication':'True'}
+        base32secret = pyotp.random_base32()
+        totp_code = pyotp.TOTP(base32secret).now()
+        form_data = {'phone':'123lopujk', 'totp_code':totp_code, 'base32secret':base32secret}
         form = ExtraForm(data=form_data)
         self.assertFalse(form.is_valid())
 
     #Campo telefono vacío
     def test_extra_form_incorrect_blank_phone(self):
-        form_data = {'phone':'', 'double_authentication':'True'}
+        base32secret = pyotp.random_base32()
+        totp_code = pyotp.TOTP(base32secret).now()
+        form_data = {'phone':'', 'totp_code':totp_code, 'base32secret':base32secret}
+        form = ExtraForm(data=form_data)
+        self.assertFalse(form.is_valid())
+
+    #Codigo totp incorrecto
+    def test_extra_form_incorrect_totp(self):
+        base32secret = pyotp.random_base32()
+        form_data = {'phone':'827364018', 'totp_code':'error', 'base32secret':base32secret}
         form = ExtraForm(data=form_data)
         self.assertFalse(form.is_valid())
 
@@ -301,7 +366,7 @@ class ExtraModel(TestCase):
         u = User(username='voter1')
         u.set_password('123')
         u.save()
-        extra = Extra.objects.create(phone='123456789', double_authentication = True, user=u)
+        extra = Extra.objects.create(phone='123456789', totp_code='S3K3TPI5MYA2M67V', user=u)
         self.assertEqual(str(extra), "123456789")
 
     #Creación del modelo extra correctamente, comprobando que el valor de sus atributos es correcto tras su creación
@@ -309,9 +374,9 @@ class ExtraModel(TestCase):
         u = User(username='voter1')
         u.set_password('123')
         u.save()
-        extra = Extra.objects.create(phone='123456789', double_authentication = True, user=u)
+        extra = Extra.objects.create(phone='123456789', totp_code='S3K3TPI5MYA2M67V', user=u)
         self.assertEqual(extra.phone, "123456789")
-        self.assertEqual(extra.double_authentication, True)
+        self.assertEqual(extra.totp_code, 'S3K3TPI5MYA2M67V')
         self.assertEqual(extra.user, u)
 
 

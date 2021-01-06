@@ -1,7 +1,9 @@
 from rest_framework import serializers
+from rest_framework.authtoken.serializers import AuthTokenSerializer
 
 from django.contrib.auth.models import User
 from .models import EmailOTPCode, Extra
+
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
@@ -19,4 +21,10 @@ class EmailOTPCodeSerializer(serializers.HyperlinkedModelSerializer):
 class ExtraSerializar(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Extra
-        fields = ('id', 'phone', 'double_authentication', 'user')
+        fields = ('id', 'phone', 'totp_code', 'user')
+
+class AuthTokenSecondFactorSerializer(AuthTokenSerializer):
+    totp_code = serializers.CharField(label="OTP Code", required=False, default="")
+
+    class Meta:
+        fields = ('username', 'password', 'totp_code')
