@@ -237,3 +237,4 @@ class EmailConfirmTokenView(TemplateView):
                 pass
             
         return context
+

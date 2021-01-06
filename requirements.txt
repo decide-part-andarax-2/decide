@@ -14,4 +14,3 @@ django-qr-code
 social-auth-app-django
 freezegun
 pyotp
-

@@ -5,3 +5,4 @@ from .models import *
 
 admin.site.register(Extra)
 admin.site.register(EmailOTPCode)
+
