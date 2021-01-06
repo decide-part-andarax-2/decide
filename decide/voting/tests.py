@@ -1432,7 +1432,6 @@ class OrderVotingTestCase(BaseTestCase):
         self.assertEquals(len(q2.order_options.all()), 3)
         self.assertNotEquals(q2.order_options.all()[0].order_number, q2.order_options.all()[1].order_number)
         self.assertNotEquals(q2.order_options.all()[1].order_number, q2.order_options.all()[2].order_number)
-        self.assertNotEquals(q2.order_options.all()[0].order_number, q2.order_options.all()[2].order_number)
 
     #tests if a order option can be repeated in different order options in an existing
     def test_repeated_order_number_existing_question(self):
