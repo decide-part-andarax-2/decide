@@ -2,6 +2,7 @@ from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 
 from selenium import webdriver
 from django.contrib.auth.models import User
+from selenium.webdriver.common.by import By
 from base.tests import BaseTestCase
 from voting.models import Voting, Question, QuestionOption
 from authentication.models import Extra
