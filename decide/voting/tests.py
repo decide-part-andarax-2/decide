@@ -1415,7 +1415,7 @@ class OrderVotingTestCase(BaseTestCase):
     #tests if a order option can be repeated in different order options in a new question
     def test_repeated_order_number(self):
         q2 = Question(desc='Second mock question description')
-        q2.save()   
+        q2.save()
 
         qo21 = QuestionOrder(question = q2, option = 'First option', number=1, order_number=1)
         qo21.save()
@@ -1427,7 +1427,7 @@ class OrderVotingTestCase(BaseTestCase):
         qo23.save()
 
         self.v2=Voting(name="Second mock voting",question=q2, link="testlink2")
-        self.v2.save() 
+        self.v2.save()
 
         self.assertEquals(len(q2.order_options.all()), 3)
         self.assertEquals(q2.order_options.all()[0].order_number, 1)
