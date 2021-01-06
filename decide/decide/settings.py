@@ -60,7 +60,6 @@ AUTHENTICATION_BACKENDS = [
     'base.backends.AuthBackend',
     'social_core.backends.github.GithubOAuth2',
     'django.contrib.auth.backends.ModelBackend',
-    'social_core.backends.google.GoogleOAuth2',
 ]
 
 MODULES = [
@@ -210,13 +209,6 @@ INSTALLED_APPS = INSTALLED_APPS + MODULES
 
 SOCIAL_AUTH_GITHUB_KEY = '01be11c9729e4d6255c4'
 SOCIAL_AUTH_GITHUB_SECRET = '4a9fd81bb53d0e536abc1334c0c4ed4987ec753a'
-
-# @author: JulianGR
-# No pongo las claves porque he tenido que poner
-# mi tarjeta de credito personal y nos podemos pasar de
-# requests con el Travis
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "650186665562-h0k9d7pvcjdhe43iak6q6sbdikddjpkq.apps.googleusercontent.com"        
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "oEC_yMEx-0cnF7llPdxU2RL0" 
 
 SOCIAL_AUTH_USER_FIELDS = ['username']
 

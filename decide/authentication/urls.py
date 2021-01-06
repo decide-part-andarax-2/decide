@@ -2,8 +2,7 @@ from django.urls import include, path
 from rest_framework.authtoken.views import obtain_auth_token
 from django.contrib.auth.decorators import login_required
 
-from .views import GetUserView, LogoutView, RegisterView, EmailGenerateTokenView, EmailConfirmTokenView, registro_usuario, inicio, github_redirect, logoutGitHub, google_redirect, logoutGoogle, ObtainAuthTokenSecondFactor
-
+from .views import GetUserView, LogoutView, RegisterView, EmailGenerateTokenView, EmailConfirmTokenView, registro_usuario, inicio, github_redirect, logoutGitHub, ObtainAuthTokenSecondFactor
 
 
 urlpatterns = [
@@ -18,8 +17,6 @@ urlpatterns = [
     path('inicio/', login_required(inicio), name="inicio"),
     path('social-auth/', include('social_django.urls', namespace='social')),
     path('github-redirect',github_redirect),
-    path('logoutGithub/',logoutGitHub),
-    path('google-redirect',google_redirect),
-    path('logoutGoogle/',logoutGoogle)
+    path('logoutGithub/',logoutGitHub)
 
 ]
