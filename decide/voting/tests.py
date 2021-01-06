@@ -1387,3 +1387,60 @@ class VotingViewsTestCase(StaticLiveServerTestCase):
         self.driver.get(f'{self.live_server_url}/booth/url/testselenium')
         time.sleep(1)
         self.driver.find_element(By.XPATH, "//h1[contains(.,' - Voting_test')]")
+
+class OrderVotingTestCase(BaseTestCase):
+    def setUp(self):
+
+        q1 = Question(desc='Mock question description')
+        q1.save()
+
+        qo1 = QuestionOrder(question = q1, option = 'First option', number=1, order_number=1)
+        qo1.save()
+
+        qo2 = QuestionOrder(question = q1, option = 'Second option', number=2, order_number=2)
+        qo2.save()
+
+        qo3 = QuestionOrder(question = q1, option = 'Third option', number=3, order_number=3)
+        qo3.save()
+      
+        self.v=Voting(name="Mock voting",question=q1, link="testlink1")
+        self.v.save()
+
+        super().setUp()
+
+    def tearDown(self):
+        super().tearDown()
+        self.v=None
+    
+    #tests if a order option can be repeated in different order options in a new question
+    def test_repeated_order_number(self):
+        q2 = Question(desc='Second mock question description')
+        q2.save()   
+
+        qo21 = QuestionOrder(question = q2, option = 'First option', number=1, order_number=1)
+        qo21.save()
+
+        qo22 = QuestionOrder(question = q2, option = 'Second option', number=2, order_number=1)
+        qo22.save()
+
+        qo23 = QuestionOrder(question = q2, option = 'Third option', number=3, order_number=1)
+        qo23.save()
+
+        self.v2=Voting(name="Second mock voting",question=q2, link="testlink2")
+        self.v2.save() 
+
+        self.assertEquals(len(q2.order_options.all()), 3)
+        self.assertEquals(q2.order_options.all()[0].order_number, 1)
+        self.assertEquals(q2.order_options.all()[1].order_number, 2)
+        self.assertEquals(q2.order_options.all()[2].order_number, 3)
+
+    #tests if a order option can be repeated in different order options in an existing
+    def test_repeated_order_number_existing_question(self):
+        q1 = Question.objects.get(desc='Mock question description')
+        qo4 = QuestionOrder(question = q1, option = 'Third option (repeated)', number=4, order_number=3)
+        q1.save()
+        qo4.save()
+
+        self.assertEquals(len(q1.order_options.all()), 4)
+        self.assertEquals(q1.order_options.all()[3].number, 4)
+        self.assertEquals(q1.order_options.all()[3].order_number, 4)
