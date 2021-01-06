@@ -1,26 +1,13 @@
-
-from django.test import TestCase
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 
 from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.support import expected_conditions
 from django.contrib.auth.models import User
 from base.tests import BaseTestCase
-import itertools
-import time
-from voting.models import Voting, Question, QuestionOption, QuestionOrder
+from voting.models import Voting, Question, QuestionOption
 from authentication.models import Extra
 from django.conf import settings
 from mixnet.models import Auth
 from django.utils import timezone
-import logging
 import pyotp
 
 class Login2FA(StaticLiveServerTestCase):
@@ -53,7 +40,6 @@ class Login2FA(StaticLiveServerTestCase):
         self.extra.totp_code = 'S3K3TPI5MYA2M67V'
         self.extra.user = self.user_with_2fa
         self.extra.save()
-        totp_code = pyotp.TOTP(self.extra.totp_code).now()
 
 
     def setUp(self):

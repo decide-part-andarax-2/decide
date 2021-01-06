@@ -314,9 +314,8 @@ class FormTestCase(TestCase):
         self.assertTrue(form.is_valid())
 
     #Formato válido campos extra sin codigo totp
-    def test_extra_form_correct(self):
+    def test_extra_form_correct_nototp(self):
         base32secret = pyotp.random_base32()
-        totp_code = pyotp.TOTP(base32secret).now()
         form_data = {'phone':'999999999', 'totp_code':'', 'base32secret':base32secret}
         form = ExtraForm(data=form_data)
         self.assertTrue(form.is_valid())
@@ -354,9 +353,9 @@ class FormTestCase(TestCase):
         self.assertFalse(form.is_valid())
 
     #Codigo totp incorrecto
-    def test_extra_form_incorrect_char(self):
+    def test_extra_form_incorrect_totp(self):
         base32secret = pyotp.random_base32()
-        form_data = {'phone':'123lopujk', 'totp_code':'error', 'base32secret':base32secret}
+        form_data = {'phone':'827364018', 'totp_code':'error', 'base32secret':base32secret}
         form = ExtraForm(data=form_data)
         self.assertFalse(form.is_valid())
 
