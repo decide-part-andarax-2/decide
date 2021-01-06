@@ -62,6 +62,7 @@ AUTHENTICATION_BACKENDS = [
     'social_core.backends.github.GithubOAuth2',
     'django.contrib.auth.backends.ModelBackend',
     'social_core.backends.google.GoogleOAuth2',
+    'social_core.backends.facebook.FacebookOAuth2',
 ]
 
 MODULES = [
@@ -218,6 +219,9 @@ SOCIAL_AUTH_GITHUB_SECRET = '4a9fd81bb53d0e536abc1334c0c4ed4987ec753a'
 # requests con el Travis
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "650186665562-h0k9d7pvcjdhe43iak6q6sbdikddjpkq.apps.googleusercontent.com"        
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "oEC_yMEx-0cnF7llPdxU2RL0" 
+
+SOCIAL_AUTH_FACEBOOK_KEY = "587538528871702"        
+SOCIAL_AUTH_FACEBOOK_SECRET = "120e5ca116b0a7659853d4e7ace9f47c" 
 
 SOCIAL_AUTH_USER_FIELDS = ['username']
 

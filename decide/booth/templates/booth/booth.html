@@ -24,7 +24,9 @@
                     <b-nav-item v-on:click="decideLogoutGoogle" v-if="!signup">
                         {% trans "logout Google" %}
                     </b-nav-item>
-                
+                    <b-nav-item v-on:click="decideLogoutFacebook" v-if="!signup">
+                        {% trans "logout Facebook" %}
+                    </b-nav-item>
         </b-navbar>
 
         <b-alert :variant="alertLvl" dismissible v-model="alertShow">
@@ -98,6 +100,7 @@
             
             <li v-if="signup"><a :href="linkGithub">{% trans "Iniciar sesión con Github" %}</a></li>
             <li v-if="signup"><a :href="linkGoogle">{% trans "Iniciar sesión con Google" %}</a></li>
+            <li v-if="signup"><a :href="linkFacebook">{% trans "Iniciar sesión con Facebook" %}</a></li>
             
         </ul>
         
@@ -149,6 +152,11 @@
                     callback: window.location.href                    
                 },
                 linkGoogle: "{% url 'social:begin' 'google-oauth2' %}?next=" + voting.id,
+                emailForm: {
+                    email: '',
+                    callback: window.location.href                    
+                },
+                linkFacebook: "{% url 'social:begin' 'facebook' %}?next=" + voting.id,
                 emailForm: {
                     email: '',
                     callback: window.location.href                    
@@ -262,6 +270,18 @@
                     this.postData("{% url "gateway" "authentication" "/logout/" %}", data);
                     var xmlHttp = new XMLHttpRequest();
                     xmlHttp.open( "GET", '/authentication/logoutGoogle/', false );
+                    xmlHttp.send( null );
+                    this.token = null;
+                    this.user = null;
+                    document.cookie = 'decide=;';
+                    this.signup = true;
+                },               
+                decideLogoutFacebook(evt) {
+                    evt.preventDefault();
+                    var data = {token: this.token};
+                    this.postData("{% url "gateway" "authentication" "/logout/" %}", data);
+                    var xmlHttp = new XMLHttpRequest();
+                    xmlHttp.open( "GET", '/authentication/logoutFacebook/', false );
                     xmlHttp.send( null );
                     this.token = null;
                     this.user = null;

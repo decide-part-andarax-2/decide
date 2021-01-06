@@ -154,6 +154,30 @@ def logoutGoogle(request):
     else:
         return Response({}, status=HTTP_200_OK)
 
+def facebook_redirect(request):
+
+    user = request.user
+    session_token, created = Token.objects.get_or_create(user=user)
+    host = request.get_host()
+    scheme = request.is_secure() and "https" or "http"
+    base_url = f'{scheme}://{request.get_host()}'
+    context = {
+        "token":session_token.key,
+        "callback":base_url+'/booth/' + str(request.GET.get('next', None)),
+        "host":host,
+    }
+    return render(request, 'facebook-redirect.html',context)
+
+
+@api_view(['GET'])
+def logoutFacebook(request):
+    auth_logout(request)
+
+    if request.user.is_authenticated:
+        return Response({}, status=HTTP_400_BAD_REQUEST)
+    else:
+        return Response({}, status=HTTP_200_OK)
+
 
 class EmailGenerateTokenView(APIView):
     parser_classes = (parsers.FormParser, parsers.MultiPartParser, parsers.JSONParser,)
