@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 {% load i18n static %}
-{% load qr_code %}
 
 {% block extrahead %}
     <link type="text/css" rel="stylesheet"
@@ -18,11 +17,8 @@
 <form action="" method="post">
     {% csrf_token %}
     {{user_form.as_p}}
-    {{extra_form.phone.label_tag}}  {{extra_form.phone}} {{extra_form.errors.phone}}
-    <p>Escanear si se va a usar segundo factor de codigo por tiempo</p>
-    {% qr_from_text url_totp size="S" %} <br>
-    {{extra_form.totp_code.label_tag}}  {{extra_form.totp_code}} {{extra_form.errors.totp_code}} <br>
-    {{extra_form.base32secret.as_hidden}}
+    {{extra_form.as_p}}
+
 
 <button type="submit">Enviar</button>
 

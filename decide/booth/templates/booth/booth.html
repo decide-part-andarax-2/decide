@@ -62,32 +62,6 @@
                 <b-button type="submit" variant="primary">{% trans "Login" %}</b-button>
             </b-form>
 
-            <b-form @submit="onSecondFactorSubmitLogin" v-if="signup && signupFormType == '2fa'">
-                <b-form-group label="{% trans "Username" %}" label-for="username">
-                    <b-form-input
-                        id="username"
-                        type="text"
-                        v-model="form2FA.username"
-                        autocomplete="username"
-                        required />
-                </b-form-group>
-                <b-form-group label="{% trans "Password" %}" label-for="password">
-                    <b-form-input
-                        id="password"
-                        type="password"
-                        autocomplete="current-password"
-                        v-model="form2FA.password"
-                        required />
-                </b-form-group>
-                <b-form-group label="{% trans "2FA Code (Optional)" %}" label-for="totp_code">
-                    <b-form-input
-                        id="totp_code"
-                        type="text"
-                        v-model="form2FA.totp_code" />
-                </b-form-group>
-                <b-button type="submit" variant="primary">{% trans "Login" %}</b-button>
-            </b-form>
-
             <b-form @submit="onEmailSubmitLogin" v-if="signup && signupFormType == 'email'">
                 <b-form-group label="{% trans "Email" %}" label-for="Email">
                     <b-form-input
@@ -170,15 +144,9 @@
                     email: '',
                     callback: window.location.href                    
                 },
-                form2FA: {
-                    username: '',
-                    password: '',
-                    totp_code: ''
-                },
                 signupFormType: 'username',
                 formTypes: [
                     {text: 'Login with Username and Password', value: 'username'},
-                    {text: 'Login with Second Factor', value: '2fa'},
                     {text: 'Login with Email', value: 'email'}
                 ],
                 bigpk: {
@@ -229,18 +197,6 @@
                 onSubmitLogin(evt) {
                     evt.preventDefault();
                     this.postData("{% url "gateway" "authentication" "/login/" %}", this.form)
-                        .then(data => {
-                            document.cookie = 'decide='+data.token+'; path=/';
-                            this.token = data.token;
-                            this.getUser();
-                        })
-                        .catch(error => {
-                            this.showAlert("danger", '{% trans "Error: " %}' + error);
-                        });
-                },
-                onSecondFactorSubmitLogin(evt) {
-                    evt.preventDefault();
-                    this.postData("{% url "gateway" "authentication" "/login/" %}", this.form2FA)
                         .then(data => {
                             document.cookie = 'decide='+data.token+'; path=/';
                             this.token = data.token;

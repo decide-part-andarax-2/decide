@@ -21,7 +21,7 @@ class EmailOTPCode(models.Model):
 class Extra(models.Model):
     id = models.AutoField(primary_key=True)
     phone = models.CharField(null = False, max_length = 100, verbose_name='Telefono',unique=True)
-    totp_code = models.CharField(max_length = 50, null=True, blank=True, verbose_name='Codigo 2fa por tiempo')
+    double_authentication = models.BooleanField(null=False, verbose_name = 'Doble autenticación')
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     
     def __str__(self):
