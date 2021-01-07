@@ -56,7 +56,7 @@ class Github(StaticLiveServerTestCase):
         self.base.tearDown()
         self.v.delete()
 
-   ''' 
+    ''' 
     #Sólo se ejecuta correctamente en local
     def test_login_correcto_github(self):
         #Redirección a la votación creada
