@@ -74,7 +74,19 @@ MODULES = [
     'voting',
 ]
 
-BASEURL = 'http://localhost:8000'
+BASEURL = 'https://decide-part-andarax.herokuapp.com'
+
+APIS = {
+    'authentication': BASEURL,
+    'base': BASEURL,
+    'booth': BASEURL,
+    'census': BASEURL,
+    'mixnet': BASEURL,
+    'postproc': BASEURL,
+    'store': BASEURL,
+    'visualizer': BASEURL,
+    'voting': BASEURL,
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -185,7 +197,7 @@ SOCIAL_AUTH_CREATE_USERS = True
 #SOCIAL_AUTH_POSTGRES_JSONFIELD = True
 
 # number of bits for the key, all auths should use the same number of bits
-KEYBITS = 256
+KEYBITS = 161
 
 # Versioning
 ALLOWED_VERSIONS = ['v1', 'v2']
@@ -217,3 +229,6 @@ SOCIAL_AUTH_GITHUB_SECRET = '4a9fd81bb53d0e536abc1334c0c4ed4987ec753a'
 SOCIAL_AUTH_USER_FIELDS = ['username']
 
 
+if BASEURL != 'http://localhost:8000':
+    import django_heroku
+    django_heroku.settings(locals())
