@@ -4,7 +4,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from base.tests import BaseTestCase
-from voting.models import Voting, Question, QuestionOption,
+from voting.models import Voting, Question, QuestionOption
 from django.conf import settings
 from mixnet.models import Auth
 from django.utils import timezone
