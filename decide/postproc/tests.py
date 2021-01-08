@@ -660,6 +660,22 @@ class PostProcTestCase(APITestCase):
         values = response.json()
         self.assertEqual(values, expected_result)
 
+    def test_substrat_no_options(self):
+        seats = 300
+        data = {
+            'seats': seats,
+            'type': 'SUBTRAC',
+
+        }
+
+        expected_result = {}
+
+        response = self.client.post('/postproc/', data, format='json')
+        self.assertEqual(response.status_code, 400)
+
+        values = response.json()
+        self.assertEqual(values, expected_result)
+
 
     def test_substrat_no_type(self):
         seats = 300
