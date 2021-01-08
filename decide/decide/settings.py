@@ -60,6 +60,7 @@ AUTHENTICATION_BACKENDS = [
     'base.backends.AuthBackend',
     'social_core.backends.github.GithubOAuth2',
     'django.contrib.auth.backends.ModelBackend',
+    'social_core.backends.google.GoogleOAuth2',
 ]
 
 MODULES = [
@@ -221,11 +222,12 @@ INSTALLED_APPS = INSTALLED_APPS + MODULES
 
 SOCIAL_AUTH_GITHUB_KEY = '01be11c9729e4d6255c4'
 SOCIAL_AUTH_GITHUB_SECRET = '4a9fd81bb53d0e536abc1334c0c4ed4987ec753a'
-
 #Keys para aplicación desplegada
 #SOCIAL_AUTH_GITHUB_KEY = 'ace0b3aab3e9046c2a23'
 #SOCIAL_AUTH_GITHUB_SECRET = '6a6186c0ddc88112e6e248147c6aafa9fd6d4c20'
 
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "650186665562-h0k9d7pvcjdhe43iak6q6sbdikddjpkq.apps.googleusercontent.com"
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "nLfEUVAqlrd5B52xOaVeL-OV"
 SOCIAL_AUTH_USER_FIELDS = ['username']
 
 

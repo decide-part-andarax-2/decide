@@ -21,6 +21,9 @@
                     <b-nav-item v-on:click="decideLogoutGithub" v-if="!signup">
                         {% trans "logout GitHub" %}
                     </b-nav-item>
+                    <b-nav-item v-on:click="decideLogoutGoogle" v-if="!signup">
+                        {% trans "logout Google" %}
+                    </b-nav-item>
                 
         </b-navbar>
 
@@ -120,6 +123,7 @@
         <ul>
             
             <li v-if="signup"><a :href="linkGithub">{% trans "Iniciar sesión con Github" %}</a></li>
+            <li v-if="signup"><a :href="linkGoogle">{% trans "Iniciar sesión con Google" %}</a></li>
             
         </ul>
         
@@ -174,6 +178,11 @@
                     username: '',
                     password: '',
                     totp_code: ''
+                },
+                linkGoogle: "{% url 'social:begin' 'google-oauth2' %}?next=" + voting.id,
+                emailForm: {
+                    email: '',
+                    callback: window.location.href                    
                 },
                 signupFormType: 'username',
                 formTypes: [
@@ -289,12 +298,20 @@
                     this.token = null;
                     this.user = null;
                     document.cookie = 'decide=;';
-                    this.signup = true;
-                    
-
+                    this.signup = true; 
                 },
-               
-               
+               decideLogoutGoogle(evt) {
+                    evt.preventDefault();
+                    var data = {token: this.token};
+                    this.postData("{% url "gateway" "authentication" "/logout/" %}", data);
+                    var xmlHttp = new XMLHttpRequest();
+                    xmlHttp.open( "GET", '/authentication/logoutGoogle/', false );
+                    xmlHttp.send( null );
+                    this.token = null;
+                    this.user = null;
+                    document.cookie = 'decide=;';
+                    this.signup = true;
+                },               
                 decideEncrypt() {
                     var bigmsg = BigInt.fromJSONObject(this.selected.toString());
                     var cipher = ElGamal.encrypt(this.bigpk, bigmsg);
