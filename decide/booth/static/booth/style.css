@@ -2,3 +2,12 @@
     margin-top: 20px;
     margin-left: 40px;
 }
+
+.btn-login{    
+    margin-left: 30px!important;   
+}
+
+
+.btn-block+.btn-block{
+    margin-top: 0px;   
+}
