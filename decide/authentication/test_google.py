@@ -10,11 +10,11 @@ from mixnet.models import Auth
 from django.utils import timezone
 import geckodriver_autoinstaller
 
-geckodriver_autoinstaller.install() 
+geckodriver_autoinstaller.install()
 
 class TestGoogle(StaticLiveServerTestCase):
-    
-    
+
+
     def create_voting(self):
         self.q = Question(desc='Prueba votación')
         self.q.save()
@@ -29,7 +29,7 @@ class TestGoogle(StaticLiveServerTestCase):
         self.v.create_pubkey()
         self.v.start_date = timezone.now()
         self.v.save()
-        
+    
 
     def setUp(self):
 
@@ -39,9 +39,9 @@ class TestGoogle(StaticLiveServerTestCase):
         self.create_voting()
         options = webdriver.ChromeOptions()
         options.headless = True
-        self.driver = webdriver.Chrome(options=options)    
-        self.wait = WebDriverWait(self.driver, 10)       
-        self.driver.maximize_window() 
+        self.driver = webdriver.Chrome(options=options)
+        self.wait = WebDriverWait(self.driver, 10)
+        self.driver.maximize_window()
         self.driver.implicitly_wait(10)
         
         self.driver = webdriver.Firefox()
@@ -58,16 +58,17 @@ class TestGoogle(StaticLiveServerTestCase):
                 
         self.driver.get(f'{self.live_server_url}/booth/{self.v.pk}')
         assert self.driver.find_element(By.CSS_SELECTOR, ".voting > h1").text == f"{self.v.pk} - Prueba votación"
-        self.driver.find_element(By.LINK_TEXT, "Iniciar sesión con Google").click()       
+        self.driver.find_element(By.LINK_TEXT, "Iniciar sesión con Google").click()
          
-         #introducir un email mal       
-        self.driver.find_element(By.ID, "identifierId").send_keys("test")        
-        self.driver.find_element(By.ID, "identifierId").send_keys(Keys.ENTER)        
-        self.driver.find_element(By.ID, "identifierId").send_keys(Keys.BACKSPACE)
-        self.driver.find_element(By.ID, "identifierId").send_keys(Keys.BACKSPACE)
-        self.driver.find_element(By.ID, "identifierId").send_keys(Keys.BACKSPACE)
+         #introducir un email mal
+        self.driver.find_element(By.ID, "identifierId").send_keys("test")
+        self.driver.find_element(By.ID, "identifierId").send_keys(Keys.ENTER)
         self.driver.find_element(By.ID, "identifierId").send_keys(Keys.BACKSPACE)  
+        self.driver.find_element(By.ID, "identifierId").send_keys(Keys.BACKSPACE)  
+        self.driver.find_element(By.ID, "identifierId").send_keys(Keys.BACKSPACE) 
+        self.driver.find_element(By.ID, "identifierId").send_keys(Keys.BACKSPACE)
         
         # introducir un email que si existe
         self.driver.find_element(By.ID, "identifierId").send_keys("multimediajulian@gmail.com")
         self.driver.find_element(By.ID, "identifierId").send_keys(Keys.ENTER)
+        
