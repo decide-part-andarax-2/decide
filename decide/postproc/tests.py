@@ -629,7 +629,7 @@ class PostProcTestCase(APITestCase):
         self.assertEqual(values, expected_result)
 
 
-    def test_substrat_1(self):
+    def test_substrat_2(self):
         seats = 300
         data = {
             'seats': seats,
@@ -656,6 +656,30 @@ class PostProcTestCase(APITestCase):
 
         response = self.client.post('/postproc/', data, format='json')
         self.assertEqual(response.status_code, 200)
+
+        values = response.json()
+        self.assertEqual(values, expected_result)
+
+
+    def test_substrat_no_type(self):
+        seats = 300
+        data = {
+            'seats': seats,
+            'options': [
+                {'option': 'Option 1', 'number': 1, 'votes_add': 10032, 'votes_subtract':2345},
+                {'option': 'Option 2', 'number': 2, 'votes_add': 423, 'votes_subtract':22},
+                {'option': 'Option 3', 'number': 3, 'votes_add': 8002, 'votes_subtract':4231},
+                {'option': 'Option 4', 'number': 4, 'votes_add': 1235, 'votes_subtract':1932},
+                {'option': 'Option 5', 'number': 5, 'votes_add': 9012, 'votes_subtract':230},
+                {'option': 'Option 6', 'number': 6, 'votes_add': 7000, 'votes_subtract': 4000},
+
+            ]
+        }
+
+        expected_result = {}
+
+        response = self.client.post('/postproc/', data, format='json')
+        self.assertEqual(response.status_code, 400)
 
         values = response.json()
         self.assertEqual(values, expected_result)
