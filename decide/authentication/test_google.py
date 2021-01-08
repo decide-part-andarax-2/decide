@@ -58,7 +58,7 @@ class TestGoogle(StaticLiveServerTestCase):
                 
         self.driver.get(f'{self.live_server_url}/booth/{self.v.pk}')
         assert self.driver.find_element(By.CSS_SELECTOR, ".voting > h1").text == f"{self.v.pk} - Prueba votación"
-        self.driver.find_element(By.LINK_TEXT, "Iniciar sesión con Google").click()
+        self.driver.find_element(By.LINK_TEXT, "Login con Google").click()
          
          #introducir un email mal
         self.driver.find_element(By.ID, "identifierId").send_keys("test")
@@ -72,3 +72,4 @@ class TestGoogle(StaticLiveServerTestCase):
         self.driver.find_element(By.ID, "identifierId").send_keys("multimediajulian@gmail.com")
         self.driver.find_element(By.ID, "identifierId").send_keys(Keys.ENTER)
         
+        #ya no se puede seguir mas por ofuscacion de CSS y HTML
