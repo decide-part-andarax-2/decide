@@ -207,12 +207,27 @@ class PostProcView(APIView):
             return Response(out)
 
 
+    def subtrac(self, options, seats):
+        out = []
 
+        for opt in options:
+
+            votes = opt['votes_add'] - opt['votes_subtract']
+            if votes < 0:
+                votes = 0
+
+            out.append({
+                **opt,
+                'votes':votes,
+                'postproc': 0,
+            })
+
+        return self.dhont(out, seats)
 
 
     def post(self, request):
         """
-         * type: IDENTITY | DHONT | RELATIVA | ABSOLUTA
+         * type: IDENTITY | DHONT | RELATIVA | ABSOLUTA | BORDA | SUBTRAC
          * options: [
             {
              option: str,
@@ -244,6 +259,8 @@ class PostProcView(APIView):
                 return Response({}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 return self.borda(order_opts)
+        elif t == 'SUBTRAC':
+            return Response(self.subtrac(opts, s))
         elif t == 'DHONT':
             if(s==None):
                 return Response({}, status=status.HTTP_400_BAD_REQUEST)
