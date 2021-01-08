@@ -1,32 +1,16 @@
-from django.test import TestCase
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.support import expected_conditions
-from django.contrib.auth.models import User
 from base.tests import BaseTestCase
-import itertools
-import time
-from voting.models import Voting, Question, QuestionOption, QuestionOrder
+from voting.models import Voting, Question, QuestionOption,
 from django.conf import settings
 from mixnet.models import Auth
 from django.utils import timezone
-import logging
-
-
-
 import geckodriver_autoinstaller
 
-
 geckodriver_autoinstaller.install() 
-
 
 class TestGoogle(StaticLiveServerTestCase):
     
@@ -75,26 +59,15 @@ class TestGoogle(StaticLiveServerTestCase):
         self.driver.get(f'{self.live_server_url}/booth/{self.v.pk}')
         assert self.driver.find_element(By.CSS_SELECTOR, ".voting > h1").text == f"{self.v.pk} - Prueba votación"
         self.driver.find_element(By.LINK_TEXT, "Iniciar sesión con Google").click()       
-       
-       
-       #introducir un email mal
-       
-        self.driver.find_element(By.ID, "identifierId").send_keys("test")
+         
+         #introducir un email mal       
+        self.driver.find_element(By.ID, "identifierId").send_keys("test")        
+        self.driver.find_element(By.ID, "identifierId").send_keys(Keys.ENTER)        
+        self.driver.find_element(By.ID, "identifierId").send_keys(Keys.BACKSPACE)
+        self.driver.find_element(By.ID, "identifierId").send_keys(Keys.BACKSPACE)
+        self.driver.find_element(By.ID, "identifierId").send_keys(Keys.BACKSPACE)
+        self.driver.find_element(By.ID, "identifierId").send_keys(Keys.BACKSPACE)  
         
-        self.driver.find_element(By.ID, "identifierId").send_keys(Keys.ENTER)
-        
-        self.driver.find_element(By.ID, "identifierId").send_keys(Keys.BACKSPACE)
-        self.driver.find_element(By.ID, "identifierId").send_keys(Keys.BACKSPACE)
-        self.driver.find_element(By.ID, "identifierId").send_keys(Keys.BACKSPACE)
-        self.driver.find_element(By.ID, "identifierId").send_keys(Keys.BACKSPACE)      
-      
-    
         # introducir un email que si existe
         self.driver.find_element(By.ID, "identifierId").send_keys("multimediajulian@gmail.com")
-       
         self.driver.find_element(By.ID, "identifierId").send_keys(Keys.ENTER)
-      
-
-
-     
-        
