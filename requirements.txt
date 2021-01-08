@@ -16,3 +16,4 @@ freezegun
 pyotp
 django-heroku
 gunicorn
+geckodriver_autoinstaller
