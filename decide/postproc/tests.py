@@ -44,7 +44,7 @@ class PostProcTestCase(APITestCase):
         self.assertEqual(values, expected_result)
 
 
-        
+
     def test_dhont1(self):
         data = {
             'type': 'DHONT',
@@ -149,7 +149,7 @@ class PostProcTestCase(APITestCase):
 
         values = response.json()
         self.assertEqual(values, expected_result)
-              
+
     def test_relativa2(self):
         data = {
             'type': 'RELATIVA',
@@ -168,7 +168,7 @@ class PostProcTestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
         values = response.json()
         self.assertEqual(values, expected_result)
-              
+
     def test_relativa3(self):
         data = {
             'type': 'RELATIVA',
@@ -257,7 +257,7 @@ class PostProcTestCase(APITestCase):
                 {'option': 'Option 4', 'number': 4, 'votes': 4, 'postproc': 0},
                 {'option': 'Option 6', 'number': 6, 'votes': 2, 'postproc': 0},
                 {'option': 'Option 2', 'number': 2, 'votes': 0, 'postproc': 0},
-                
+
         ]
 
         response = self.client.post('/postproc/', data, format='json')
@@ -295,7 +295,7 @@ class PostProcTestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
         values = response.json()
         self.assertEqual(values, expected_result)
-        
+
     def test_absoluta4(self):
         data = {
             'type': 'ABSOLUTA',
@@ -317,8 +317,8 @@ class PostProcTestCase(APITestCase):
         response = self.client.post('/postproc/', data, format='json')
         self.assertEqual(response.status_code, 200)
         values = response.json()
-        self.assertEqual(values, expected_result)  
-               
+        self.assertEqual(values, expected_result)
+
     # Test en el que no se le pasa la variable options en el json data
     def test_no_options(self):
         seats = 5
@@ -333,7 +333,7 @@ class PostProcTestCase(APITestCase):
 
         values = response.json()
         self.assertEqual(values, expected_result)
-    
+
      # Test en el que no se le pasa la variable seats en el json data
     def test_no_seats(self):
         data = {
@@ -353,39 +353,39 @@ class PostProcTestCase(APITestCase):
         values = response.json()
         self.assertEqual(values, expected_result)
 
-        
+
     def test_paridad(self):
-        
+
         candidates1 = [{'name': 'Candidate1', 'gender': 'M'},
                        {'name': 'Candidate2', 'gender': 'H'},
                        {'name': 'Candidate3', 'gender': 'M'},
                        {'name': 'Candidate4', 'gender': 'H'},
                        {'name': 'Candidate5', 'gender': 'H'}]
-        
+
         candidates2 = [{'name': 'Candidate6', 'gender': 'H'},
                        {'name': 'Candidate7', 'gender': 'M'},
                        {'name': 'Candidate8', 'gender': 'M'},
                        {'name': 'Candidate9', 'gender': 'H'},
                        {'name': 'Candidate10', 'gender': 'H'}]
-        
+
         candidates3 = [{'name': 'Candidate11', 'gender': 'H'},
                        {'name': 'Candidate12', 'gender': 'H'},
                        {'name': 'Candidate13', 'gender': 'M'},
                        {'name': 'Candidate14', 'gender': 'M'},
                        {'name': 'Candidate15', 'gender': 'M'}]
-        
+
         candidates4 = [{'name': 'Candidate16', 'gender': 'H'},
                        {'name': 'Candidate17', 'gender': 'M'},
                        {'name': 'Candidate18', 'gender': 'M'},
                        {'name': 'Candidate19', 'gender': 'H'},
                        {'name': 'Candidate20', 'gender': 'M'}]
-        
+
         candidates5 = [{'name': 'Candidate21', 'gender': 'M'},
                        {'name': 'Candidate22', 'gender': 'H'},
                        {'name': 'Candidate23', 'gender': 'M'},
                        {'name': 'Candidate24', 'gender': 'H'},
                        {'name': 'Candidate25', 'gender': 'M'}]
-        
+
         candidates6 = [{'name': 'Candidate26', 'gender': 'M'},
                        {'name': 'Candidate27', 'gender': 'M'},
                        {'name': 'Candidate28', 'gender': 'M'},
@@ -404,18 +404,18 @@ class PostProcTestCase(APITestCase):
                 { 'option': 'Option 6', 'number': 6, 'votes': 1, 'candidates': candidates6 },
             ]
         }
-        
+
         seated1 = [{'name': 'Candidate1', 'gender': 'M'},
                        {'name': 'Candidate2', 'gender': 'H'},
                        {'name': 'Candidate3', 'gender': 'M'},
                        {'name': 'Candidate4', 'gender': 'H'},
                        {'name': 'Candidate5', 'gender': 'H'}]
-        
+
         seated3 = [{'name': 'Candidate11', 'gender': 'H'},
                        {'name': 'Candidate13', 'gender': 'M'},
                        {'name': 'Candidate12', 'gender': 'H'},
                        ]
-        
+
         seated5 = [{'name': 'Candidate21', 'gender': 'M'},
                        {'name': 'Candidate22', 'gender': 'H'},
                        ]
@@ -433,45 +433,45 @@ class PostProcTestCase(APITestCase):
         self.assertEqual(response.status_code, 200)
         values = response.json()
         self.assertEqual(values, expected_result)
-        
+
     def test_paridad2(self):
-        
+
         candidates1 = [{'name': 'Candidate1', 'gender': 'M'},
                        {'name': 'Candidate2', 'gender': 'H'},
                        {'name': 'Candidate3', 'gender': 'M'},
                        {'name': 'Candidate4', 'gender': 'H'},
                        {'name': 'Candidate5', 'gender': 'H'}]
-        
+
         candidates2 = [{'name': 'Candidate6', 'gender': 'H'},
                        {'name': 'Candidate7', 'gender': 'M'},
                        {'name': 'Candidate8', 'gender': 'M'},
                        {'name': 'Candidate9', 'gender': 'H'},
                        {'name': 'Candidate10', 'gender': 'H'}]
-        
+
         candidates3 = [{'name': 'Candidate11', 'gender': 'H'},
                        {'name': 'Candidate12', 'gender': 'H'},
                        {'name': 'Candidate13', 'gender': 'M'},
                        {'name': 'Candidate14', 'gender': 'M'},
                        {'name': 'Candidate15', 'gender': 'M'}]
-        
+
         candidates4 = [{'name': 'Candidate16', 'gender': 'H'},
                        {'name': 'Candidate17', 'gender': 'M'},
                        {'name': 'Candidate18', 'gender': 'M'},
                        {'name': 'Candidate19', 'gender': 'H'},
                        {'name': 'Candidate20', 'gender': 'M'}]
-        
+
         candidates5 = [{'name': 'Candidate21', 'gender': 'M'},
                        {'name': 'Candidate22', 'gender': 'H'},
                        {'name': 'Candidate23', 'gender': 'M'},
                        {'name': 'Candidate24', 'gender': 'H'},
                        {'name': 'Candidate25', 'gender': 'M'}]
-        
+
         candidates6 = [{'name': 'Candidate26', 'gender': 'M'},
                        {'name': 'Candidate27', 'gender': 'M'},
                        {'name': 'Candidate28', 'gender': 'M'},
                        {'name': 'Candidate29', 'gender': 'H'},
                        {'name': 'Candidate30', 'gender': 'M'}]
-        
+
         candidates7 = [{'name': 'Candidate31', 'gender': 'M'},
                        {'name': 'Candidate32', 'gender': 'H'},
                        {'name': 'Candidate33', 'gender': 'M'},
@@ -491,17 +491,17 @@ class PostProcTestCase(APITestCase):
                 {'option': 'Option 7', 'number': 7, 'votes': 6, 'candidates': candidates7},
             ]
         }
-        
+
         seated1 = [{'name': 'Candidate1', 'gender': 'M'},
                        {'name': 'Candidate2', 'gender': 'H'},
                        ]
-        
+
         seated3 = [{'name': 'Candidate11', 'gender': 'H'},
                        ]
-        
+
         seated5 = [{'name': 'Candidate21', 'gender': 'M'},
                        ]
-        
+
         seated7 = [{'name': 'Candidate31', 'gender': 'M'},
                       ]
 
@@ -518,7 +518,7 @@ class PostProcTestCase(APITestCase):
         response = self.client.post('/postproc/', data, format='json')
         self.assertEqual(response.status_code, 200)
         values = response.json()
-        self.assertEqual(values, expected_result)    
+        self.assertEqual(values, expected_result)
 
     def test_borda1(self):
         data = {
@@ -620,6 +620,38 @@ class PostProcTestCase(APITestCase):
             {'option': 'Option 2', 'number': 2, 'votes_add': 5, 'votes_subtract':2, 'votes': 3, 'postproc': 1},
             {'option': 'Option 5', 'number': 5, 'votes_add': 2, 'votes_subtract':0, 'votes': 2, 'postproc': 1},
             {'option': 'Option 1', 'number': 1, 'votes_add': 10, 'votes_subtract':12, 'votes': 0, 'postproc': 0},
+        ]
+
+        response = self.client.post('/postproc/', data, format='json')
+        self.assertEqual(response.status_code, 200)
+
+        values = response.json()
+        self.assertEqual(values, expected_result)
+
+
+    def test_substrat_1(self):
+        seats = 300
+        data = {
+            'seats': seats,
+            'type': 'SUBTRAC',
+            'options': [
+                {'option': 'Option 1', 'number': 1, 'votes_add': 10032, 'votes_subtract':2345},
+                {'option': 'Option 2', 'number': 2, 'votes_add': 423, 'votes_subtract':22},
+                {'option': 'Option 3', 'number': 3, 'votes_add': 8002, 'votes_subtract':4231},
+                {'option': 'Option 4', 'number': 4, 'votes_add': 1235, 'votes_subtract':1932},
+                {'option': 'Option 5', 'number': 5, 'votes_add': 9012, 'votes_subtract':230},
+                {'option': 'Option 6', 'number': 6, 'votes_add': 7000, 'votes_subtract': 4000},
+
+            ]
+        }
+
+        expected_result = [
+            {'option': 'Option 5', 'number': 5, 'votes_add': 9012, 'votes_subtract': 230, 'votes': 8782, 'postproc': 111},
+            {'option': 'Option 1', 'number': 1, 'votes_add': 10032, 'votes_subtract': 2345, 'votes': 7687,'postproc': 98},
+            {'option': 'Option 3', 'number': 3, 'votes_add': 8002, 'votes_subtract': 4231, 'votes': 3771,'postproc':48},
+            {'option': 'Option 6', 'number': 6, 'votes_add': 7000, 'votes_subtract': 4000, 'votes': 3000,'postproc': 38},
+            {'option': 'Option 2', 'number': 2, 'votes_add': 423, 'votes_subtract': 22, 'votes': 401, 'postproc': 5},
+            {'option': 'Option 4', 'number': 4, 'votes_add': 1235, 'votes_subtract':1932, 'votes': 0, 'postproc': 0},
         ]
 
         response = self.client.post('/postproc/', data, format='json')
