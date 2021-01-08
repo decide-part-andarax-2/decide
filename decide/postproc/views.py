@@ -260,7 +260,10 @@ class PostProcView(APIView):
             else:
                 return self.borda(order_opts)
         elif t == 'SUBTRAC':
-            return Response(self.subtrac(opts, s))
+            if (s == None):
+                return Response({}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response(self.subtrac(opts, s))
         elif t == 'DHONT':
             if(s==None):
                 return Response({}, status=status.HTTP_400_BAD_REQUEST)
