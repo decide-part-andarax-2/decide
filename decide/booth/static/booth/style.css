@@ -3,11 +3,10 @@
     margin-left: 40px;
 }
 
-.btn-login{    
-    margin-left: 30px!important;   
+.btn-login {
+    margin-left: 30px!important;
 }
 
-
-.btn-block+.btn-block{
-    margin-top: 0px;   
+.btn-block+.btn-block {
+    margin-top: 0px;
 }

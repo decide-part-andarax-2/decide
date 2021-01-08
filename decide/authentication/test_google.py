@@ -57,7 +57,7 @@ class TestGoogle(StaticLiveServerTestCase):
     def test_google(self):
                 
         self.driver.get(f'{self.live_server_url}/booth/{self.v.pk}')
-        assert self.driver.find_element(By.CSS_SELECTOR, ".voting > h1").text[-1] == f"{self.v.pk}"        
+        assert self.driver.find_element(By.CSS_SELECTOR, ".voting > h1").text == f"{self.v.pk} - Prueba votación"
         self.driver.find_element(By.LINK_TEXT, "Login con Google").click()
          
          #introducir un email mal

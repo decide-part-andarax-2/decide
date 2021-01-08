@@ -67,7 +67,7 @@ class Github(StaticLiveServerTestCase):
     def test_login_correcto_github(self):
         #Redirección a la votación creada
         self.driver.get(f'{self.live_server_url}/booth/{self.v.pk}')
-        assert self.driver.find_element(By.CSS_SELECTOR, ".voting > h1").text[-1] == f"{self.v.pk}"
+        assert self.driver.find_element(By.CSS_SELECTOR, ".voting > h1").text == f"{self.v.pk} - Prueba votación"
         #Inicio sesión con github
         self.driver.find_element(By.LINK_TEXT, "Login con GitHub").click()
         self.driver.find_element(By.CSS_SELECTOR, "p:nth-child(2)").click()
@@ -85,7 +85,7 @@ class Github(StaticLiveServerTestCase):
     def test_login_incorrect_password(self):
         #Redirección a la votación creada
         self.driver.get(f'{self.live_server_url}/booth/{self.v.pk}')
-        assert self.driver.find_element(By.CSS_SELECTOR, ".voting > h1").text[-1] == f"{self.v.pk}"
+        assert self.driver.find_element(By.CSS_SELECTOR, ".voting > h1").text == f"{self.v.pk} - Prueba votación"
         #Inicio sesión con github
         self.driver.find_element(By.LINK_TEXT, "Login con GitHub").click()
         self.driver.find_element(By.CSS_SELECTOR, "p:nth-child(2)").click()
@@ -102,7 +102,7 @@ class Github(StaticLiveServerTestCase):
     def test_login_incorrect_username(self):
         #Redirección a la votación creada
         self.driver.get(f'{self.live_server_url}/booth/{self.v.pk}')
-        assert self.driver.find_element(By.CSS_SELECTOR, ".voting > h1").text[-1] == f"{self.v.pk}"
+        assert self.driver.find_element(By.CSS_SELECTOR, ".voting > h1").text == f"{self.v.pk} - Prueba votación"
         #Inicio sesión con github
         self.driver.find_element(By.LINK_TEXT, "Login con GitHub").click()
         self.driver.find_element(By.CSS_SELECTOR, "p:nth-child(2)").click()
