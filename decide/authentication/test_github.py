@@ -20,6 +20,10 @@ from django.conf import settings
 from mixnet.models import Auth
 from django.utils import timezone
 import logging
+import geckodriver_autoinstaller
+
+geckodriver_autoinstaller.install()
+
 
 class Github(StaticLiveServerTestCase):
 
@@ -48,6 +52,8 @@ class Github(StaticLiveServerTestCase):
         options.headless = True
         self.driver = webdriver.Chrome(options=options)
 
+        self.driver = webdriver.Firefox()
+                
         super().setUp()
 
     def tearDown(self):
@@ -61,9 +67,9 @@ class Github(StaticLiveServerTestCase):
     def test_login_correcto_github(self):
         #Redirección a la votación creada
         self.driver.get(f'{self.live_server_url}/booth/{self.v.pk}')
-        assert self.driver.find_element(By.CSS_SELECTOR, ".voting > h1").text == f"{self.v.pk} - Prueba votación"
+        assert self.driver.find_element(By.CSS_SELECTOR, ".voting > h1").text[-1] == f"{self.v.pk}"
         #Inicio sesión con github
-        self.driver.find_element(By.LINK_TEXT, "Iniciar sesión con Github").click()
+        self.driver.find_element(By.LINK_TEXT, "Login con GitHub").click()
         self.driver.find_element(By.CSS_SELECTOR, "p:nth-child(2)").click()
         assert self.driver.find_element(By.CSS_SELECTOR, "strong:nth-child(3)").text == "AuthenticationApp"
         self.driver.find_element(By.ID, "login_field").click()
@@ -79,9 +85,9 @@ class Github(StaticLiveServerTestCase):
     def test_login_incorrect_password(self):
         #Redirección a la votación creada
         self.driver.get(f'{self.live_server_url}/booth/{self.v.pk}')
-        assert self.driver.find_element(By.CSS_SELECTOR, ".voting > h1").text == f"{self.v.pk} - Prueba votación"
+        assert self.driver.find_element(By.CSS_SELECTOR, ".voting > h1").text[-1] == f"{self.v.pk}"
         #Inicio sesión con github
-        self.driver.find_element(By.LINK_TEXT, "Iniciar sesión con Github").click()
+        self.driver.find_element(By.LINK_TEXT, "Login con GitHub").click()
         self.driver.find_element(By.CSS_SELECTOR, "p:nth-child(2)").click()
         assert self.driver.find_element(By.CSS_SELECTOR, "strong:nth-child(3)").text == "AuthenticationApp"
         self.driver.find_element(By.ID, "login_field").click()
@@ -96,9 +102,9 @@ class Github(StaticLiveServerTestCase):
     def test_login_incorrect_username(self):
         #Redirección a la votación creada
         self.driver.get(f'{self.live_server_url}/booth/{self.v.pk}')
-        assert self.driver.find_element(By.CSS_SELECTOR, ".voting > h1").text == f"{self.v.pk} - Prueba votación"
+        assert self.driver.find_element(By.CSS_SELECTOR, ".voting > h1").text[-1] == f"{self.v.pk}"
         #Inicio sesión con github
-        self.driver.find_element(By.LINK_TEXT, "Iniciar sesión con Github").click()
+        self.driver.find_element(By.LINK_TEXT, "Login con GitHub").click()
         self.driver.find_element(By.CSS_SELECTOR, "p:nth-child(2)").click()
         assert self.driver.find_element(By.CSS_SELECTOR, "strong:nth-child(3)").text == "AuthenticationApp"
         self.driver.find_element(By.ID, "login_field").click()
