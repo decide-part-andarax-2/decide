@@ -206,6 +206,13 @@ class Voting(models.Model):
     alpha = RegexValidator("^[0-9a-zA-Z]*$", "Only letters and numbers are allowed.")
     link = models.CharField(max_length=30, default="", unique=True ,validators=[alpha])
 
+    VOTING_TYPE_CHOICES = [
+        ('IDENTITY', 'IDENTITY'),
+        ('ABSOLUTA', 'ABSOLUTA'),
+        ('RELATIVA', 'RELATIVA'),]
+
+    voting_type= models.CharField(max_length=8,choices=VOTING_TYPE_CHOICES,default='IDENTITY')
+
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
 
