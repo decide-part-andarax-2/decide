@@ -278,7 +278,7 @@ class Voting(models.Model):
         self.do_postproc()
 
     def do_postproc(self):
-        votingType = "IDENTITY"
+        votingType = self.voting_type
         tally = self.tally
         options = self.question.options.all()
         order_options = self.question.order_options.all()
