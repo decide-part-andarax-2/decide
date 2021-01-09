@@ -61,6 +61,14 @@ class VotingTestCase(BaseTestCase):
             opt.save()
         return q
 
+    def create_ordered_question(self):
+        q = Question(desc='test ordering question')
+        q.save()
+        for i in range(5):
+            opt = QuestionOrder(question=q, option='ordering option {}'.format(i+1), order_number='{}'.format(i+1))
+            opt.save()
+        return q
+
     def create_voting(self):
         q = self.create_question()
         v = Voting(name='test voting', question=q, slug="prueba")
@@ -72,11 +80,7 @@ class VotingTestCase(BaseTestCase):
         return v
 
     def create_order_voting(self):
-        q = Question(desc='test ordering question')
-        q.save()
-        for i in range(5):
-            opt = QuestionOrder(question=q, option='ordering option {}'.format(i+1), order_number='{}'.format(i+1))
-            opt.save()
+        q = self.create_ordered_question()
         v = Voting(name='test ordering voting', question=q)
         v.save()
 
