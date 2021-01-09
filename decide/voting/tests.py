@@ -141,12 +141,12 @@ class VotingTestCase(BaseTestCase):
             self.assertIsNotNone(Question.objects.get(desc=desc))
 
     @parameterized.expand([
-        ["correct_question_option", "number", "option"],
-        ["no_option", "number", ""]
+        ["correct_question_option", "10", "option"],
+        ["no_option", "11", ""]
     ])
     def test_parametrizado_question_option(self, title, number, option):
         question = self.create_question()
-        qo = QuestionOption(question=question, number=number, option=option)
+        qo = QuestionOption(question=question, number=int(number), option=option)
         if title=="no_option":
             with self.assertRaises(ValidationError):
                 qo.full_clean()
