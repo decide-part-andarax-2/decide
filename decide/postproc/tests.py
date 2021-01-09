@@ -780,3 +780,18 @@ class PostProcTestCase(APITestCase):
 
         values = response.json()
         self.assertEqual(values, expected_result)
+    
+    
+    def test_no_options_webster(self):
+        seats = 10
+        data = {
+            'type': 'WEBSTER    ',
+            'seats': seats
+        }
+        expected_result = {}
+
+        response = self.client.post('/postproc/', data, format='json')
+        self.assertEqual(response.status_code, 400)
+
+        values = response.json()
+        self.assertEqual(values, expected_result)
