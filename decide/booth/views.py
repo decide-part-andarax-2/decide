@@ -36,10 +36,10 @@ class BoothViewUrl(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        vid = kwargs.get('voting_link', 0)
+        vid = kwargs.get('voting_slug', 0)
 
         try:
-            vot = models.Voting.objects.get(link=vid)
+            vot = models.Voting.objects.get(slug=vid)
             r = mods.get('voting', params={'id': vot.id})
 
             # Casting numbers to string to manage in javascript with BigInt

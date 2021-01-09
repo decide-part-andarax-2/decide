@@ -204,7 +204,7 @@ class Voting(models.Model):
     desc = models.TextField(blank=True, null=True)
     question = models.ForeignKey(Question, related_name='voting', on_delete=models.CASCADE)
     alpha = RegexValidator("^[0-9a-zA-Z]*$", "Only letters and numbers are allowed.")
-    link = models.CharField(max_length=30, default="", unique=True ,validators=[alpha])
+    slug = models.CharField(max_length=30, default="", unique=True ,validators=[alpha])
 
     VOTING_TYPE_CHOICES = [
         ('IDENTITY', 'IDENTITY'),
@@ -287,7 +287,7 @@ class Voting(models.Model):
         #Abrimos el fichero donde se guardaran los resultados y el comprimido donde se guardaran estos ficheros
         if not os.path.exists("voting/results/"):
             os.mkdir("voting/results")
-        fname = "voting/results/v" + str(self.id) + "_" + self.link + ".txt"
+        fname = "voting/results/v" + str(self.id) + "_" + self.slug + ".txt"
         t_file = open(fname, "w")
 
         if options.count()!=0:
