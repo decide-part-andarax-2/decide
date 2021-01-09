@@ -168,7 +168,7 @@ class VotingTestCase(BaseTestCase):
 
         self.assertTrue(os.path.exists("voting/results/results.tar"))
         tarfl = tarfile.open("voting/results/results.tar", "r")
-        name = "voting/results/v" + str(v.id) + ".txt"
+        name = "voting/results/v" + str(v.id)  + "_" + v.link + ".txt"
         self.assertTrue(name in tarfl.getnames())
         tarfl.close()
 
