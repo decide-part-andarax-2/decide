@@ -27,6 +27,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 
+#from nose_parameterized import parameterized
+
 
 class VotingTestCase(BaseTestCase):
 
@@ -45,12 +47,17 @@ class VotingTestCase(BaseTestCase):
         k.k = ElGamal.construct((p, g, y))
         return k.encrypt(msg)
 
-    def create_voting(self):
+
+    def create_question(self):
         q = Question(desc='test question')
         q.save()
         for i in range(5):
             opt = QuestionOption(question=q, option='option {}'.format(i+1))
             opt.save()
+        return q
+
+    def create_voting(self):
+        q = self.create_question()
         v = Voting(name='test voting', question=q, link="prueba")
         v.save()
 
@@ -91,6 +98,9 @@ class VotingTestCase(BaseTestCase):
         user.set_password('qwerty')
         user.save()
         return user
+
+    # @parameterized.expand([["correct", "test_voting1", "descripcion1", ]])
+    # def test_parametrizado(self,)
 
     def test_voting_toString(self):
         v = self.create_voting()
