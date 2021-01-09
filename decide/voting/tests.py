@@ -112,9 +112,6 @@ class VotingTestCase(BaseTestCase):
     ])
     def test_parametrizado(self, title, name, desc, slug):
         q = self.create_question()
-        print(name)
-        print(desc)
-        print(slug)
         if title == "no_question":
             v = Voting(name=name, desc=desc, slug=slug)
         else:
