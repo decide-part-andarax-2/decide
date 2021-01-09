@@ -47,6 +47,11 @@ class VotingTestCase(BaseTestCase):
         k.k = ElGamal.construct((p, g, y))
         return k.encrypt(msg)
 
+    def create_auth(self):
+        a, _ = Auth.objects.get_or_create(url=settings.BASEURL,
+                                          defaults={'me': True, 'name': 'test auth'})
+        a.save()
+        return a
 
     def create_question(self):
         q = Question(desc='test question')
@@ -61,9 +66,7 @@ class VotingTestCase(BaseTestCase):
         v = Voting(name='test voting', question=q, slug="prueba")
         v.save()
 
-        a, _ = Auth.objects.get_or_create(url=settings.BASEURL,
-                                          defaults={'me': True, 'name': 'test auth'})
-        a.save()
+        a = self.create_auth()
         v.auths.add(a)
 
         return v
@@ -77,9 +80,7 @@ class VotingTestCase(BaseTestCase):
         v = Voting(name='test ordering voting', question=q)
         v.save()
 
-        a, _ = Auth.objects.get_or_create(url=settings.BASEURL,
-                                          defaults={'me': True, 'name': 'test auth'})
-        a.save()
+        a = self.create_auth()
         v.auths.add(a)
 
         return v
@@ -100,7 +101,7 @@ class VotingTestCase(BaseTestCase):
         return user
 
     # @parameterized(
-    #     "test_voting1", "description1","question","slug_prueba"
+    #     "test_voting1", "description1","question","slug_prueba", "auth"
     # )
     # def test_parametrizado(self,)
 
