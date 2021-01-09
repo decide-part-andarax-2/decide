@@ -35,26 +35,26 @@ class TestFormularioRegistro(StaticLiveServerTestCase):
         self.base.tearDown()
     	
     # Un usuario se registra y luego se logea correctamente sin 2fa
-    # def test_registrologinno2fa(self):
-        # self.driver.get(f'{self.live_server_url}')
-        # self.driver.set_window_size(1366, 728)
-        # self.driver.find_element(By.LINK_TEXT, "Regístrate aquí").click()
-        # self.driver.find_element(By.ID, "id_username").send_keys("usuariono2fa")
-        # self.driver.find_element(By.ID, "id_password1").click()
-        # self.driver.find_element(By.ID, "id_password1").send_keys("1234qwer")
-        # self.driver.find_element(By.ID, "id_password2").click()
-        # self.driver.find_element(By.ID, "id_password2").send_keys("1234qwer")
-        # self.driver.find_element(By.ID, "id_phone").click()
-        # self.driver.find_element(By.ID, "id_phone").send_keys("000000000")
-        # self.driver.find_element(By.CSS_SELECTOR, "button").click()
-        # assert self.driver.find_element(By.CSS_SELECTOR, "#app-booth > h1").text == "Bienvenido a Decide! USUARIONO2FA"
-        # self.driver.find_element(By.LINK_TEXT, "Logout").click()
-        # assert self.driver.find_element(By.CSS_SELECTOR, "h1").text == "Inicio de sesión | Decide!"
-        # self.driver.find_element(By.NAME, "username").click()
-        # self.driver.find_element(By.NAME, "username").send_keys("usuariono2fa")
-        # self.driver.find_element(By.NAME, "password").send_keys("1234qwer")
-        # self.driver.find_element(By.CSS_SELECTOR, "button").click()
-        # assert self.driver.find_element(By.CSS_SELECTOR, "#app-booth > h1").text == "Bienvenido a Decide! USUARIONO2FA"
+    def test_registrologinno2fa(self):
+        self.driver.get(f'{self.live_server_url}')
+        self.driver.set_window_size(1366, 728)
+        self.driver.find_element(By.LINK_TEXT, "Regístrate aquí").click()
+        self.driver.find_element(By.ID, "id_username").send_keys("usuariono2fa")
+        self.driver.find_element(By.ID, "id_password1").click()
+        self.driver.find_element(By.ID, "id_password1").send_keys("1234qwer")
+        self.driver.find_element(By.ID, "id_password2").click()
+        self.driver.find_element(By.ID, "id_password2").send_keys("1234qwer")
+        self.driver.find_element(By.ID, "id_phone").click()
+        self.driver.find_element(By.ID, "id_phone").send_keys("000000000")
+        self.driver.find_element(By.CSS_SELECTOR, ".btn").click()
+        assert self.driver.find_element(By.CSS_SELECTOR, "#app-booth > h1").text == "Bienvenido a Decide! USUARIONO2FA"
+        self.driver.find_element(By.LINK_TEXT, "logout").click()
+        assert self.driver.find_element(By.CSS_SELECTOR, "#app-booth > h1").text == "Inicio de sesión | Decide!"
+        self.driver.find_element(By.NAME, "username").click()
+        self.driver.find_element(By.NAME, "username").send_keys("usuariono2fa")
+        self.driver.find_element(By.NAME, "password").send_keys("1234qwer")
+        self.driver.find_element(By.CSS_SELECTOR, ".btn").click()
+        assert self.driver.find_element(By.CSS_SELECTOR, "#app-booth > h1").text == "Bienvenido a Decide! USUARIONO2FA"
 
   #Un usuario no rellena correctamente el formulario de registro, las passwords no coinciden y el teléfono no tiene formato correcto
     def test_formularioRegistroIncorrecto(self):
