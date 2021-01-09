@@ -330,9 +330,9 @@ class Voting(models.Model):
         self.save()
 
         #Comprimimos el fichero
-        #comprimido.add("voting/results", "tar", "voting/files")
         comprimido = tarfile.open('voting/results/results.tar', mode='a')
-        comprimido.add(fname)
+        if not fname in comprimido.getnames():
+            comprimido.add(fname)
         comprimido.close()
         os.remove(fname)
 
