@@ -46,15 +46,15 @@ class TestFormularioRegistro(StaticLiveServerTestCase):
         self.driver.find_element(By.ID, "id_password2").send_keys("1234qwer")
         self.driver.find_element(By.ID, "id_phone").click()
         self.driver.find_element(By.ID, "id_phone").send_keys("000000000")
-        self.driver.find_element(By.CSS_SELECTOR, "button").click()
-        assert self.driver.find_element(By.CSS_SELECTOR, "h1").text == "Bienvenido a Decide! USUARIONO2FA"
-        self.driver.find_element(By.LINK_TEXT, "Logout").click()
-        assert self.driver.find_element(By.CSS_SELECTOR, "h1").text == "Inicio de sesión | Decide!"
+        self.driver.find_element(By.CSS_SELECTOR, ".btn").click()
+        assert self.driver.find_element(By.CSS_SELECTOR, "#app-booth > h1").text == "Bienvenido a Decide! USUARIONO2FA"
+        self.driver.find_element(By.LINK_TEXT, "logout").click()
+        assert self.driver.find_element(By.CSS_SELECTOR, "#app-booth > h1").text == "Inicio de sesión | Decide!"
         self.driver.find_element(By.NAME, "username").click()
         self.driver.find_element(By.NAME, "username").send_keys("usuariono2fa")
         self.driver.find_element(By.NAME, "password").send_keys("1234qwer")
-        self.driver.find_element(By.CSS_SELECTOR, "button").click()
-        assert self.driver.find_element(By.CSS_SELECTOR, "h1").text == "Bienvenido a Decide! USUARIONO2FA"
+        self.driver.find_element(By.CSS_SELECTOR, ".btn").click()
+        assert self.driver.find_element(By.CSS_SELECTOR, "#app-booth > h1").text == "Bienvenido a Decide! USUARIONO2FA"
 
   #Un usuario no rellena correctamente el formulario de registro, las passwords no coinciden y el teléfono no tiene formato correcto
     def test_formularioRegistroIncorrecto(self):
@@ -71,5 +71,5 @@ class TestFormularioRegistro(StaticLiveServerTestCase):
         self.driver.find_element(By.ID, "id_phone").click()
         self.driver.find_element(By.ID, "id_phone").send_keys("error")
         self.driver.find_element(By.CSS_SELECTOR, "button").click()
-        assert self.driver.find_element(By.CSS_SELECTOR, ".errorlist:nth-child(9) > li").text == "The two password fields didn't match."
-        assert self.driver.find_element(By.CSS_SELECTOR, ".errorlist:nth-child(13) > li").text == "El teléfono debe estar formado por 9 dígitos"
+        assert self.driver.find_element(By.CSS_SELECTOR, ".text-danger").text == "The two password fields didn't match."
+        assert self.driver.find_element(By.CSS_SELECTOR, ".errorlist > li").text == "El teléfono debe estar formado por 9 dígitos"
