@@ -126,26 +126,12 @@ class VotingTestCase(BaseTestCase):
    
     @parameterized.expand([
         ["correct_question", "test_descripcion"],
-        ["no_description", ""]
     ])
     def test_parametrizado_question(self, title, desc):
         q = Question(desc=desc)
-        if title=="no_description":
-            with self.assertRaises(ValidationError):
-                q.full_clean()
-        else:
-            q.save()
-            self.assertIsNotNone(Question.objects.get(desc=desc))
-
-    def test_parametrizado(self, title, name, desc, slug):
-        q = self.create_question()
-        if title == "no_question":
-            v = Voting(name=name, desc=desc, slug=slug)
-        else:
-            v = Voting(name=name, desc=desc, question=q, slug=slug)
-        # v.save()
-        with self.assertRaises(ValidationError):
-            v.full_clean()
+        
+        q.save()
+        self.assertIsNotNone(Question.objects.get(desc=desc))
 
     def test_question_invalid(self):
         q = Question(desc='')
