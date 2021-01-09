@@ -106,13 +106,14 @@ class VotingTestCase(BaseTestCase):
 
     @parameterized.expand([
         ["bad_slug", "test_voting1", "description1","slug!prueba1"],
+        ["no_name", "", "description2","slugprueba"],
     ])
     def test_parametrizado(self, title, name, desc, slug):
         q = self.create_question()
         print(name)
         print(desc)
         print(slug)
-        #if title == "no_question":
+        # if title == "no_question":
         v = Voting(name=name, desc=desc, slug=slug)
         #else:
         v = Voting(name=name, desc=desc, question=q, slug=slug)
