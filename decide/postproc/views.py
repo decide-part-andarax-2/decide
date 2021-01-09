@@ -224,6 +224,28 @@ class PostProcView(APIView):
 
         return self.dhont(out, seats)
 
+    def webster(self, options, seats):
+        out = []
+
+        for opt in options:
+            out.append({
+                **opt,
+                'postproc': 0,
+            })
+
+        asientos = 0
+        while asientos < seats:
+            cocientes = []
+            for i in range(len(out)):
+                cocientes.append(out[i]['votes'] / (2 * out[i]['postproc']))
+
+            ganador = cocientes.index(max(cocientes))
+            out[ganador]['postproc'] = out[ganador]['postproc'] + 1
+            asientos += 1
+
+        out.sort(key=lambda x: -x['votes'])
+        return out
+
 
     def post(self, request):
         """
@@ -273,6 +295,11 @@ class PostProcView(APIView):
                    return Response(self.aplicarParidad(results))
                 else:    
                     return Response(self.dhont(opts, s))
+        elif t == 'WEBSTER':
+            if(s==None):
+                return Response({}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response(self.webster(opts, s))
         else:
             return Response({}, status=status.HTTP_400_BAD_REQUEST)
         return Response({})
