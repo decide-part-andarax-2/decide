@@ -237,7 +237,7 @@ class PostProcView(APIView):
         while asientos < seats:
             cocientes = []
             for i in range(len(out)):
-                cocientes.append(out[i]['votes'] / (2 * out[i]['postproc']))
+                cocientes.append(out[i]['votes'] / (2 * out[i]['postproc'] + 1))
 
             ganador = cocientes.index(max(cocientes))
             out[ganador]['postproc'] = out[ganador]['postproc'] + 1
