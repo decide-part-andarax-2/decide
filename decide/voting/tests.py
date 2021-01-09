@@ -108,8 +108,9 @@ class VotingTestCase(BaseTestCase):
         return user
 
     @parameterized.expand([
+        ["correct_voting", "test_voting", "description","slugprueba"],
         ["bad_slug", "test_voting1", "description1","slug!prueba1"],
-        ["no_name", "", "description2","slugprueba"],
+        ["no_name", "", "description2","slugprueba2"],
         ["no_slug", "test_voting_3", "description3",""],
         ["no_question", "test_voting_4", "description4","slugprueba4"]
     ])
@@ -119,9 +120,44 @@ class VotingTestCase(BaseTestCase):
             v = Voting(name=name, desc=desc, slug=slug)
         else:
             v = Voting(name=name, desc=desc, question=q, slug=slug)
-        # v.save()
+        if not title == "correct_voting":
+            with self.assertRaises(ValidationError):
+                v.full_clean()
+        else:
+            v.save()
+            self.assertIsNotNone(Voting.objects.get(name=name))
+
+    @parameterized.expand([
+        ["correct_question", "test_descripcion"],
+        ["no_description", ""]
+    ])
+    def test_parametrizado_question(self, title, desc):
+        q = Question(desc=desc)
+        if title=="no_description":
+            with self.assertRaises(ValidationError):
+                q.full_clean()
+        else:
+            q.save()
+            self.assertIsNotNone(Question.objects.get(desc=desc))
+
+    @parameterized.expand([
+        ["correct_question_option", "10", "option"],
+        ["no_option", "11", ""]
+    ])
+    def test_parametrizado_question_option(self, title, number, option):
+        question = self.create_question()
+        qo = QuestionOption(question=question, number=int(number), option=option)
+        if title=="no_option":
+            with self.assertRaises(ValidationError):
+                qo.full_clean()
+        else:
+            qo.save()
+            self.assertIsNotNone(QuestionOption.objects.get(option=option))
+
+    def test_question_invalid(self):
+        q = Question(desc='')
         with self.assertRaises(ValidationError):
-            v.full_clean()
+            q.full_clean()
 
     def test_voting_toString(self):
         v = self.create_voting()
