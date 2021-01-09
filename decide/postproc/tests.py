@@ -1,3 +1,10 @@
+import random
+import itertools
+import time
+import os
+import tarfile
+import shutil
+
 from django.test import TestCase
 
 from rest_framework.test import APIClient
@@ -765,14 +772,124 @@ class PostProcViewsTestCase(StaticLiveServerTestCase):
 
     def test_logIn(self):
        
-        driver = self.driver
+        #Log In
+
         User.objects.create_superuser('maria', 'egc@decide.com', 'egcegcegc')
         self.driver.get(f'{self.live_server_url}/admin/')
         self.driver.set_window_size(789, 986)
         self.driver.find_element(By.ID, "id_username").click()
         self.driver.find_element(By.ID, "id_username").send_keys("maria")
         self.driver.find_element(By.ID, "id_password").click()
-        self.driver.find_element(By.ID, "id_password").send_keys("egcegcegc")
+        self.driver.find_element(By.ID, "id_password").send_keys("egcegcegc", Keys.ENTER)
+        
+        # Creacion pregunta
 
+        driver = self.driver
+        driver.find_element_by_xpath("//a[contains(@href, \'/admin/voting/question/add/\')]").click()
+        driver.find_element_by_id("id_desc").click()
+        driver.find_element_by_id("id_desc").send_keys("¿Tienes aprobada EGC?")
+        driver.find_element_by_id("id_options-0-number").click()
+        driver.find_element_by_id("id_options-0-number").send_keys("1")
+        driver.find_element_by_id("id_options-0-option").click()
+        driver.find_element_by_id("id_options-0-option").send_keys("Si")
+        driver.find_element_by_id("id_options-1-number").click()
+        driver.find_element_by_id("id_options-1-number").send_keys("2")
+        driver.find_element_by_id("id_options-1-option").click()
+        driver.find_element_by_id("id_options-1-option").send_keys("No")
+        driver.find_element_by_name("_save").click()
+
+        # Creacion votacion
+
+        self.driver.find_element(By.LINK_TEXT, "Home").click()
+        driver.find_element_by_xpath("//a[contains(@href, \'/admin/voting/voting/add/\')]").click()
+        driver.find_element_by_id("id_name").click()
+        driver.find_element_by_id("id_name").send_keys("EGC")
+        dropdown = self.driver.find_element(By.ID, "id_question")
+        dropdown.find_element(By.XPATH, "//option[. = '¿Tienes aprobada EGC?']").click()
+        element = self.driver.find_element(By.ID, "id_question")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).click_and_hold().perform()
+        element = self.driver.find_element(By.ID, "id_question")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).perform()
+        element = self.driver.find_element(By.ID, "id_question")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).release().perform()
+        self.driver.find_element(By.ID, "id_question").click()
+        self.driver.find_element(By.ID, "id_slug").click()
+        self.driver.find_element(By.ID, "id_slug").send_keys("egc")
+        dropdown = self.driver.find_element(By.ID, "id_voting_type")
+        dropdown.find_element(By.XPATH, "//option[. = 'ABSOLUTA']").click()
+        element = self.driver.find_element(By.ID, "id_voting_type")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).click_and_hold().perform()
+        element = self.driver.find_element(By.ID, "id_voting_type")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).perform()
+        element = self.driver.find_element(By.ID, "id_voting_type")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).release().perform()
+        self.driver.find_element(By.ID, "id_voting_type").click()
+
+        # Creacion de Auth        
+
+        self.vars["window_handles"] = self.driver.window_handles
+        self.driver.find_element(By.CSS_SELECTOR, "#add_id_auths > img").click()
+        self.vars["win4952"] = self.wait_for_window(2000)
+        self.vars["root"] = self.driver.current_window_handle
+        self.driver.switch_to.window(self.vars["win4952"])
+        self.driver.find_element(By.ID, "id_name").click()
+        self.driver.find_element(By.ID, "id_name").send_keys("EGC")
+        self.driver.find_element(By.ID, "id_url").click()
+        self.driver.find_element(By.ID, "id_url").send_keys(f'{self.live_server_url}')
+        self.driver.find_element(By.NAME, "_save").click()
+
+        # Terminar creacion votacion 
+
+        self.driver.switch_to.window(self.vars["root"])
+        self.driver.find_element(By.NAME, "_save").click()
+
+        # Creacion usuarios
+
+        self.driver.find_element(By.LINK_TEXT, "Home").click()
+        driver.find_element_by_xpath("//a[contains(@href, \'/admin/auth/user/add/\')]").click()
+        self.driver.find_element(By.ID, "id_username").send_keys("uno")
+        self.driver.find_element(By.ID, "id_password1").click()
+        self.driver.find_element(By.ID, "id_password1").send_keys("decide2020")
+        self.driver.find_element(By.ID, "id_password2").click()
+        self.driver.find_element(By.ID, "id_password2").send_keys("decide2020")
+        self.driver.find_element(By.NAME, "_save").click()
+        self.driver.find_element(By.LINK_TEXT, "Home").click()
+        driver.find_element_by_xpath("//a[contains(@href, \'/admin/auth/user/add/\')]").click()
+        self.driver.find_element(By.ID, "id_username").click()
+        self.driver.find_element(By.ID, "id_username").send_keys("dos")
+        self.driver.find_element(By.ID, "id_password1").click()
+        self.driver.find_element(By.ID, "id_password1").send_keys("decide2020")
+        self.driver.find_element(By.ID, "id_password2").click()
+        self.driver.find_element(By.ID, "id_password2").send_keys("decide2020")
+        self.driver.find_element(By.NAME, "_save").click()
+
+        # Creacion de permisos
+
+        self.driver.find_element(By.LINK_TEXT, "Home").click()
+        driver.find_element_by_xpath("//a[contains(@href, \'/admin/census/census/add/\')]").click()
+        self.driver.find_element(By.ID, "id_voting_id").send_keys("1")
+        self.driver.find_element(By.ID, "id_voter_id").click()
+        self.driver.find_element(By.ID, "id_voter_id").send_keys("1")
+        self.driver.find_element(By.NAME, "_save").click()
+        driver.find_element_by_xpath("//a[contains(@href, \'/admin/census/census/add/\')]").click()
+        self.driver.find_element(By.ID, "id_voting_id").click()
+        self.driver.find_element(By.ID, "id_voting_id").send_keys("1")
+        self.driver.find_element(By.ID, "id_voter_id").click()
+        self.driver.find_element(By.ID, "id_voter_id").send_keys("2")
+        self.driver.find_element(By.NAME, "_save").click()
+        driver.find_element_by_xpath("//a[contains(@href, \'/admin/census/census/add/\')]").click()
+        self.driver.find_element(By.ID, "id_voting_id").click()
+        self.driver.find_element(By.ID, "id_voting_id").send_keys("1")
+        self.driver.find_element(By.ID, "id_voter_id").click()
+        self.driver.find_element(By.ID, "id_voter_id").send_keys("3")
+        self.driver.find_element(By.NAME, "_save").click()
+        
+        # 
     
   
