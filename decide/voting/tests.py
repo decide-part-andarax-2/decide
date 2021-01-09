@@ -27,6 +27,8 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 
+from parameterized import parameterized
+
 
 class VotingTestCase(BaseTestCase):
 
@@ -45,34 +47,47 @@ class VotingTestCase(BaseTestCase):
         k.k = ElGamal.construct((p, g, y))
         return k.encrypt(msg)
 
-    def create_voting(self):
+    @classmethod
+    def create_auth(self):
+        a, _ = Auth.objects.get_or_create(url=settings.BASEURL,
+                                          defaults={'me': True, 'name': 'test auth'})
+        a.save()
+        return a
+
+    @classmethod
+    def create_question(self):
         q = Question(desc='test question')
         q.save()
         for i in range(5):
             opt = QuestionOption(question=q, option='option {}'.format(i+1))
             opt.save()
-        v = Voting(name='test voting', question=q, link="prueba")
-        v.save()
+        return q
 
-        a, _ = Auth.objects.get_or_create(url=settings.BASEURL,
-                                          defaults={'me': True, 'name': 'test auth'})
-        a.save()
-        v.auths.add(a)
-
-        return v
-
-    def create_order_voting(self):
+    @classmethod
+    def create_ordered_question(self):
         q = Question(desc='test ordering question')
         q.save()
         for i in range(5):
             opt = QuestionOrder(question=q, option='ordering option {}'.format(i+1), order_number='{}'.format(i+1))
             opt.save()
+        return q
+
+    def create_voting(self):
+        q = self.create_question()
+        v = Voting(name='test voting', question=q, slug="prueba")
+        v.save()
+
+        a = self.create_auth()
+        v.auths.add(a)
+
+        return v
+
+    def create_order_voting(self):
+        q = self.create_ordered_question()
         v = Voting(name='test ordering voting', question=q)
         v.save()
 
-        a, _ = Auth.objects.get_or_create(url=settings.BASEURL,
-                                          defaults={'me': True, 'name': 'test auth'})
-        a.save()
+        a = self.create_auth()
         v.auths.add(a)
 
         return v
@@ -91,6 +106,22 @@ class VotingTestCase(BaseTestCase):
         user.set_password('qwerty')
         user.save()
         return user
+
+    @parameterized.expand([
+        ["bad_slug", "test_voting1", "description1","slug!prueba1"],
+        ["no_name", "", "description2","slugprueba"],
+        ["no_slug", "test_voting_3", "description3",""],
+        ["no_question", "test_voting_4", "description4","slugprueba4"]
+    ])
+    def test_parametrizado(self, title, name, desc, slug):
+        q = self.create_question()
+        if title == "no_question":
+            v = Voting(name=name, desc=desc, slug=slug)
+        else:
+            v = Voting(name=name, desc=desc, question=q, slug=slug)
+        # v.save()
+        with self.assertRaises(ValidationError):
+            v.full_clean()
 
     def test_voting_toString(self):
         v = self.create_voting()
@@ -168,7 +199,7 @@ class VotingTestCase(BaseTestCase):
 
         self.assertTrue(os.path.exists("voting/results/results.tar"))
         tarfl = tarfile.open("voting/results/results.tar", "r")
-        name = "voting/results/v" + str(v.id)  + "_" + v.link + ".txt"
+        name = "voting/results/v" + str(v.id)  + "_" + v.slug + ".txt"
         self.assertTrue(name in tarfl.getnames())
         tarfl.close()
 
@@ -190,7 +221,7 @@ class VotingTestCase(BaseTestCase):
         data = {
             'name': 'Example',
             'desc': 'Description example',
-            'link': 'example',
+            'slug': 'example',
             'question': 'I want a ',
             'question_opt': ['cat', 'dog', 'horse'],
             'question_ord': []
@@ -209,7 +240,7 @@ class VotingTestCase(BaseTestCase):
         data = {
             'name': 'Example',
             'desc': 'Description example',
-            'link': 'example',
+            'slug': 'example',
             'question': 'I want a ',
             'question_opt': [],
             'question_ord': ['cat', 'dog', 'horse']
@@ -328,7 +359,7 @@ class VotingModelTestCase(BaseTestCase):
         opt1.save()
         opt2.save()
 
-        self.v=Voting(name="Votacion",question=q, link="link1")
+        self.v=Voting(name="Votacion",question=q, slug="slug1")
         self.v.save()
 
         q2=Question(desc="Segunda Pregunta")
@@ -339,7 +370,7 @@ class VotingModelTestCase(BaseTestCase):
         q2_opt1.save()
         q2_opt2.save()
 
-        self.v2=Voting(name="Segunda Votacion",question=q2, link="link2")
+        self.v2=Voting(name="Segunda Votacion",question=q2, slug="slug2")
         self.v2.save()
         super().setUp()
 
@@ -792,7 +823,7 @@ class VotingViewsTestCase(StaticLiveServerTestCase):
         time.sleep(1)
         self.driver.find_element_by_id('id_name').send_keys("Voting selenium test")
         self.driver.find_element_by_id('id_desc').send_keys("Voting selenium test desc")
-        self.driver.find_element_by_id('id_link').send_keys("¡!")
+        self.driver.find_element_by_id('id_slug').send_keys("¡!")
         self.driver.find_element_by_id('id_question').click()
         self.vars["window_handles"] = self.driver.window_handles
         #Proceso para añadir una pregunta y sus opciones
@@ -1004,7 +1035,7 @@ class VotingViewsTestCase(StaticLiveServerTestCase):
         self.driver.find_element(By.CSS_SELECTOR, ".addlink").click()
         self.driver.find_element_by_id('id_name').send_keys("Voting selenium test")
         self.driver.find_element_by_id('id_desc').send_keys("Voting selenium test desc")
-        self.driver.find_element_by_id('id_link').send_keys("seleniumtest")
+        self.driver.find_element_by_id('id_slug').send_keys("seleniumtest")
         self.driver.find_element_by_id('id_question').click()
         self.vars["window_handles"] = self.driver.window_handles
         #Proceso para añadir una pregunta y sus opciones
@@ -1050,7 +1081,7 @@ class VotingViewsTestCase(StaticLiveServerTestCase):
         self.driver.find_element(By.CSS_SELECTOR, ".addlink").click()
         self.driver.find_element_by_id('id_name').send_keys("Ordering voting test")
         self.driver.find_element_by_id('id_desc').send_keys("Ordering voting test desc")
-        self.driver.find_element_by_id('id_link').send_keys("seleniumtest")
+        self.driver.find_element_by_id('id_slug').send_keys("seleniumtest")
         self.driver.find_element_by_id('id_question').click()
         self.vars["window_handles"] = self.driver.window_handles
         #Proceso para añadir una pregunta y sus opciones
@@ -1103,7 +1134,7 @@ class VotingViewsTestCase(StaticLiveServerTestCase):
         self.driver.find_element(By.CSS_SELECTOR, ".addlink").click()
         self.driver.find_element_by_id('id_name').send_keys("Ordering voting test")
         self.driver.find_element_by_id('id_desc').send_keys("Ordering voting test desc")
-        self.driver.find_element_by_id('id_link').send_keys("seleniumtest")
+        self.driver.find_element_by_id('id_slug').send_keys("seleniumtest")
         self.driver.find_element_by_id('id_question').click()
         self.vars["window_handles"] = self.driver.window_handles
         #Proceso para añadir una pregunta y sus opciones
@@ -1173,7 +1204,7 @@ class VotingViewsTestCase(StaticLiveServerTestCase):
         self.driver.find_element(By.CSS_SELECTOR, ".addlink").click()
         self.driver.find_element_by_id('id_name').send_keys("Ordering voting test")
         self.driver.find_element_by_id('id_desc').send_keys("Ordering voting test desc")
-        self.driver.find_element_by_id('id_link').send_keys("seleniumtest")
+        self.driver.find_element_by_id('id_slug').send_keys("seleniumtest")
         self.driver.find_element_by_id('id_question').click()
         self.vars["window_handles"] = self.driver.window_handles
         #Proceso para añadir una pregunta y sus opciones
@@ -1216,7 +1247,7 @@ class VotingViewsTestCase(StaticLiveServerTestCase):
         self.driver.find_element(By.CSS_SELECTOR, ".addlink").click()
         self.driver.find_element_by_id('id_name').send_keys("Ordering voting test")
         self.driver.find_element_by_id('id_desc').send_keys("Ordering voting test desc")
-        self.driver.find_element_by_id('id_link').send_keys("seleniumtest")
+        self.driver.find_element_by_id('id_slug').send_keys("seleniumtest")
         self.driver.find_element_by_id('id_question').click()
         self.vars["window_handles"] = self.driver.window_handles
         #Proceso para añadir una pregunta y sus opciones
@@ -1276,7 +1307,7 @@ class VotingViewsTestCase(StaticLiveServerTestCase):
         self.driver.find_element(By.CSS_SELECTOR, ".addlink").click()
         self.driver.find_element_by_id('id_name').send_keys("Voting test")
         self.driver.find_element_by_id('id_desc').send_keys("Test description")
-        self.driver.find_element_by_id('id_link').send_keys("test")
+        self.driver.find_element_by_id('id_slug').send_keys("test")
         self.driver.find_element_by_id('id_question').click()
         self.vars["window_handles"] = self.driver.window_handles
         #Proceso para añadir una pregunta y sus opciones
@@ -1336,7 +1367,7 @@ class VotingViewsTestCase(StaticLiveServerTestCase):
         self.driver.find_element(By.CSS_SELECTOR, ".addlink").click()
         self.driver.find_element_by_id('id_name').send_keys("Voting_test")
         self.driver.find_element_by_id('id_desc').send_keys("Test description")
-        self.driver.find_element_by_id('id_link').send_keys("test")
+        self.driver.find_element_by_id('id_slug').send_keys("test")
         self.driver.find_element_by_id('id_question').click()
         self.vars["window_handles"] = self.driver.window_handles
         #Proceso para añadir una pregunta y sus opciones
@@ -1378,8 +1409,8 @@ class VotingViewsTestCase(StaticLiveServerTestCase):
         time.sleep(1)
         #Modificamos la URL de la votación creada
         self.driver.find_element(By.XPATH, "//a[contains(.,'Voting_test')]").click()
-        self.driver.find_element_by_id('id_link').clear()
-        self.driver.find_element_by_id('id_link').send_keys("testselenium")
+        self.driver.find_element_by_id('id_slug').clear()
+        self.driver.find_element_by_id('id_slug').send_keys("testselenium")
         time.sleep(1)
         self.driver.find_element(By.NAME, "_save").click()
         time.sleep(1)
@@ -1403,7 +1434,7 @@ class OrderVotingTestCase(BaseTestCase):
         qo3 = QuestionOrder(question = q1, option = 'Third option', number=3, order_number=3)
         qo3.save()
       
-        self.v=Voting(name="Mock voting",question=q1, link="testlink1")
+        self.v=Voting(name="Mock voting",question=q1, slug="testslug1")
         self.v.save()
 
         super().setUp()
@@ -1426,7 +1457,7 @@ class OrderVotingTestCase(BaseTestCase):
         qo23 = QuestionOrder(question = q2, option = 'Third option', number=3, order_number=1)
         qo23.save()
 
-        self.v2=Voting(name="Second mock voting",question=q2, link="testlink2")
+        self.v2=Voting(name="Second mock voting",question=q2, slug="testslug2")
         self.v2.save()
 
         self.assertEquals(len(q2.order_options.all()), 3)
