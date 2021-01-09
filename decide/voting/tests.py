@@ -123,7 +123,7 @@ class VotingTestCase(BaseTestCase):
         if not title == "correct_voting":
             with self.assertRaises(ValidationError):
                 v.full_clean()
-        else: 
+        else:
             v.save()
             self.assertIsNotNone(Voting.objects.get(name=name))
 
