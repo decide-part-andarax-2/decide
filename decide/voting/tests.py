@@ -27,7 +27,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
 
-import parameterized
+from parameterized import parameterized
 
 
 class VotingTestCase(BaseTestCase):
@@ -104,10 +104,21 @@ class VotingTestCase(BaseTestCase):
         user.save()
         return user
 
-    # @parameterized(
-    #     "test_voting1", "description1","question","slug_prueba", "auth"
-    # )
-    # def test_parametrizado(self,)
+    @parameterized.expand([
+        ["bad_slug", "test_voting1", "description1","slug!prueba1"],
+    ])
+    def test_parametrizado(self, title, name, desc, slug):
+        q = self.create_question()
+        print(name)
+        print(desc)
+        print(slug)
+        #if title == "no_question":
+        v = Voting(name=name, desc=desc, slug=slug)
+        #else:
+        v = Voting(name=name, desc=desc, question=q, slug=slug)
+        # v.save()
+        with self.assertRaises(ValidationError):
+            v.full_clean()
 
     def test_voting_toString(self):
         v = self.create_voting()
