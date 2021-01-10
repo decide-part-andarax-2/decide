@@ -61,6 +61,7 @@ AUTHENTICATION_BACKENDS = [
     'social_core.backends.github.GithubOAuth2',
     'django.contrib.auth.backends.ModelBackend',
     'social_core.backends.google.GoogleOAuth2',
+    'social_core.backends.facebook.FacebookOAuth2',
 ]
 
 MODULES = [
@@ -233,6 +234,9 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "nLfEUVAqlrd5B52xOaVeL-OV"
 
 #SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "650186665562-0ff442s8o4iivmfq537eh6kaf4tq3mlh.apps.googleusercontent.com"
 #SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "w3jKxJdbXL-LatKxkcfFShYl"
+
+SOCIAL_AUTH_FACEBOOK_KEY = "587538528871702"        
+SOCIAL_AUTH_FACEBOOK_SECRET = "120e5ca116b0a7659853d4e7ace9f47c" 
 
 SOCIAL_AUTH_USER_FIELDS = ['username']
 

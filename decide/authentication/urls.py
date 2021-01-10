@@ -2,7 +2,8 @@ from django.urls import include, path
 from rest_framework.authtoken.views import obtain_auth_token
 from django.contrib.auth.decorators import login_required
 
-from .views import GetUserView, LogoutView, RegisterView, EmailGenerateTokenView, EmailConfirmTokenView, registro_usuario, inicio, github_redirect, logoutGitHub, ObtainAuthTokenSecondFactor, google_redirect, logoutGoogle
+
+from .views import GetUserView, LogoutView, RegisterView, EmailGenerateTokenView, EmailConfirmTokenView, registro_usuario, inicio, github_redirect, logoutGitHub, ObtainAuthTokenSecondFactor, google_redirect, logoutGoogle, facebook_redirect, logoutFacebook
 
 
 urlpatterns = [
@@ -19,7 +20,9 @@ urlpatterns = [
     path('github-redirect',github_redirect),
     path('logoutGithub/',logoutGitHub),
     path('google-redirect',google_redirect),
-    path('logoutGoogle/',logoutGoogle)
+    path('logoutGoogle/',logoutGoogle),
+    path('facebook-redirect',facebook_redirect),
+    path('logoutFacebook/',logoutFacebook)
 
 
 ]
