@@ -1,25 +1,14 @@
 
-from django.test import TestCase
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 
 from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.support import expected_conditions
-from django.contrib.auth.models import User
 from base.tests import BaseTestCase
-import itertools
-import time
-from voting.models import Voting, Question, QuestionOption, QuestionOrder
+from voting.models import Voting, Question, QuestionOption
 from django.conf import settings
 from mixnet.models import Auth
 from django.utils import timezone
-import logging
 
 class Facebook(StaticLiveServerTestCase):
 
