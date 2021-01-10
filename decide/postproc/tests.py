@@ -770,7 +770,7 @@ class PostProcViewsTestCase(StaticLiveServerTestCase):
         if len(wh_now) > len(wh_then):
             return set(wh_now).difference(set(wh_then)).pop()
 
-    def test_logIn(self):
+    def test_postproc_views(self):
        
         #Log In
 
@@ -890,6 +890,67 @@ class PostProcViewsTestCase(StaticLiveServerTestCase):
         self.driver.find_element(By.ID, "id_voter_id").send_keys("3")
         self.driver.find_element(By.NAME, "_save").click()
         
-        # 
-    
-  
+        # Iniciar votacion
+
+        self.driver.find_element(By.LINK_TEXT, "Home").click()
+        self.driver.find_element(By.LINK_TEXT, "Votings").click()
+        self.driver.find_element(By.NAME, "_selected_action").click()
+        dropdown = self.driver.find_element(By.NAME, "action")
+        dropdown.find_element(By.XPATH, "//option[. = 'Start']").click()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).click_and_hold().perform()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).perform()
+        element = self.driver.find_element(By.NAME, "action")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).release().perform()
+        self.driver.find_element(By.NAME, "action").click()
+        self.driver.find_element(By.NAME, "index").click()
+
+        # Votaciones 
+
+        self.driver.get(f'{self.live_server_url}/booth/1')
+        self.driver.find_element(By.ID, "username").click()
+        self.driver.find_element(By.ID, "username").send_keys("maria")
+        self.driver.find_element(By.ID, "password").click()
+        self.driver.find_element(By.ID, "password").send_keys("egcegcegc")
+        self.driver.find_element(By.ID, "username").submit()
+        time.sleep(5)
+        self.driver.find_element(By.XPATH, "//h1[contains(.,' - EGC')]")
+        self.driver.find_element(By.XPATH, "//h2[contains(.,'¿Tienes aprobada EGC?')]")
+        self.driver.find_element(By.XPATH, "//label[contains(.,'No')]").click()
+        self.driver.find_element(By.CSS_SELECTOR, ".btn:nth-child(4)").click()
+        self.driver.find_element(By.CSS_SELECTOR, ".btn-primary:nth-child(1)").click()
+        self.driver.find_element(By.CSS_SELECTOR, "html").click()
+        time.sleep(5)
+        self.driver.get(f'{self.live_server_url}/booth/1')
+        self.driver.find_element(By.ID, "username").click()
+        self.driver.find_element(By.ID, "username").send_keys("uno")
+        self.driver.find_element(By.ID, "password").click()
+        self.driver.find_element(By.ID, "password").send_keys("decide2020")
+        self.driver.find_element(By.ID, "username").submit()
+        time.sleep(5)
+        self.driver.find_element(By.XPATH, "//h1[contains(.,' - EGC')]")
+        self.driver.find_element(By.XPATH, "//h2[contains(.,'¿Tienes aprobada EGC?')]")
+        self.driver.find_element(By.XPATH, "//label[contains(.,'Si')]").click()
+        self.driver.find_element(By.CSS_SELECTOR, ".btn:nth-child(4)").click()
+        self.driver.find_element(By.CSS_SELECTOR, ".btn-primary:nth-child(1)").click()
+        self.driver.find_element(By.CSS_SELECTOR, "html").click()
+        time.sleep(5)
+        self.driver.get(f'{self.live_server_url}/booth/1')
+        self.driver.find_element(By.ID, "username").click()
+        self.driver.find_element(By.ID, "username").send_keys("dos")
+        self.driver.find_element(By.ID, "password").click()
+        self.driver.find_element(By.ID, "password").send_keys("decide2020")
+        self.driver.find_element(By.ID, "username").submit()
+        time.sleep(5)
+        self.driver.find_element(By.XPATH, "//h1[contains(.,' - EGC')]")
+        self.driver.find_element(By.XPATH, "//h2[contains(.,'¿Tienes aprobada EGC?')]")
+        self.driver.find_element(By.XPATH, "//label[contains(.,'No')]").click()
+        self.driver.find_element(By.CSS_SELECTOR, ".btn:nth-child(4)").click()
+        self.driver.find_element(By.CSS_SELECTOR, ".btn-primary:nth-child(1)").click()
+        self.driver.find_element(By.CSS_SELECTOR, "html").click()
+
+
