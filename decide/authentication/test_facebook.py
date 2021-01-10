@@ -9,7 +9,6 @@ from voting.models import Voting, Question, QuestionOption
 from django.conf import settings
 from mixnet.models import Auth
 from django.utils import timezone
-import time
 from selenium.webdriver.support.ui import WebDriverWait
 import geckodriver_autoinstaller
 
@@ -77,6 +76,5 @@ class Facebook(StaticLiveServerTestCase):
         self.driver.find_element(By.ID, "email").send_keys("jesgamlar@alum.us.es")
         self.driver.find_element(By.ID, "pass").send_keys("fdasffa")
         self.driver.find_element(By.ID, "pass").send_keys(Keys.ENTER)
-        time.sleep()
         assert self.driver.find_element(By.ID, "pass").text == ""
 
