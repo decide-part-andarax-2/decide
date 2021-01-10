@@ -59,6 +59,9 @@ class Facebook(StaticLiveServerTestCase):
         self.v.delete()
 
     def test_emailincorrecto(self):
+        self.driver.get(f'{self.live_server_url}/booth/{self.v.pk}')
+        assert self.driver.find_element(By.CSS_SELECTOR, ".voting > h1").text == f"{self.v.pk} - Prueba votación"
+
         self.driver.find_element(By.LINK_TEXT, "Login con Facebook").click()
         self.driver.find_element(By.ID, "email").click()
         self.driver.find_element(By.ID, "email").send_keys("practica@practica.practica")
@@ -72,11 +75,12 @@ class Facebook(StaticLiveServerTestCase):
         assert self.driver.title == "Iniciar sesión en Facebook | Facebook"
 
     def test_contraseaincorrecta(self):
+        self.driver.get(f'{self.live_server_url}/booth/{self.v.pk}')
+        assert self.driver.find_element(By.CSS_SELECTOR, ".voting > h1").text == f"{self.v.pk} - Prueba votación"
+        self.driver.set_window_size(824, 824)
         self.driver.find_element(By.LINK_TEXT, "Login con Facebook").click()
-        self.driver.find_element(By.ID, "email").click()
         self.driver.find_element(By.ID, "email").send_keys("jesgamlar@alum.us.es")
-        self.driver.find_element(By.ID, "pass").click()
-        self.driver.find_element(By.ID, "pass").send_keys("fdafafda")
-        self.driver.find_element(By.ID, "loginbutton").click()
-        assert self.driver.find_element(By.CSS_SELECTOR, ".uiHeaderTitle").text == "Introduce el código de seguridad"
-  
+        self.driver.find_element(By.ID, "pass").send_keys("fdasffa")
+        self.driver.find_element(By.ID, "pass").send_keys(Keys.ENTER)
+        assert self.driver.find_element(By.ID, "pass").text == ""
+    
