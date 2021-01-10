@@ -58,4 +58,15 @@ class Facebook(StaticLiveServerTestCase):
         self.base.tearDown()
         self.v.delete()
 
-
+    def test_emailincorrecto(self):
+        self.driver.find_element(By.LINK_TEXT, "Login con Facebook").click()
+        self.driver.find_element(By.ID, "email").click()
+        self.driver.find_element(By.ID, "email").send_keys("practica@practica.practica")
+        self.driver.find_element(By.ID, "loginbutton").click()
+        element = self.driver.find_element(By.CSS_SELECTOR, ".\\_4rbf")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).click_and_hold().perform()
+        element = self.driver.find_element(By.CSS_SELECTOR, ".\\_4-u2")
+        actions = ActionChains(self.driver)
+        actions.move_to_element(element).release().perform()
+        assert self.driver.title == "Iniciar sesión en Facebook | Facebook"
