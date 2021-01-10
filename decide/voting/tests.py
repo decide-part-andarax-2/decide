@@ -285,6 +285,48 @@ class VotingTestCase(BaseTestCase):
         response = self.client.post('/voting/', data, format='json')
         self.assertEqual(response.status_code, 201)
 
+    def test_create_voting_absoluta(self):
+        q1=Question(desc="Pregunta para votacion absoluta")
+        q1.save()
+
+        ord1 = QuestionOrder(question=q1, option="primera", order_number=2)
+        ord1.save()
+        ord2 = QuestionOrder(question=q1, option="segunda", order_number=1)
+        ord2.save()
+
+        v1=Voting(name="Votacion absoluta",question=q1,voting_type='ABSOLUTA')
+        v1.save()
+
+        self.assertEquals(Voting.objects.get(name="Votacion absoluta").voting_type, 'ABSOLUTA')
+
+    def test_create_voting_relativa(self):
+        q1=Question(desc="Pregunta para votacion relativa")
+        q1.save()
+
+        ord1 = QuestionOrder(question=q1, option="primera", order_number=2)
+        ord1.save()
+        ord2 = QuestionOrder(question=q1, option="segunda", order_number=1)
+        ord2.save()
+
+        v1=Voting(name="Votacion relativa",question=q1,voting_type='RELATIVA')
+        v1.save()
+
+        self.assertEquals(Voting.objects.get(name="Votacion relativa").voting_type, 'RELATIVA')
+
+    def test_create_voting_default_type(self):
+        q1=Question(desc="Pregunta para votacion sin tipo correcto")
+        q1.save()
+
+        ord1 = QuestionOrder(question=q1, option="primera", order_number=2)
+        ord1.save()
+        ord2 = QuestionOrder(question=q1, option="segunda", order_number=1)
+        ord2.save()
+
+        v1=Voting(name="Votacion tipo_inventado",question=q1)
+        v1.save()
+        
+        self.assertEqual(Voting.objects.get(name="Votacion tipo_inventado").voting_type, "IDENTITY")
+
     def test_update_voting(self):
         voting = self.create_voting()
 
