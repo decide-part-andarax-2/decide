@@ -10,6 +10,11 @@ coverage==4.5.2
 django-nose==1.4.6
 jsonnet==0.12.1
 selenium
+django-qr-code
 social-auth-app-django
 freezegun
 pyotp
+django-heroku
+gunicorn
+geckodriver_autoinstaller
+parameterized

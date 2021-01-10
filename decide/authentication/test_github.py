@@ -20,6 +20,10 @@ from django.conf import settings
 from mixnet.models import Auth
 from django.utils import timezone
 import logging
+import geckodriver_autoinstaller
+
+geckodriver_autoinstaller.install()
+
 
 class Github(StaticLiveServerTestCase):
 
@@ -29,7 +33,7 @@ class Github(StaticLiveServerTestCase):
         for i in range(2):
             opt = QuestionOption(question=self.q, option='Opción {}'.format(i+1))
             opt.save()
-        self.v= Voting(name='Prueba votación', question=self.q, link="prueba")
+        self.v= Voting(name='Prueba votación', question=self.q, slug="prueba")
         self.v.save()
         self.a, _ = Auth.objects.get_or_create(url=settings.BASEURL,defaults={'me': True, 'name': 'test auth'})
         self.a.save()
@@ -37,19 +41,19 @@ class Github(StaticLiveServerTestCase):
         self.v.create_pubkey()
         self.v.start_date = timezone.now()
         self.v.save()
-        
 
     def setUp(self):
 
         self.base = BaseTestCase()
         self.base.setUp()
-
         self.vars = {}
         self.create_voting()
         options = webdriver.ChromeOptions()
         options.headless = True
         self.driver = webdriver.Chrome(options=options)
 
+        self.driver = webdriver.Firefox()
+                
         super().setUp()
 
     def tearDown(self):
@@ -58,13 +62,32 @@ class Github(StaticLiveServerTestCase):
         self.base.tearDown()
         self.v.delete()
 
+    ''' 
+    #Sólo se ejecuta correctamente en local
+    def test_login_correcto_github(self):
+        #Redirección a la votación creada
+        self.driver.get(f'{self.live_server_url}/booth/{self.v.pk}')
+        assert self.driver.find_element(By.CSS_SELECTOR, ".voting > h1").text == f"{self.v.pk} - Prueba votación"
+        #Inicio sesión con github
+        self.driver.find_element(By.LINK_TEXT, "Login con GitHub").click()
+        self.driver.find_element(By.CSS_SELECTOR, "p:nth-child(2)").click()
+        assert self.driver.find_element(By.CSS_SELECTOR, "strong:nth-child(3)").text == "AuthenticationApp"
+        self.driver.find_element(By.ID, "login_field").click()
+        self.driver.find_element(By.ID, "login_field").send_keys("decideautenticacion")
+        self.driver.find_element(By.ID, "password").click()
+        self.driver.find_element(By.ID, "password").send_keys("pruebadecide11")
+        self.driver.find_element(By.NAME, "commit").click()
+        #Esperamos 4 segundos debido a las diferentes redirecciones hasta llegar de nuevo a la página de votación
+        time.sleep(3)
+        assert self.driver.find_element(By.CSS_SELECTOR, ".btn").text == "Vote"
+    '''
     #Usuario introduce una contraseña incorrecta de su cuenta de Github
     def test_login_incorrect_password(self):
         #Redirección a la votación creada
         self.driver.get(f'{self.live_server_url}/booth/{self.v.pk}')
         assert self.driver.find_element(By.CSS_SELECTOR, ".voting > h1").text == f"{self.v.pk} - Prueba votación"
         #Inicio sesión con github
-        self.driver.find_element(By.LINK_TEXT, "Iniciar sesión con Github").click()
+        self.driver.find_element(By.LINK_TEXT, "Login con GitHub").click()
         self.driver.find_element(By.CSS_SELECTOR, "p:nth-child(2)").click()
         assert self.driver.find_element(By.CSS_SELECTOR, "strong:nth-child(3)").text == "AuthenticationApp"
         self.driver.find_element(By.ID, "login_field").click()
@@ -81,7 +104,7 @@ class Github(StaticLiveServerTestCase):
         self.driver.get(f'{self.live_server_url}/booth/{self.v.pk}')
         assert self.driver.find_element(By.CSS_SELECTOR, ".voting > h1").text == f"{self.v.pk} - Prueba votación"
         #Inicio sesión con github
-        self.driver.find_element(By.LINK_TEXT, "Iniciar sesión con Github").click()
+        self.driver.find_element(By.LINK_TEXT, "Login con GitHub").click()
         self.driver.find_element(By.CSS_SELECTOR, "p:nth-child(2)").click()
         assert self.driver.find_element(By.CSS_SELECTOR, "strong:nth-child(3)").text == "AuthenticationApp"
         self.driver.find_element(By.ID, "login_field").click()

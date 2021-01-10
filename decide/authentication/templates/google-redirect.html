@@ -1,5 +1,3 @@
-
-
 {% extends "base.html" %}
 {% load i18n static %}
 
@@ -30,7 +28,7 @@
 
     </div>
 
-    
+
 {% endblock %}
 
 {% block extrabody %}
@@ -71,7 +69,7 @@
                         },
                         method: 'POST',
                     };
-                    
+
                     if (this.token) {
                         fdata.headers['Authorization'] = 'Token ' + this.token;
                     }

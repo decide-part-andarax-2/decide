@@ -12,12 +12,14 @@ from rest_framework.status import (
 from  smtplib import SMTPException
 from rest_framework.views import APIView
 from rest_framework.authtoken.models import Token
+from rest_framework.authtoken.serializers import AuthTokenSerializer
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic import TemplateView
 
+from .serializers import AuthTokenSecondFactorSerializer, EmailOTPCodeSerializer, UserSerializer
 from django.contrib.auth.forms import UserCreationForm
 from django.template import RequestContext
 from django.contrib import messages
@@ -37,25 +39,35 @@ from .forms import UserForm, ExtraForm
 from .models import Extra
 
 def registro_usuario(request, backend='django.contrib.auth.backends.ModelBackend'):
+    if request.POST.get("base32secret"):
+        base32secret = request.POST.get("base32secret")
+    else:
+        base32secret = pyotp.random_base32()
+    url_totp = pyotp.totp.TOTP(base32secret).provisioning_uri(issuer_name="Decide App")
+
     user_form = UserForm()
-    extra_form = ExtraForm()
+    extra_form = ExtraForm(initial={'base32secret':base32secret})
+
     if request.method == 'POST':
         extra_form = ExtraForm(request.POST,"extra_form")
         user_form = UserForm(request.POST,"user_form")
-
         if extra_form.is_valid() and user_form.is_valid():
             user_form.save()
             username = user_form.cleaned_data["username"]
             phone = extra_form.cleaned_data["phone"]
-            double_authentication = extra_form.cleaned_data["double_authentication"]
+            base32secret = ""
+            if extra_form.cleaned_data["totp_code"]:
+                base32secret = extra_form.cleaned_data["base32secret"]
             user = User.objects.get(username=username)
-            Extra.objects.create(phone=phone, double_authentication=double_authentication,user=user)  
-            Token.objects.get_or_create(user=user) 
-            login(request, user, backend='django.contrib.auth.backends.ModelBackend') 
+            Extra.objects.create(phone=phone, totp_code=base32secret, user=user)
+            login(request, user, backend)
             return redirect(to='inicio')
+            
     formularios = {
         "user_form":user_form,
         "extra_form":extra_form,
+        "url_totp":url_totp,
+        "base32secret":base32secret,
     }       
     return render(request, 'registro.html', formularios)
 
@@ -70,8 +82,42 @@ class GetUserView(APIView):
     def post(self, request):
         key = request.data.get('token', '')
         tk = get_object_or_404(Token, key=key)
-        return Response(UserSerializer(tk.user, many=False).data)
+        user = UserSerializer(tk.user, many=False)
+        return Response(user.data)
 
+class ObtainAuthTokenSecondFactor(APIView):
+    throttle_classes = ()
+    permission_classes = ()
+    parser_classes = (parsers.FormParser, parsers.MultiPartParser, parsers.JSONParser,)
+    renderer_classes = (renderers.JSONRenderer,)
+    serializer_class = AuthTokenSecondFactorSerializer
+
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data,
+                                           context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        
+        totp_code = serializer.validated_data['totp_code']
+        
+        try:
+            extra = Extra.objects.get(user=user)
+        except Extra.DoesNotExist:
+            extra = None
+
+        if extra:
+            base32secret = extra.totp_code
+
+            if base32secret:
+                if not totp_code:
+                    return Response({}, status=HTTP_400_BAD_REQUEST)
+                current_totp = pyotp.TOTP(base32secret)
+                if not current_totp.verify(totp_code):
+                    return Response({}, status=HTTP_401_UNAUTHORIZED)
+
+        token, created = Token.objects.get_or_create(user=user)
+
+        return Response({'token': token.key})
 
 class LogoutView(APIView):
     def post(self, request):
@@ -130,6 +176,7 @@ def logoutGitHub(request):
         return Response({}, status=HTTP_200_OK)
 
 
+
 def google_redirect(request):
 
     user = request.user
@@ -143,6 +190,8 @@ def google_redirect(request):
         "host":host,
     }
     return render(request, 'google-redirect.html',context)
+
+
 
 
 @api_view(['GET'])
@@ -177,6 +226,7 @@ def logoutFacebook(request):
         return Response({}, status=HTTP_400_BAD_REQUEST)
     else:
         return Response({}, status=HTTP_200_OK)
+
 
 
 class EmailGenerateTokenView(APIView):

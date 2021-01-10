@@ -10,15 +10,14 @@
 {% endblock %}
 
 {% block content %}
-<div id="app-booth">
-<h1>Bienvenido a Decide Autenticación</h1>
+    <nav class="navbar navbar-dark bg-secondary navbar-expand">
+        <h1 class="navbar-brand">Decide</h1> 
+    </nav>
 
-<nav>
-    <ul>
-        <li><a href="authentication/registro">Regístrate aquí</a></li>
-        <li><a href="accounts/login/">Login</a></li>
-    </ul>
-</nav>
-</div>
+    <div id="app-booth" class="pagecontent">
+        <h1>Bienvenido a Decide Autenticación</h1>
+        <p><a href="authentication/registro" class="btn btn-primary">Regístrate aquí</a></p>
+        <p><a href="accounts/login/" class="btn btn-primary">Login</a></p>
+    </div>
 
 {% endblock %}

@@ -10,27 +10,27 @@
 {% endblock %}
 
 {% block content %}
-<div id="app-booth">
-<h1>Inicio de sesión | Decide!</h1>
+    <nav class="navbar navbar-dark bg-secondary navbar-expand">
+        <h1 class="navbar-brand">Decide</h1> 
+    </nav>
+    
+    <div id="app-booth" class="pagecontent">
+        <h1>Inicio de sesión | Decide!</h1>
 
-<form method="POST">
-    {% csrf_token %}
-<div>
+        <form method="POST">
+            {% csrf_token %}
+            <div>
+                <label>Nombre de usuario:</label>
+                <input type="text" class="form-control" placeholder="Nombre de usuario" name="username">
+            </div>
 
-<label>Nombre de usuario:</label>
-<input type="text" class="form-control" placeholder="Nombre de usuario" name="username">
+            <div>
+                <label>Contraseña:</label>
+                <input type="password" class="form-control" placeholder="Contraseña" name="password">
+            </div>
 
-</div>
-
-<div>
-
-    <label>Contraseña:</label>
-    <input type="password" class="form-control" placeholder="Contraseña" name="password">
-
-</div>
-
-
-
-<button type="submit">Enviar</button>
+            <br><button type="submit" class="btn btn-primary">Enviar</button>
+        </form>
+    </div>
 
 {% endblock %}

@@ -7,6 +7,10 @@
     <link type="text/css" rel="stylesheet"
          href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css" />
     <link type="text/css" rel="stylesheet" href="{% static "booth/style.css" %}" />
+    <link type="text/css" rel="stylesheet"
+         href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+         <link type="text/css" rel="stylesheet"
+         href="https://unpkg.com/bootstrap-social@5.1.1/bootstrap-social.css" />
 {% endblock %}
 
 {% block content %}
@@ -15,24 +19,28 @@
         <b-navbar type="dark" variant="secondary">
             <b-navbar-brand tag="h1">Decide</b-navbar-brand>
                 <b-navbar-nav class="ml-auto" v-if="!signup">
+                    
                     <b-nav-item href="#" v-on:click="decideLogout">
-                        {% trans "logout" %}
-                    </b-nav-item>
+                        <button type="button" class="btn btn-primary">Logout</button>
+                    </b-nav-item>                    
                     <b-nav-item v-on:click="decideLogoutGithub" v-if="!signup">
-                        {% trans "logout GitHub" %}
+                    <a class="btn btn-block btn-social btn-github" :href="linkGithub"><span class="fa fa-github"></span>Logout de GitHub</a>
                     </b-nav-item>
                     <b-nav-item v-on:click="decideLogoutGoogle" v-if="!signup">
-                        {% trans "logout Google" %}
+                    <a class="btn btn-block btn-social btn-google" :href="linkGoogle"><span class="fa fa-google"></span>Logout de Google</a>
                     </b-nav-item>
-                    <b-nav-item v-on:click="decideLogoutFacebook" v-if="!signup">
-                        {% trans "logout Facebook" %}
-                    </b-nav-item>
+                    <b-nav-item>
+                    <a class="btn btn-block btn-social btn-facebook" :href="linkFacebook"><span class="fa fa-facebook"></span>Logout de Facebook</a>
+                    </b-nav-item>  
+                    
+
         </b-navbar>
 
         <b-alert :variant="alertLvl" dismissible v-model="alertShow">
             [[ alertMsg ]]
         </b-alert>
-
+ 
+        
         <div class="voting">
             <h1>[[ voting.id ]] - [[ voting.name ]]</h1>
 
@@ -64,7 +72,47 @@
                         v-model="form.password"
                         required />
                 </b-form-group>
+                
+                <div class="btn-group">  
                 <b-button type="submit" variant="primary">{% trans "Login" %}</b-button>
+                <a class="btn btn-block btn-social btn-login btn-github" :href="linkGithub"><span class="fa fa-github"></span>Login con GitHub</a>
+                <a class="btn btn-block btn-social btn-login btn-google" :href="linkGoogle"><span class="fa fa-google"></span>Login con Google</a>
+                <a class="btn btn-block btn-social btn-login btn-facebook"><span class="fa fa-facebook"></span>Login con Facebook</a>
+                </div>
+                
+            </b-form>
+
+            <b-form @submit="onSecondFactorSubmitLogin" v-if="signup && signupFormType == '2fa'">
+                <b-form-group label="{% trans "Username" %}" label-for="username">
+                    <b-form-input
+                        id="username"
+                        type="text"
+                        v-model="form2FA.username"
+                        autocomplete="username"
+                        required />
+                </b-form-group>
+                <b-form-group label="{% trans "Password" %}" label-for="password">
+                    <b-form-input
+                        id="password"
+                        type="password"
+                        autocomplete="current-password"
+                        v-model="form2FA.password"
+                        required />
+                </b-form-group>
+                <b-form-group label="{% trans "2FA Code (Optional)" %}" label-for="totp_code">
+                    <b-form-input
+                        id="totp_code"
+                        type="text"
+                        v-model="form2FA.totp_code" />
+                </b-form-group>
+                
+                <div class="btn-group">  
+                <b-button type="submit" variant="primary">{% trans "Login" %}</b-button>
+                <a class="btn btn-block btn-social btn-login btn-github" :href="linkGithub"><span class="fa fa-github"></span>Login con GitHub</a>
+                <a class="btn btn-block btn-social btn-login btn-google" :href="linkGoogle"><span class="fa fa-google"></span>Login con Google</a>
+                <a class="btn btn-block btn-social btn-login btn-facebook"><span class="fa fa-facebook"></span>Login con Facebook</a>
+                </div>
+                
             </b-form>
 
             <b-form @submit="onEmailSubmitLogin" v-if="signup && signupFormType == 'email'">
@@ -75,8 +123,15 @@
                         v-model="emailForm.email"
                         autocomplete="email"
                         required />
-                </b-form-group>
+                </b-form-group>                
+                
+                <div class="btn-group">  
                 <b-button type="submit" variant="primary">{% trans "Send" %}</b-button>
+                <a class="btn btn-block btn-social btn-login btn-github" :href="linkGithub"><span class="fa fa-github"></span>Login con GitHub</a>
+                <a class="btn btn-block btn-social btn-login btn-google" :href="linkGoogle"><span class="fa fa-google"></span>Login con Google</a>
+                <a class="btn btn-block btn-social btn-login btn-facebook"><span class="fa fa-facebook"></span>Login con Facebook</a>
+                </div>
+                
             </b-form>
 
             <!-- Voting -->
@@ -94,15 +149,8 @@
                     {% trans "Vote" %}
                 </b-button>
             </div>
-        </div>
-        
-        <ul>
-            
-            <li v-if="signup"><a :href="linkGithub">{% trans "Iniciar sesión con Github" %}</a></li>
-            <li v-if="signup"><a :href="linkGoogle">{% trans "Iniciar sesión con Google" %}</a></li>
-            <li v-if="signup"><a :href="linkFacebook">{% trans "Iniciar sesión con Facebook" %}</a></li>
-            
-        </ul>
+
+        </div>        
         
     </div>
    
@@ -151,6 +199,11 @@
                     email: '',
                     callback: window.location.href                    
                 },
+                form2FA: {
+                    username: '',
+                    password: '',
+                    totp_code: ''
+                },
                 linkGoogle: "{% url 'social:begin' 'google-oauth2' %}?next=" + voting.id,
                 emailForm: {
                     email: '',
@@ -164,6 +217,7 @@
                 signupFormType: 'username',
                 formTypes: [
                     {text: 'Login with Username and Password', value: 'username'},
+                    {text: 'Login with Second Factor', value: '2fa'},
                     {text: 'Login with Email', value: 'email'}
                 ],
                 bigpk: {
@@ -223,6 +277,18 @@
                             this.showAlert("danger", '{% trans "Error: " %}' + error);
                         });
                 },
+                onSecondFactorSubmitLogin(evt) {
+                    evt.preventDefault();
+                    this.postData("{% url "gateway" "authentication" "/login/" %}", this.form2FA)
+                        .then(data => {
+                            document.cookie = 'decide='+data.token+'; path=/';
+                            this.token = data.token;
+                            this.getUser();
+                        })
+                        .catch(error => {
+                            this.showAlert("danger", '{% trans "Error: " %}' + error);
+                        });
+                },
                 onEmailSubmitLogin(evt) {
                     evt.preventDefault();
                     this.postData("{% url "gateway" "authentication" "/email-generate-token/" %}", this.emailForm)
@@ -262,9 +328,9 @@
                     this.token = null;
                     this.user = null;
                     document.cookie = 'decide=;';
-                    this.signup = true;   
+                    this.signup = true; 
                 },
-                decideLogoutGoogle(evt) {
+               decideLogoutGoogle(evt) {
                     evt.preventDefault();
                     var data = {token: this.token};
                     this.postData("{% url "gateway" "authentication" "/logout/" %}", data);

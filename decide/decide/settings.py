@@ -44,9 +44,8 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'rest_framework_swagger',
     'gateway',
+    'qr_code',
     'social_django',
-
-    
 ]
 
 REST_FRAMEWORK = {
@@ -77,7 +76,19 @@ MODULES = [
     'voting',
 ]
 
-BASEURL = 'http://localhost:8000'
+BASEURL = 'https://decide-part-andarax.herokuapp.com'
+
+APIS = {
+    'authentication': BASEURL,
+    'base': BASEURL,
+    'booth': BASEURL,
+    'census': BASEURL,
+    'mixnet': BASEURL,
+    'postproc': BASEURL,
+    'store': BASEURL,
+    'visualizer': BASEURL,
+    'voting': BASEURL,
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -184,11 +195,11 @@ TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
 
 STATIC_URL = '/static/'
 
-#SOCIAL_AUTH_CREATE_USERS = True
+SOCIAL_AUTH_CREATE_USERS = True
 #SOCIAL_AUTH_POSTGRES_JSONFIELD = True
 
 # number of bits for the key, all auths should use the same number of bits
-KEYBITS = 256
+KEYBITS = 161
 
 # Versioning
 ALLOWED_VERSIONS = ['v1', 'v2']
@@ -213,12 +224,16 @@ INSTALLED_APPS = INSTALLED_APPS + MODULES
 SOCIAL_AUTH_GITHUB_KEY = '01be11c9729e4d6255c4'
 SOCIAL_AUTH_GITHUB_SECRET = '4a9fd81bb53d0e536abc1334c0c4ed4987ec753a'
 
-# @author: JulianGR
-# No pongo las claves porque he tenido que poner
-# mi tarjeta de credito personal y nos podemos pasar de
-# requests con el Travis
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "650186665562-h0k9d7pvcjdhe43iak6q6sbdikddjpkq.apps.googleusercontent.com"        
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "oEC_yMEx-0cnF7llPdxU2RL0" 
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "650186665562-h0k9d7pvcjdhe43iak6q6sbdikddjpkq.apps.googleusercontent.com"
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "nLfEUVAqlrd5B52xOaVeL-OV"
+
+#Keys para aplicación desplegada
+# COMENTAR LAS DE ARRIBA
+#SOCIAL_AUTH_GITHUB_KEY = 'ace0b3aab3e9046c2a23'
+#SOCIAL_AUTH_GITHUB_SECRET = '6a6186c0ddc88112e6e248147c6aafa9fd6d4c20'
+
+#SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "650186665562-0ff442s8o4iivmfq537eh6kaf4tq3mlh.apps.googleusercontent.com"
+#SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "w3jKxJdbXL-LatKxkcfFShYl"
 
 SOCIAL_AUTH_FACEBOOK_KEY = "587538528871702"        
 SOCIAL_AUTH_FACEBOOK_SECRET = "120e5ca116b0a7659853d4e7ace9f47c" 
@@ -226,3 +241,6 @@ SOCIAL_AUTH_FACEBOOK_SECRET = "120e5ca116b0a7659853d4e7ace9f47c"
 SOCIAL_AUTH_USER_FIELDS = ['username']
 
 
+if BASEURL != 'http://localhost:8000':
+    import django_heroku
+    django_heroku.settings(locals())
