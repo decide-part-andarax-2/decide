@@ -63,16 +63,11 @@ class Facebook(StaticLiveServerTestCase):
         assert self.driver.find_element(By.CSS_SELECTOR, ".voting > h1").text == f"{self.v.pk} - Prueba votación"
 
         self.driver.find_element(By.LINK_TEXT, "Login con Facebook").click()
-        self.driver.find_element(By.ID, "email").click()
-        self.driver.find_element(By.ID, "email").send_keys("practica@practica.practica")
-        self.driver.find_element(By.ID, "loginbutton").click()
-        element = self.driver.find_element(By.CSS_SELECTOR, ".\\_4rbf")
-        actions = ActionChains(self.driver)
-        actions.move_to_element(element).click_and_hold().perform()
-        element = self.driver.find_element(By.CSS_SELECTOR, ".\\_4-u2")
-        actions = ActionChains(self.driver)
-        actions.move_to_element(element).release().perform()
-        assert self.driver.title == "Iniciar sesión en Facebook | Facebook"
+        self.driver.find_element(By.ID, "email").send_keys("fasd@dasf.fdsa")
+        self.driver.find_element(By.ID, "email").send_keys(Keys.ENTER)
+        assert self.driver.find_element(By.ID, "email").text == ""
+        assert self.driver.find_element(By.ID, "pass").text == ""
+
 
     def test_contraseaincorrecta(self):
         self.driver.get(f'{self.live_server_url}/booth/{self.v.pk}')
@@ -83,4 +78,5 @@ class Facebook(StaticLiveServerTestCase):
         self.driver.find_element(By.ID, "pass").send_keys("fdasffa")
         self.driver.find_element(By.ID, "pass").send_keys(Keys.ENTER)
         assert self.driver.find_element(By.ID, "pass").text == ""
+        self.driver.find_element(By.ID, "not_me_link").click()
     
