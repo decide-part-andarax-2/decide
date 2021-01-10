@@ -78,5 +78,4 @@ class Facebook(StaticLiveServerTestCase):
         self.driver.find_element(By.ID, "pass").send_keys("fdasffa")
         self.driver.find_element(By.ID, "pass").send_keys(Keys.ENTER)
         assert self.driver.find_element(By.ID, "pass").text == ""
-        self.driver.find_element(By.ID, "not_me_link").click()
     
