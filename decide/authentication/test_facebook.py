@@ -70,3 +70,13 @@ class Facebook(StaticLiveServerTestCase):
         actions = ActionChains(self.driver)
         actions.move_to_element(element).release().perform()
         assert self.driver.title == "Iniciar sesión en Facebook | Facebook"
+  
+    def test_contraseaincorrecta(self):
+        self.driver.find_element(By.LINK_TEXT, "Login con Facebook").click()
+        self.driver.find_element(By.ID, "email").click()
+        self.driver.find_element(By.ID, "email").send_keys("jesgamlar@alum.us.es")
+        self.driver.find_element(By.ID, "pass").click()
+        self.driver.find_element(By.ID, "pass").send_keys("fdafafda")
+        self.driver.find_element(By.ID, "loginbutton").click()
+        assert self.driver.find_element(By.CSS_SELECTOR, ".uiHeaderTitle").text == "Introduce el código de seguridad"
+  
