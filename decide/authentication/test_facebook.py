@@ -23,13 +23,14 @@ import logging
 
 class Facebook(StaticLiveServerTestCase):
 
+
     def create_voting(self):
         self.q = Question(desc='Prueba votación')
         self.q.save()
         for i in range(2):
             opt = QuestionOption(question=self.q, option='Opción {}'.format(i+1))
             opt.save()
-        self.v= Voting(name='Prueba votación', question=self.q, link="prueba")
+        self.v= Voting(name='Prueba votación', question=self.q, slug="prueba")
         self.v.save()
         self.a, _ = Auth.objects.get_or_create(url=settings.BASEURL,defaults={'me': True, 'name': 'test auth'})
         self.a.save()
@@ -37,7 +38,6 @@ class Facebook(StaticLiveServerTestCase):
         self.v.create_pubkey()
         self.v.start_date = timezone.now()
         self.v.save()
-        
 
     def setUp(self):
 
@@ -70,7 +70,7 @@ class Facebook(StaticLiveServerTestCase):
         actions = ActionChains(self.driver)
         actions.move_to_element(element).release().perform()
         assert self.driver.title == "Iniciar sesión en Facebook | Facebook"
-  
+
     def test_contraseaincorrecta(self):
         self.driver.find_element(By.LINK_TEXT, "Login con Facebook").click()
         self.driver.find_element(By.ID, "email").click()
