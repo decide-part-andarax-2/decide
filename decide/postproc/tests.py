@@ -859,3 +859,28 @@ class PostProcTestCase(APITestCase):
         values = response.json()
         self.assertEqual(values, expected_result)
 
+    def test_hamilton_1(self):
+        seats = 10
+        data = {
+            'type': 'HAMILTON',
+            'seats': seats,
+            'options': [
+                {'option': 'Option 1', 'number': 1, 'votes': 15},
+                {'option': 'Option 2', 'number': 2, 'votes': 3},
+                {'option': 'Option 3', 'number': 3, 'votes': 12},
+                {'option': 'Option 4', 'number': 4, 'votes': 0}
+            ]
+        }
+
+        expected_result = [
+            {'option': 'Option 1', 'number': 1, 'votes': 15, 'postproc': 5},
+            {'option': 'Option 3', 'number': 3, 'votes': 12, 'postproc': 4},
+            {'option': 'Option 2', 'number': 2, 'votes': 3, 'postproc': 1},
+            {'option': 'Option 4', 'number': 4, 'votes': 0, 'postproc': 0}
+        ]
+
+        response = self.client.post('/postproc/', data, format='json')
+        self.assertEqual(response.status_code, 200)
+
+        values = response.json()
+        self.assertEqual(values, expected_result)
