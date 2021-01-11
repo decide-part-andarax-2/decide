@@ -184,8 +184,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_USE_TLS = True
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'projectdecidetest@gmail.com' #En caso de querer ocultar el email se utilizaria: os.environ.get("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = 'pruebadecide' #En caso de querer ocultar la contraseña: se utilizaria: os.environ.get("EMAIL_HOST_PASSWORD")
+EMAIL_HOST_USER = os.environ.get("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.environ.get("EMAIL_HOST_PASSWORD")
 
 
 TEST_RUNNER = 'django_nose.NoseTestSuiteRunner'
@@ -197,6 +197,17 @@ STATIC_URL = '/static/'
 
 SOCIAL_AUTH_CREATE_USERS = True
 #SOCIAL_AUTH_POSTGRES_JSONFIELD = True
+
+SOCIAL_AUTH_GITHUB_KEY = os.environ.get("SOCIAL_AUTH_GITHUB_KEY")
+SOCIAL_AUTH_GITHUB_SECRET = os.environ.get("SOCIAL_AUTH_GITHUB_SECRET")
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ.get("SOCIAL_AUTH_GOOGLE_OAUTH2_KEY")
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get("SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET")
+
+SOCIAL_AUTH_FACEBOOK_KEY = os.environ.get("SOCIAL_AUTH_FACEBOOK_KEY")
+SOCIAL_AUTH_FACEBOOK_SECRET = os.environ.get("SOCIAL_AUTH_FACEBOOK_SECRET")
+
+SOCIAL_AUTH_USER_FIELDS = ['username']
 
 # number of bits for the key, all auths should use the same number of bits
 KEYBITS = 161
@@ -220,29 +231,6 @@ if os.path.exists("config.jsonnet"):
 
 
 INSTALLED_APPS = INSTALLED_APPS + MODULES
-
-SOCIAL_AUTH_GITHUB_KEY = '01be11c9729e4d6255c4'
-SOCIAL_AUTH_GITHUB_SECRET = '4a9fd81bb53d0e536abc1334c0c4ed4987ec753a'
-
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "650186665562-h0k9d7pvcjdhe43iak6q6sbdikddjpkq.apps.googleusercontent.com"
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "nLfEUVAqlrd5B52xOaVeL-OV"
-
-SOCIAL_AUTH_FACEBOOK_KEY = "587538528871702"        
-SOCIAL_AUTH_FACEBOOK_SECRET = "120e5ca116b0a7659853d4e7ace9f47c" 
-
-#Keys para aplicación desplegada
-# COMENTAR LAS DE ARRIBA
-#SOCIAL_AUTH_GITHUB_KEY = 'ace0b3aab3e9046c2a23'
-#SOCIAL_AUTH_GITHUB_SECRET = '6a6186c0ddc88112e6e248147c6aafa9fd6d4c20'
-
-#SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "650186665562-0ff442s8o4iivmfq537eh6kaf4tq3mlh.apps.googleusercontent.com"
-#SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = "w3jKxJdbXL-LatKxkcfFShYl"
-
-#SOCIAL_AUTH_FACEBOOK_KEY = "402651560813366"        
-#SOCIAL_AUTH_FACEBOOK_SECRET = "d8f21f39d374d2a54cd3f2ed4559b2e7" 
-
-SOCIAL_AUTH_USER_FIELDS = ['username']
-
 
 if BASEURL != 'http://localhost:8000':
     import django_heroku
