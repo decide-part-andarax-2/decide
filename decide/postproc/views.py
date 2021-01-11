@@ -300,7 +300,7 @@ class PostProcView(APIView):
             if(s==None):
                 return Response({}, status=status.HTTP_400_BAD_REQUEST)
             else:
-                return Response(self.webster(opts, s))            
+                return Response(self.hamilton(opts, s))            
         else:
             return Response({}, status=status.HTTP_400_BAD_REQUEST)
         return Response({})
