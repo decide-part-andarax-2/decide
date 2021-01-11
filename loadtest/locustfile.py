@@ -73,3 +73,32 @@ class Voters(HttpUser):
     host = HOST
     tasks = [DefVoters]
     wait_time= between(3,5)
+
+
+class CreateQuestion(HttpUser):
+
+    def on_start(self):
+        with open('question.json') as f:
+            self.questions = json.loads(f.read())
+        self.question = choice(list(self.questions.items()))
+
+    @task
+    def login(self):
+        self.token = self.client.post("/authentication/login/", {
+            "username": "egc",
+            "password": "egc20202020",
+        }).json()
+
+    @task
+    def create_question(self):
+        desc, option = self.question
+        headers = {
+            'Authorization': 'Token ' + self.token.get('token'),
+            'content-type': 'application/json'
+        }
+        self.client.post("/admin/voting/question/add/", json.dumps({
+
+        }))
+
+    def on_quit(self):
+        self.voter = None
