@@ -204,7 +204,7 @@ class Voting(models.Model):
     desc = models.TextField(blank=True, null=True)
     question = models.ForeignKey(Question, related_name='voting', on_delete=models.CASCADE)
     alpha = RegexValidator("^[0-9a-zA-Z]*$", "Only letters and numbers are allowed.")
-    link = models.CharField(max_length=30, default="", unique=True ,validators=[alpha])
+    slug = models.CharField(max_length=30, default="", unique=True ,validators=[alpha])
 
     VOTING_TYPE_CHOICES = [
         ('IDENTITY', 'IDENTITY'),
@@ -287,7 +287,8 @@ class Voting(models.Model):
         #Abrimos el fichero donde se guardaran los resultados y el comprimido donde se guardaran estos ficheros
         if not os.path.exists("voting/results/"):
             os.mkdir("voting/results")
-        t_file = open("voting/results/v" + str(self.id) + ".txt", "w")
+        fname = "voting/results/v" + str(self.id) + "_" + self.slug + ".txt"
+        t_file = open(fname, "w")
 
         if options.count()!=0:
             t_file.write("Results from voting with ID " + str(self.id) + ":\n")
@@ -329,11 +330,11 @@ class Voting(models.Model):
         self.save()
 
         #Comprimimos el fichero
-        #comprimido.add("voting/results", "tar", "voting/files")
         comprimido = tarfile.open('voting/results/results.tar', mode='a')
-        comprimido.add("voting/results/v" + str(self.id) + ".txt")
+        if not fname in comprimido.getnames():
+            comprimido.add(fname)
         comprimido.close()
-        os.remove("voting/results/v" + str(self.id) + ".txt")
+        os.remove(fname)
 
 
     def __str__(self):

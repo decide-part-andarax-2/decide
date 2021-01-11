@@ -17,3 +17,4 @@ pyotp
 django-heroku
 gunicorn
 geckodriver_autoinstaller
+parameterized

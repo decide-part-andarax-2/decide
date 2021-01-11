@@ -73,12 +73,12 @@ Tras esto tendremos que crearnos nuestra base de datos con postgres:
 Entramos en la carpeta del proyecto (cd decide) y realizamos la primera migración para preparar la
 base de datos que utilizaremos:
 
-    ./manage.py migrate
+    python3 ./manage.py migrate
 
 Por último, ya podremos ejecutar el módulos o módulos seleccionados en la configuración de la
 siguiente manera:
 
-    ./manage.py runserver
+    python3 ./manage.py runserver
 
 Ejecutar con docker
 -------------------

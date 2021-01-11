@@ -30,28 +30,30 @@ class PostProcView(APIView):
             })
 
         mayor=0.0
-        while len(out)>=2:
+        list=out.copy()
+        while len(list)>=2:
 
-            if len(out)>2:
+            if len(list)>2:
                 cocientes = []
-                for i in range(len(out)):
-                   cocientes.append(out[i]['votes']/numvotos)       
+                for i in range(len(list)):
+                   cocientes.append(list[i]['votes']/numvotos)       
                 perdedor=cocientes.index(min(cocientes))
                 ganador=cocientes.index(max(cocientes))
                 mayor=cocientes[ganador]
                 if mayor>0.5:
-                    out[ganador]['postproc']= 1
+                    g=list[ganador]['number']
+                    out[g-1]['postproc']= 1
                     break
                 numvotos= numvotos - cocientes[perdedor]
-                del out[perdedor]
-            elif len(out)==2:
+                del list[perdedor]
+            elif len(list)==2:
                 cocientes = []
-                for i in range(len(out)):
-                    cocientes.append(out[i]['votes']/numvotos)
-                ganador=cocientes.index(max(cocientes))  
-                out[ganador]['postproc']= 1
+                for i in range(len(list)):
+                    cocientes.append(list[i]['votes']/numvotos)
+                ganador=cocientes.index(max(cocientes)) 
+                g=list[ganador]['number'] 
+                out[g-1]['postproc']= 1
                 break
-
         out.sort(key=lambda x:-x['votes'])
         return Response(out)
 
@@ -224,6 +226,25 @@ class PostProcView(APIView):
 
         return self.dhont(out, seats)
 
+    def hamilton(self, options, seats):
+        out = []
+        numvotos=0
+
+        for opt in options:
+            numvotos=opt['votes']+numvotos
+            out.append({
+                **opt,
+                'postproc': 0,
+            })
+
+        
+        for i in range(len(out)):
+            cuota=((out[i]['votes']/numvotos)*seats)
+            out[i]['postproc'] = out[i]['postproc'] + round(cuota)
+
+        out.sort(key=lambda x: -x['votes'])
+        return out
+
     def webster(self, options, seats):
         out = []
 
@@ -300,6 +321,11 @@ class PostProcView(APIView):
                 return Response({}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 return Response(self.webster(opts, s))
+        elif t == 'HAMILTON':
+            if(s==None):
+                return Response({}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response(self.hamilton(opts, s))            
         else:
             return Response({}, status=status.HTTP_400_BAD_REQUEST)
         return Response({})

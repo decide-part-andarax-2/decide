@@ -10,6 +10,14 @@ class UserForm(UserCreationForm):
     class Meta:
         model = User
         fields = ['username', 'first_name', 'last_name', 'email', 'password1', 'password2']
+        widgets = {
+            'username': forms.TextInput(attrs={'class':'form-control'}),
+            'first_name': forms.TextInput(attrs={'class':'form-control'}),
+            'last_name': forms.TextInput(attrs={'class':'form-control'}),
+            'email': forms.EmailInput(attrs={'class':'form-control'}),
+            'password1': forms.PasswordInput(attrs={'class':'form-control'}),
+            'password2': forms.PasswordInput(attrs={'class':'form-control'}),
+        }
 
 class ExtraForm(forms.ModelForm):
     base32secret = forms.CharField()
@@ -17,6 +25,10 @@ class ExtraForm(forms.ModelForm):
     class Meta:
         model = Extra
         fields = ['phone', 'totp_code']
+        widgets = {
+            'phone': forms.TextInput(attrs={'class':'form-control'}),
+            'totp_code': forms.TextInput(attrs={'class':'form-control'}),
+        }
 
     def clean_phone(self):
     #     #Validación del número de teléfono en el formulario extra_form
