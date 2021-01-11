@@ -339,6 +339,21 @@ class PostProcTestCase(APITestCase):
         values = response.json()
         self.assertEqual(values, expected_result)
 
+    def test_relativa_no_options(self):
+        data = {
+            'type': 'RELATIVA',
+        }
+
+        expected_result = {}
+
+        response = self.client.post('/postproc/', data, format='json')
+        self.assertEqual(response.status_code, 400)
+
+        values = response.json()
+        self.assertEqual(values, expected_result)
+
+
+
     def test_absoluta1(self):
         data = {
             'type': 'ABSOLUTA',
