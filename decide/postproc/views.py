@@ -228,6 +228,7 @@ class PostProcView(APIView):
 
     def hamilton(self, options, seats):
         out = []
+        numvotos=0
 
         for opt in options:
             numvotos=opt['votes']+numvotos
