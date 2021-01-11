@@ -11,7 +11,7 @@ class QuestionOrderSerializer(serializers.HyperlinkedModelSerializer):
 class QuestionOptionSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = QuestionOption
-        fields = ('number', 'option')
+        fields = ('number', 'option', 'is_yes_no_question')
 
 
 class QuestionSerializer(serializers.HyperlinkedModelSerializer):
