@@ -237,9 +237,13 @@ class PostProcView(APIView):
                 'postproc': 0,
             })
 
+        cocientes = []
         for i in range(len(out)):
-            cuota = (out[i]['votes']/numvotos) * seats)
-            out[i]['postproc'] = out[i]['postproc'] + cuota
+            cuota=out[i]['votes']/numvotos
+            cocientes.append(cuota*seats)
+
+        ganador = cocientes.index(max(cocientes))
+        out[ganador]['postproc'] = out[ganador]['postproc'] + 1
 
         out.sort(key=lambda x: -x['votes'])
         return out
