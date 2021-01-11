@@ -55,7 +55,6 @@ class PostProcView(APIView):
                 out[g-1]['postproc']= 1
                 break
         out.sort(key=lambda x:-x['votes'])
-        print(list)
         return Response(out)
 
     def absoluta(self, options):
