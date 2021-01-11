@@ -78,16 +78,19 @@ class CreateQuestion(SequentialTaskSet):
 
     @task
     def create_question(self):
+        response = self.client.get("/admin/voting/question/add/")
+        csrftoken = response.cookies['csrftoken']
         desc, option = self.question
         headers = {
             'Authorization': 'Token ' + self.token.get('token'),
-            'content-type': 'application/json'
+            'content-type': 'application/json',
+            "X-CSRFToken": csrftoken
         }
         self.client.post("/admin/voting/question/add/", json.dumps({
             "token": self.token.get('token'),
             "question": {
                 "desc" : desc,
-                "option" : option
+                "options" : option
             }
         }), headers=headers)
 
