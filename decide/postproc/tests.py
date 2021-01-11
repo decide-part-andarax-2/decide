@@ -736,6 +736,32 @@ class PostProcTestCase(APITestCase):
         values = response.json()
         self.assertEqual(values, expected_result)
 
+    #Test en el que no se le pasa tipo a una votación de borda
+    def test_borda_no_type(self):
+
+        data = {
+            'order_options': [
+                {'option': 'Option 1', 'number': 1, 'order_number': '1', 'votes': 50},
+                {'option': 'Option 2', 'number': 2, 'order_number': '1', 'votes': 50},
+                {'option': 'Option 3', 'number': 3, 'order_number': '1', 'votes': 0},
+                {'option': 'Option 1', 'number': 1, 'order_number': '2', 'votes': 20},
+                {'option': 'Option 2', 'number': 2, 'order_number': '2', 'votes': 20},
+                {'option': 'Option 3', 'number': 3, 'order_number': '2', 'votes': 60},
+                {'option': 'Option 1', 'number': 1, 'order_number': '3', 'votes': 30},
+                {'option': 'Option 2', 'number': 2, 'order_number': '3', 'votes': 30},
+                {'option': 'Option 3', 'number': 3, 'order_number': '3', 'votes': 40},
+            ]
+        }
+
+        expected_result = {}
+
+        response = self.client.post('/postproc/', data, format='json')
+        self.assertEqual(response.status_code, 400)
+
+        values = response.json()
+        self.assertEqual(values, expected_result)
+
+
 
     def test_substrat_1(self):
         seats = 8
