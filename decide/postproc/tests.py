@@ -885,7 +885,34 @@ class PostProcTestCase(APITestCase):
         values = response.json()
         self.assertEqual(values, expected_result)
 
-        
+    def test_hamilton_2(self):
+        seats = 9
+        data = {
+            'type': 'HAMILTON',
+            'seats': seats,
+            'options': [
+                {'option': 'Option 1', 'number': 1, 'votes': 10},
+                {'option': 'Option 2', 'number': 2, 'votes': 6},
+                {'option': 'Option 3', 'number': 3, 'votes': 10},
+                {'option': 'Option 4', 'number': 4, 'votes': 5},
+                {'option': 'Option 5', 'number': 5, 'votes': 0}
+            ]
+        }
+
+        expected_result = [
+                {'option': 'Option 1', 'number': 1, 'votes': 10, 'postproc': 3},
+                {'option': 'Option 3', 'number': 3, 'votes': 10, 'postproc': 3},
+                {'option': 'Option 2', 'number': 2, 'votes': 6, 'postproc': 2},
+                {'option': 'Option 4', 'number': 4, 'votes': 5, 'postproc': 1},
+                {'option': 'Option 5', 'number': 5, 'votes': 0, 'postproc': 0}
+        ]
+
+        response = self.client.post('/postproc/', data, format='json')
+        self.assertEqual(response.status_code, 200)
+
+        values = response.json()
+        self.assertEqual(values, expected_result)
+    
     # Test donde no se le pasa las variables options
     def test_no_options_hamilton(self):
         seats = 5
