@@ -62,20 +62,7 @@ class DefVoters(SequentialTaskSet):
     def on_quit(self):
         self.voter = None
 
-class Visualizer(HttpUser):
-    host = HOST
-    tasks = [DefVisualizer]
-    wait_time = between(3,5)
-
-
-
-class Voters(HttpUser):
-    host = HOST
-    tasks = [DefVoters]
-    wait_time= between(3,5)
-
-
-class CreateQuestion(HttpUser):
+class CreateQuestion(SequentialTaskSet):
 
     def on_start(self):
         with open('questions.json') as f:
@@ -97,8 +84,32 @@ class CreateQuestion(HttpUser):
             'content-type': 'application/json'
         }
         self.client.post("/admin/voting/question/add/", json.dumps({
-
-        }))
+            "token": self.token.get('token'),
+            "question": {
+                "desc" : desc,
+                "option" : option
+            }
+        }), headers=headers)
 
     def on_quit(self):
         self.voter = None
+
+class Visualizer(HttpUser):
+    host = HOST
+    tasks = [DefVisualizer]
+    wait_time = between(3,5)
+
+
+
+class Voters(HttpUser):
+    host = HOST
+    tasks = [DefVoters]
+    wait_time= between(3,5)
+
+
+class Question(HttpUser):
+    host = HOST
+    tasks = [CreateQuestion]
+    wait_time= between(3,5)
+
+
