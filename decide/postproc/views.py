@@ -240,7 +240,7 @@ class PostProcView(APIView):
         
         for i in range(len(out)):
             cuota=((out[i]['votes']/numvotos)*seats)
-            out[i]['postproc'] = out[i]['postproc'] + cuota
+            out[i]['postproc'] = out[i]['postproc'] + round(cuota)
 
         out.sort(key=lambda x: -x['votes'])
         return out
