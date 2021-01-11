@@ -1202,7 +1202,7 @@ class PostProcTestCase(APITestCase):
                        {'name': 'Candidate20', 'gender': 'M'}]
         
         seated5 = [{'name': 'Candidate21', 'gender': 'M'},
-                   {'name': 'Candidate24', 'gender': 'H'},
+                       {'name': 'Candidate24', 'gender': 'H'},
                        {'name': 'Candidate22', 'gender': 'M'},          
                        {'name': 'Candidate25', 'gender': 'H'}]
 
