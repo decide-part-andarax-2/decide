@@ -30,28 +30,30 @@ class PostProcView(APIView):
             })
 
         mayor=0.0
-        while len(out)>=2:
+        list=out.copy()
+        while len(list)>=2:
 
-            if len(out)>2:
+            if len(list)>2:
                 cocientes = []
-                for i in range(len(out)):
-                   cocientes.append(out[i]['votes']/numvotos)       
+                for i in range(len(list)):
+                   cocientes.append(list[i]['votes']/numvotos)       
                 perdedor=cocientes.index(min(cocientes))
                 ganador=cocientes.index(max(cocientes))
                 mayor=cocientes[ganador]
                 if mayor>0.5:
-                    out[ganador]['postproc']= 1
+                    g=list[ganador]['number']
+                    out[g-1]['postproc']= 1
                     break
                 numvotos= numvotos - cocientes[perdedor]
-                del out[perdedor]
-            elif len(out)==2:
+                del list[perdedor]
+            elif len(list)==2:
                 cocientes = []
-                for i in range(len(out)):
-                    cocientes.append(out[i]['votes']/numvotos)
-                ganador=cocientes.index(max(cocientes))  
-                out[ganador]['postproc']= 1
+                for i in range(len(list)):
+                    cocientes.append(list[i]['votes']/numvotos)
+                ganador=cocientes.index(max(cocientes)) 
+                g=list[ganador]['number'] 
+                out[g-1]['postproc']= 1
                 break
-
         out.sort(key=lambda x:-x['votes'])
         return Response(out)
 
