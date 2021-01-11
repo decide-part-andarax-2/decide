@@ -967,4 +967,181 @@ class PostProcTestCase(APITestCase):
 
         values = response.json()
         self.assertEqual(values, expected_result)
+       
+    def test_webster1(self):
+        data = {
+            'type': 'WEBSTER',
+            'seats': 10,
+            'options': [
+                { 'option': 'Option 1', 'number': 1, 'votes': 10 },
+                { 'option': 'Option 2', 'number': 2, 'votes': 0 },
+                { 'option': 'Option 3', 'number': 3, 'votes': 7 },
+                { 'option': 'Option 4', 'number': 4, 'votes': 2 },
+                { 'option': 'Option 5', 'number': 5, 'votes': 5 },
+                { 'option': 'Option 6', 'number': 6, 'votes': 1 },
+            ]
+        }
+        expected_result = [
+            { 'option': 'Option 1', 'number': 1, 'votes': 10, 'postproc': 4 },
+            { 'option': 'Option 3', 'number': 3, 'votes': 7, 'postproc': 3 },
+            { 'option': 'Option 5', 'number': 5, 'votes': 5, 'postproc': 2 },
+            { 'option': 'Option 4', 'number': 4, 'votes': 2, 'postproc': 1 },
+            { 'option': 'Option 6', 'number': 6, 'votes': 1, 'postproc': 0 },
+            { 'option': 'Option 2', 'number': 2, 'votes': 0, 'postproc': 0 },
+        ]
+
+        response = self.client.post('/postproc/', data, format='json')
+        self.assertEqual(response.status_code, 200)
+
+        values = response.json()
+        self.assertEqual(values, expected_result)
+
+    def test_webster2(self):
+        data = {
+            'type': 'WEBSTER',
+            'seats': 12,
+            'options': [
+                { 'option': 'Option 1', 'number': 1, 'votes': 10 },
+                { 'option': 'Option 2', 'number': 2, 'votes': 0 },
+                { 'option': 'Option 3', 'number': 3, 'votes': 8 },
+                { 'option': 'Option 4', 'number': 4, 'votes': 3 },
+                { 'option': 'Option 5', 'number': 5, 'votes': 5 },
+                { 'option': 'Option 6', 'number': 6, 'votes': 9 },
+                { 'option': 'Option 7', 'number': 7, 'votes': 0 },
+                { 'option': 'Option 8', 'number': 8, 'votes': 0 },
+            ]
+        }
+        expected_result = [
+            { 'option': 'Option 1', 'number': 1, 'votes': 10, 'postproc': 3 },
+            { 'option': 'Option 6', 'number': 6, 'votes': 9, 'postproc': 3 },
+            { 'option': 'Option 3', 'number': 3, 'votes': 8, 'postproc': 3 },
+            { 'option': 'Option 5', 'number': 5, 'votes': 5, 'postproc': 2 },
+            { 'option': 'Option 4', 'number': 4, 'votes': 3, 'postproc': 1 },
+            { 'option': 'Option 2', 'number': 2, 'votes': 0, 'postproc': 0 },
+            { 'option': 'Option 7', 'number': 7, 'votes': 0, 'postproc': 0 },
+            { 'option': 'Option 8', 'number': 8, 'votes': 0, 'postproc': 0 },
+        ]
+
+        response = self.client.post('/postproc/', data, format='json')
+        self.assertEqual(response.status_code, 200)
+
+        values = response.json()
+        self.assertEqual(values, expected_result)
+
+
+    #Test de algoritmo de webster con bastantes más datos y asientos
+    def test_webster3(self):
+        data = {
+            'type': 'WEBSTER',
+            'seats': 30,
+            'options': [
+                { 'option': 'Option 1', 'number': 1, 'votes': 31 },
+                { 'option': 'Option 2', 'number': 2, 'votes': 19 },
+                { 'option': 'Option 3', 'number': 3, 'votes': 8 },
+                { 'option': 'Option 4', 'number': 4, 'votes': 3 },
+                { 'option': 'Option 5', 'number': 5, 'votes': 5 },
+                { 'option': 'Option 6', 'number': 6, 'votes': 9 },
+                { 'option': 'Option 7', 'number': 7, 'votes': 4 },
+                { 'option': 'Option 8', 'number': 8, 'votes': 0 },
+                { 'option': 'Option 9', 'number': 1, 'votes': 15 },
+                { 'option': 'Option 10', 'number': 2, 'votes': 6 },
+                { 'option': 'Option 11', 'number': 3, 'votes': 9 },
+                { 'option': 'Option 12', 'number': 4, 'votes': 19 },
+                { 'option': 'Option 13', 'number': 5, 'votes': 16 },
+                { 'option': 'Option 14', 'number': 6, 'votes': 6 },
+                { 'option': 'Option 15', 'number': 7, 'votes': 0 },
+            ]
+        }
+        expected_result = [
+            { 'option': 'Option 1', 'number': 1, 'votes': 31, 'postproc': 6 } ,
+            { 'option': 'Option 2', 'number': 2, 'votes': 19, 'postproc': 4 },
+            { 'option': 'Option 12', 'number': 4, 'votes': 19, 'postproc': 4 },
+            { 'option': 'Option 13', 'number': 5, 'votes': 16, 'postproc': 3 },
+            { 'option': 'Option 9', 'number': 1, 'votes': 15, 'postproc': 3 },
+            { 'option': 'Option 6', 'number': 6, 'votes': 9, 'postproc': 2 },
+            { 'option': 'Option 11', 'number': 3, 'votes': 9, 'postproc': 2 },
+            { 'option': 'Option 3', 'number': 3, 'votes': 8, 'postproc': 1 },
+            { 'option': 'Option 10', 'number': 2, 'votes': 6, 'postproc': 1 },
+            { 'option': 'Option 14', 'number': 6, 'votes': 6, 'postproc': 1 },
+            { 'option': 'Option 5', 'number': 5, 'votes': 5, 'postproc': 1 },
+            { 'option': 'Option 7', 'number': 7, 'votes': 4, 'postproc': 1 },
+            { 'option': 'Option 4', 'number': 4, 'votes': 3, 'postproc': 1 },
+            { 'option': 'Option 8', 'number': 8, 'votes': 0, 'postproc': 0 },
+            { 'option': 'Option 15', 'number': 7, 'votes': 0, 'postproc': 0 }
+                           ]
+
+
+        response = self.client.post('/postproc/', data, format='json')
+        self.assertEqual(response.status_code, 200)
+
+        values = response.json()
+        print(values)
+        self.assertEqual(values, expected_result)
     
+    
+    def test_no_options_webster(self):
+        seats = 10
+        data = {
+            'type': 'WEBSTER    ',
+            'seats': seats
+        }
+        expected_result = {}
+
+        response = self.client.post('/postproc/', data, format='json')
+        self.assertEqual(response.status_code, 400)
+
+        values = response.json()
+        self.assertEqual(values, expected_result)
+
+    #Test en el que no se le pasan seats al algoritmo de webster
+    def test_webster_no_seats(self):
+        data = {
+            'type': 'WEBSTER',
+            'options': [
+                { 'option': 'Option 1', 'number': 1, 'votes': 12 },
+                { 'option': 'Option 2', 'number': 2, 'votes': 3 },
+                { 'option': 'Option 3', 'number': 3, 'votes': 8 },
+                { 'option': 'Option 4', 'number': 4, 'votes': 3 },
+                { 'option': 'Option 5', 'number': 5, 'votes': 5 },
+                { 'option': 'Option 6', 'number': 6, 'votes': 9 },
+                { 'option': 'Option 7', 'number': 7, 'votes': 0 },
+                { 'option': 'Option 8', 'number': 8, 'votes': 0 },
+                { 'option': 'Option 9', 'number': 9, 'votes': 5 },
+                { 'option': 'Option 10', 'number': 10, 'votes': 6} ,
+            ]
+        }
+
+        expected_result = {}
+
+        response = self.client.post('/postproc/', data, format='json')
+        self.assertEqual(response.status_code, 400)
+
+        values = response.json()
+        self.assertEqual(values, expected_result)
+
+
+    #Test en el que no se le pasa tipo
+    def test_webster_no_type(self):
+        data = {
+            'seats': 5,
+            'options': [
+                { 'option': 'Option 1', 'number': 1, 'votes': 12 },
+                { 'option': 'Option 2', 'number': 2, 'votes': 3 },
+                { 'option': 'Option 3', 'number': 3, 'votes': 8 },
+                { 'option': 'Option 4', 'number': 4, 'votes': 3 },
+                { 'option': 'Option 5', 'number': 5, 'votes': 5 },
+                { 'option': 'Option 6', 'number': 6, 'votes': 9 },
+                { 'option': 'Option 7', 'number': 7, 'votes': 0 },
+                { 'option': 'Option 8', 'number': 8, 'votes': 0 },
+                { 'option': 'Option 9', 'number': 9, 'votes': 5 },
+                { 'option': 'Option 10', 'number': 10, 'votes': 6} ,
+            ]
+        }
+
+        expected_result = {}
+
+        response = self.client.post('/postproc/', data, format='json')
+        self.assertEqual(response.status_code, 400)
+
+        values = response.json()
+        self.assertEqual(values, expected_result)
