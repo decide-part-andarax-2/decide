@@ -78,7 +78,7 @@ class Voters(HttpUser):
 class CreateQuestion(HttpUser):
 
     def on_start(self):
-        with open('question.json') as f:
+        with open('questions.json') as f:
             self.questions = json.loads(f.read())
         self.question = choice(list(self.questions.items()))
 
