@@ -91,13 +91,14 @@ class CreateQuestion(HttpUser):
 
     @task
     def create_question(self):
-        desc, option = self.question
+        desc = self.question.get('desc')
+        options = self.question.get('options')
         headers = {
             'Authorization': 'Token ' + self.token.get('token'),
             'content-type': 'application/json'
         }
         self.client.post("/admin/voting/question/add/", json.dumps({
-
+            
         }))
 
     def on_quit(self):
