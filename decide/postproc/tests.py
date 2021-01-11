@@ -1131,6 +1131,94 @@ class PostProcTestCase(APITestCase):
         values = response.json()
         print(values)
         self.assertEqual(values, expected_result)
+        
+    def test_paridad3(self):
+        
+        candidates1 = [{'name': 'Candidate1', 'gender': 'M'},
+                       {'name': 'Candidate2', 'gender': 'M'},
+                       {'name': 'Candidate3', 'gender': 'M'},
+                       {'name': 'Candidate4', 'gender': 'M'},
+                       {'name': 'Candidate5', 'gender': 'M'}]
+        
+        candidates2 = [{'name': 'Candidate6', 'gender': 'H'},
+                       {'name': 'Candidate7', 'gender': 'H'},
+                       {'name': 'Candidate8', 'gender': 'H'},
+                       {'name': 'Candidate9', 'gender': 'H'},
+                       {'name': 'Candidate10', 'gender': 'H'}]
+        
+        candidates3 = [{'name': 'Candidate11', 'gender': 'H'},
+                       {'name': 'Candidate12', 'gender': 'M'},
+                       {'name': 'Candidate13', 'gender': 'H'},
+                       {'name': 'Candidate14', 'gender': 'M'},
+                       {'name': 'Candidate15', 'gender': 'H'}]
+        
+        candidates4 = [{'name': 'Candidate16', 'gender': 'H'},
+                       {'name': 'Candidate17', 'gender': 'H'},
+                       {'name': 'Candidate18', 'gender': 'H'},
+                       {'name': 'Candidate19', 'gender': 'M'},
+                       {'name': 'Candidate20', 'gender': 'M'}]
+        
+        candidates5 = [{'name': 'Candidate21', 'gender': 'M'},
+                       {'name': 'Candidate22', 'gender': 'M'},
+                       {'name': 'Candidate23', 'gender': 'M'},
+                       {'name': 'Candidate24', 'gender': 'H'},
+                       {'name': 'Candidate25', 'gender': 'H'}]
+        
+    
+        data = {
+            'type': 'DHONT',
+            'paridad': True,
+            'seats': 20,
+            'options': [
+                { 'option': 'Option 1', 'number': 1, 'votes': 10, 'candidates': candidates1 },
+                { 'option': 'Option 2', 'number': 2, 'votes': 10, 'candidates': candidates2 },
+                { 'option': 'Option 3', 'number': 3, 'votes': 10, 'candidates': candidates3 },
+                { 'option': 'Option 4', 'number': 4, 'votes': 10, 'candidates': candidates4 },
+                { 'option': 'Option 5', 'number': 5, 'votes': 10, 'candidates': candidates5 },
+            ]
+        }
+        
+        seated1 = [{'name': 'Candidate1', 'gender': 'M'},
+                       {'name': 'Candidate2', 'gender': 'M'},
+                       {'name': 'Candidate3', 'gender': 'M'},
+                       {'name': 'Candidate4', 'gender': 'M'},
+                      ]
+        
+        seated2 = [{'name': 'Candidate6', 'gender': 'H'},
+                       {'name': 'Candidate7', 'gender': 'H'},
+                       {'name': 'Candidate8', 'gender': 'H'},
+                       {'name': 'Candidate9', 'gender': 'H'},
+                       ]
+        
+        seated3 = [{'name': 'Candidate11', 'gender': 'H'},
+                       {'name': 'Candidate12', 'gender': 'M'},
+                       {'name': 'Candidate13', 'gender': 'H'},
+                       {'name': 'Candidate14', 'gender': 'M'},
+                       ]
+        
+        seated4 = [{'name': 'Candidate16', 'gender': 'H'},
+                       {'name': 'Candidate19', 'gender': 'M'},
+                       {'name': 'Candidate17', 'gender': 'H'},     
+                       {'name': 'Candidate20', 'gender': 'M'}]
+        
+        seated5 = [{'name': 'Candidate21', 'gender': 'M'},
+                   {'name': 'Candidate24', 'gender': 'H'},
+                       {'name': 'Candidate22', 'gender': 'M'},          
+                       {'name': 'Candidate25', 'gender': 'H'}]
+
+        expected_result = [
+            { 'option': 'Option 1', 'number': 1, 'votes': 10, 'candidates': candidates1, 'postproc': 4, 'seated': seated1 },
+            { 'option': 'Option 2', 'number': 2, 'votes': 10, 'candidates': candidates2 , 'postproc': 4, 'seated': seated2  },
+            { 'option': 'Option 3', 'number': 3, 'votes': 10, 'candidates': candidates3, 'postproc': 4, 'seated': seated3  },
+            { 'option': 'Option 4', 'number': 4, 'votes': 10, 'candidates': candidates4, 'postproc': 4, 'seated': seated4},
+            { 'option': 'Option 5', 'number': 5, 'votes': 10, 'candidates': candidates5 , 'postproc': 4, 'seated': seated5},
+            
+          ]
+
+        response = self.client.post('/postproc/', data, format='json')
+        self.assertEqual(response.status_code, 200)
+        values = response.json()
+        self.assertEqual(values, expected_result)
     
     
     def test_no_options_webster(self):
