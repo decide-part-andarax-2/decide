@@ -1,0 +1,57 @@
+{
+    "User1": {
+        "username": "new_user_1",
+        "first_name": "first_name_1",
+        "last_name": "last_name_1",
+        "email": "new_user_1@dominio.example",
+        "password1": "complexpassword",
+        "password2": "complexpassword",
+        "phone": "666666666",
+        "totp_code": "",
+        "base32secret": "63CS6JMRCN6LH4YD"
+    },
+    "User2": {
+        "username": "new_user_2",
+        "first_name": "first_name_2",
+        "last_name": "last_name_2",
+        "email": "new_user_2@dominio.example",
+        "password1": "complexpassword",
+        "password2": "complexpassword",
+        "phone": "666666665",
+        "totp_code": "",
+        "base32secret": "63CS6JMRCN6LH4YD"
+    },
+    "User3": {
+        "username": "new_user_3",
+        "first_name": "first_name_3",
+        "last_name": "last_name_3",
+        "email": "new_user_3@dominio.example",
+        "password1": "complexpassword",
+        "password2": "complexpassword",
+        "phone": "666666664",
+        "totp_code": "",
+        "base32secret": "63CS6JMRCN6LH4YD"
+    },
+    "User4": {
+        "username": "new_user_4",
+        "first_name": "first_name_4",
+        "last_name": "last_name_4",
+        "email": "new_user_4@dominio.example",
+        "password1": "complexpassword",
+        "password2": "complexpassword",
+        "phone": "666666663",
+        "totp_code": "",
+        "base32secret": "63CS6JMRCN6LH4YD"
+    },
+    "User5": {
+        "username": "new_user_5",
+        "first_name": "first_name_5",
+        "last_name": "last_name_5",
+        "email": "new_user_5@dominio.example",
+        "password1": "complexpassword",
+        "password2": "complexpassword",
+        "phone": "666666662",
+        "totp_code": "",
+        "base32secret": "63CS6JMRCN6LH4YD"
+    }
+}
