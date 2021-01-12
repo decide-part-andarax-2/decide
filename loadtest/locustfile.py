@@ -72,8 +72,8 @@ class CreateQuestion(SequentialTaskSet):
     @task
     def login(self):
         self.token = self.client.post("/authentication/login/", {
-            "username": "egc",
-            "password": "egc20202020",
+            "username": "decide",
+            "password": "decide2020",
         }).json()
 
     @task
@@ -91,6 +91,42 @@ class CreateQuestion(SequentialTaskSet):
             "question": {
                 "desc" : desc,
                 "options" : option
+            }
+        }), headers=headers)
+
+    def on_quit(self):
+        self.voter = None
+
+
+class CreateQuestionOrder(SequentialTaskSet):
+
+    def on_start(self):
+        with open('question_orders.json') as f:
+            self.question_orders = json.loads(f.read())
+        self.question = choice(list(self.question_orders.items()))
+
+    @task
+    def login(self):
+        self.token = self.client.post("/authentication/login/", {
+            "username": "decide",
+            "password": "decide2020",
+        }).json()
+
+    @task
+    def create_question(self):
+        response = self.client.get("/admin/voting/question/add/")
+        csrftoken = response.cookies['csrftoken']
+        desc, order_option = self.question
+        headers = {
+            'Authorization': 'Token ' + self.token.get('token'),
+            'content-type': 'application/json',
+            "X-CSRFToken": csrftoken
+        }
+        self.client.post("/admin/voting/question/add/", json.dumps({
+            "token": self.token.get('token'),
+            "question": {
+                "desc" : desc,
+                "order_options" : order_option
             }
         }), headers=headers)
 
@@ -115,4 +151,8 @@ class Question(HttpUser):
     tasks = [CreateQuestion]
     wait_time= between(3,5)
 
+class QuestionOrder(HttpUser):
+    host = HOST
+    tasks = [CreateQuestionOrder]
+    wait_time= between(3,5)
 
