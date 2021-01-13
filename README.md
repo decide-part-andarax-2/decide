@@ -73,12 +73,12 @@ Tras esto tendremos que crearnos nuestra base de datos con postgres:
 Entramos en la carpeta del proyecto (cd decide) y realizamos la primera migración para preparar la
 base de datos que utilizaremos:
 
-    python3 ./manage.py migrate
+    python ./manage.py migrate
 
 Por último, ya podremos ejecutar el módulos o módulos seleccionados en la configuración de la
 siguiente manera:
 
-    python3 ./manage.py runserver
+    python ./manage.py runserver
 
 Ejecutar con docker
 -------------------
@@ -113,15 +113,15 @@ Parar contenedores:
 
 Crear un usuario administrador:
 
-    $ docker exec -ti decide_web ./manage.py createsuperuser
+    $ docker exec -ti decide_web python ./manage.py createsuperuser
 
 Lanzar la consola django:
 
-    $ docker exec -ti decide_web ./manage.py shell
+    $ docker exec -ti decide_web python ./manage.py shell
 
 Lanzar tests:
 
-    $ docker exec -ti decide_web ./manage.py test
+    $ docker exec -ti decide_web python ./manage.py test
 
 Lanzar una consola SQL:
 
