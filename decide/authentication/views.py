@@ -257,7 +257,7 @@ class EmailGenerateTokenView(APIView):
             token = totp.now()
 
             link = ""
-            if settings.BASE_URL == 'http://10.5.0.1:8000':
+            if settings.BASEURL == 'http://10.5.0.1:8000':
                 link = "http://localhost:8000" + reverse("email-confirm-token", None, [str(user.pk), str(token)])
             else:
                 link = request.build_absolute_uri(reverse("email-confirm-token", None, [str(user.pk), str(token)]))
