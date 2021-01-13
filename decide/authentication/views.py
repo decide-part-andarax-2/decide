@@ -256,8 +256,10 @@ class EmailGenerateTokenView(APIView):
             token = totp.now()
 
             host = request.get_host()
+            if host == "10.5.0.1:8000":
+                host = "localhost:8000"
             scheme = request.is_secure() and "https" or "http"
-            link = f'{scheme}://{request.get_host()}' + reverse("email-confirm-token", None, [str(user.pk), str(token)])
+            link = f'{scheme}://{host}' + reverse("email-confirm-token", None, [str(user.pk), str(token)])
             send_mail_with_token(email, link)
         except SMTPException:
             return Response({}, status=HTTP_500_INTERNAL_SERVER_ERROR)
