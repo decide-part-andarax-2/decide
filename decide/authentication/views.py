@@ -1,3 +1,4 @@
+from django_heroku.core import settings
 from rest_framework import parsers, renderers
 from authentication.models import EmailOTPCode
 from rest_framework.response import Response
@@ -254,7 +255,12 @@ class EmailGenerateTokenView(APIView):
         try:
             totp = pyotp.TOTP(secret, interval=3600)
             token = totp.now()
-            link = request.build_absolute_uri(reverse("email-confirm-token", None, [str(user.pk), str(token)]))
+
+            link = ""
+            if settings.BASE_URL == 'http://10.5.0.1:8000':
+                link = "http://localhost:8000" + reverse("email-confirm-token", None, [str(user.pk), str(token)])
+            else:
+                link = request.build_absolute_uri(reverse("email-confirm-token", None, [str(user.pk), str(token)]))
             send_mail_with_token(email, link)
         except SMTPException:
             return Response({}, status=HTTP_500_INTERNAL_SERVER_ERROR)

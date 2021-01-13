@@ -28,7 +28,7 @@ MODULES = [
     'voting',
 ]
 
-BASEURL = 'http://localhost:8000'
+BASEURL = 'http://10.5.0.1:8000'
 
 APIS = {
     'authentication': BASEURL,
@@ -44,6 +44,3 @@ APIS = {
 
 USE_X_FORWARDED_HOST = True
 USE_X_FORWARDED_PORT = True
-
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY='650186665562-h0k9d7pvcjdhe43iak6q6sbdikddjpkq.apps.googleusercontent.com'
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET='h_-Q1G_wPRz4z_6ZCsM9Z6Pu'
