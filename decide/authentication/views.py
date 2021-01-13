@@ -1,4 +1,3 @@
-from django.conf import settings
 from rest_framework import parsers, renderers
 from authentication.models import EmailOTPCode
 from rest_framework.response import Response
@@ -256,11 +255,9 @@ class EmailGenerateTokenView(APIView):
             totp = pyotp.TOTP(secret, interval=3600)
             token = totp.now()
 
-            link = ""
-            if settings.BASEURL == 'http://10.5.0.1:8000':
-                link = "http://localhost:8000" + reverse("email-confirm-token", None, [str(user.pk), str(token)])
-            else:
-                link = request.build_absolute_uri(reverse("email-confirm-token", None, [str(user.pk), str(token)]))
+            host = request.get_host()
+            scheme = request.is_secure() and "https" or "http"
+            link = f'{scheme}://{request.get_host()}' + reverse("email-confirm-token", None, [str(user.pk), str(token)])
             send_mail_with_token(email, link)
         except SMTPException:
             return Response({}, status=HTTP_500_INTERNAL_SERVER_ERROR)
