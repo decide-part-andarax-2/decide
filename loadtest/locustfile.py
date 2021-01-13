@@ -198,6 +198,40 @@ class CreateVoting(SequentialTaskSet):
     def on_quit(self):
         self.voter = None
 
+class CreateNewUser(SequentialTaskSet):
+
+    def on_start(self):
+        with open('user_forms.json') as f:
+            self.user_forms = json.loads(f.read())
+        self.user_form = choice(list(self.user_forms.items()))
+
+    @task
+    def create_new_user(self):
+        response = self.client.get("/authentication/registro/")
+        csrftoken = response.cookies['csrftoken']
+        _, user_form = self.user_form
+
+
+        headers = {
+            'content-type': 'application/x-www-form-urlencoded',
+            "X-CSRFToken": csrftoken
+        }
+        self.client.post("/authentication/registro/", {
+            "csrfmiddlewaretoken": csrftoken,
+            "username": user_form["username"],
+            "first_name": user_form["first_name"],
+            "last_name": user_form["last_name"],
+            "email": user_form["email"],
+            "password1": user_form["password1"],
+            "password2": user_form["password2"],
+            "phone": user_form["phone"],
+            "totp_code": user_form["totp_code"],
+            "base32secret": user_form["base32secret"]
+        }, headers=headers)
+
+    def on_quit(self):
+        self.user_form = None
+
 class Visualizer(HttpUser):
     host = HOST
     tasks = [DefVisualizer]
@@ -221,4 +255,9 @@ class QuestionOrder(HttpUser):
 class Voting(HttpUser):
     host = HOST
     tasks = [CreateVoting]
+    wait_time= between(3,5)
+
+class NewUser(HttpUser):
+    host = HOST
+    tasks = [CreateNewUser]
     wait_time= between(3,5)
