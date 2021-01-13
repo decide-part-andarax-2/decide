@@ -105,6 +105,34 @@ class PostProcTestCase(APITestCase):
         values = response.json()
         self.assertEqual(values, expected_result)
 
+    def test_dhont_3(self):
+        seats = 9
+        data = {
+            'type': 'DHONT',
+            'seats': seats,
+            'options': [
+                {'option': 'Option 1', 'number': 1, 'votes': 100},
+                {'option': 'Option 2', 'number': 2, 'votes': 122},
+                {'option': 'Option 3', 'number': 3, 'votes': 500},
+                {'option': 'Option 4', 'number': 4, 'votes': 279},
+                {'option': 'Option 5', 'number': 5, 'votes': 927},
+            ]
+        }
+
+        expected_result = [
+            {'option': 'Option 5', 'number': 5, 'votes': 927, 'postproc': 5},
+            {'option': 'Option 3', 'number': 3, 'votes': 500, 'postproc': 3},
+            {'option': 'Option 4', 'number': 4, 'votes': 279, 'postproc': 1},
+            {'option': 'Option 2', 'number': 2, 'votes': 122, 'postproc': 0},
+            {'option': 'Option 1', 'number': 1, 'votes': 100, 'postproc': 0},
+        ]
+
+        response = self.client.post('/postproc/', data, format='json')
+        self.assertEqual(response.status_code, 200)
+
+        values = response.json()
+        self.assertEqual(values, expected_result)
+
     # Test en el que no se define la variable type en el json data
     def test_no_type(self):
         seats = 5
