@@ -28,16 +28,22 @@ MODULES = [
     'voting',
 ]
 
-BASEURL = 'http://10.5.0.1:8000'
+BASEURL = 'http://localhost:8000'
 
 APIS = {
-    'authentication': 'http://10.5.0.1:8000',
-    'base': 'http://10.5.0.1:8000',
-    'booth': 'http://10.5.0.1:8000',
-    'census': 'http://10.5.0.1:8000',
-    'mixnet': 'http://10.5.0.1:8000',
-    'postproc': 'http://10.5.0.1:8000',
-    'store': 'http://10.5.0.1:8000',
-    'visualizer': 'http://10.5.0.1:8000',
-    'voting': 'http://10.5.0.1:8000',
+    'authentication': BASEURL,
+    'base': BASEURL,
+    'booth': BASEURL,
+    'census': BASEURL,
+    'mixnet': BASEURL,
+    'postproc': BASEURL,
+    'store': BASEURL,
+    'visualizer': BASEURL,
+    'voting': BASEURL,
 }
+
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
+
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY='650186665562-h0k9d7pvcjdhe43iak6q6sbdikddjpkq.apps.googleusercontent.com'
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET='h_-Q1G_wPRz4z_6ZCsM9Z6Pu'

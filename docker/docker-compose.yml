@@ -35,11 +35,18 @@ services:
     volumes:
       - static:/app/static
     ports:
-      - "8000:80"
+      - "8000:8000"
     depends_on:
       - web
     networks:
       - decide
+    environment:
+      - EMAIL_HOST_USER=projectdecidetest@gmail.com
+      - EMAIL_HOST_PASSWORD=pruebadecide
+      - SOCIAL_AUTH_GITHUB_KEY=01be11c9729e4d6255c4
+      - SOCIAL_AUTH_GITHUB_SECRET=4a9fd81bb53d0e536abc1334c0c4ed4987ec753a
+      - SOCIAL_AUTH_FACEBOOK_KEY=587538528871702       
+      - SOCIAL_AUTH_FACEBOOK_SECRET=120e5ca116b0a7659853d4e7ace9f47c
 
 volumes:
   static:
