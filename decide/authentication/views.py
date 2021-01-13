@@ -1,4 +1,4 @@
-from django_heroku.core import settings
+from django.conf import settings
 from rest_framework import parsers, renderers
 from authentication.models import EmailOTPCode
 from rest_framework.response import Response
