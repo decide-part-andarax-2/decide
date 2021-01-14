@@ -1,7 +1,6 @@
-Codacy's code quality: [![Codacy Badge](https://app.codacy.com/project/badge/Grade/9e6dc5d2bfdc46c78323080b62230e63)](https://www.codacy.com/gh/decide-part-andarax-2/decide/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=decide-part-andarax-2/decide&amp;utm_campaign=Badge_Grade)
+Codacy's code quality: [![Codacy Badge](https://app.codacy.com/project/badge/Grade/b6bc9561462f4da6a1e8b05c434935e4)](https://www.codacy.com/gh/decide-part-andarax-3/decide/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=decide-part-andarax-3/decide&amp;utm_campaign=Badge_Grade)
 Codacy's coverage: [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/9e6dc5d2bfdc46c78323080b62230e63)](https://www.codacy.com/gh/decide-part-andarax-2/decide/dashboard?utm_source=github.com&utm_medium=referral&utm_content=decide-part-andarax-2/decide&utm_campaign=Badge_Coverage)
-Travis CI status: [![Build Status](https://www.travis-ci.com/decide-part-andarax-2/decide.svg?branch=master)](https://www.travis-ci.com/github/decide-part-andarax-2/decide)
-
+Travis CI status: [![Build Status](https://travis-ci.com/decide-part-andarax-3/decide.svg?branch=develop)](https://travis-ci.com/decide-part-andarax-3/decide)
 
 Plataforma voto electrónico educativa
 =====================================
