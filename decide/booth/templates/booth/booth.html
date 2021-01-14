@@ -27,12 +27,13 @@
                     <a class="btn btn-block btn-social btn-github" :href="linkGithub"><span class="fa fa-github"></span>Logout de GitHub</a>
                     </b-nav-item>
                     <b-nav-item v-on:click="decideLogoutGoogle" v-if="!signup">
-                   <a class="btn btn-block btn-social btn-google" :href="linkGoogle"><span class="fa fa-google"></span>Logout de Google</a>
+                    <a class="btn btn-block btn-social btn-google" :href="linkGoogle"><span class="fa fa-google"></span>Logout de Google</a>
                     </b-nav-item>
-                    <b-nav-item>
-                     <a class="btn btn-block btn-social btn-facebook"><span class="fa fa-facebook"></span>Logout de Facebook</a>
+                    <b-nav-item v-on:click="decideLogoutFacebook" v-if="!signup">
+                    <a class="btn btn-block btn-social btn-facebook" :href="linkFacebook"><span class="fa fa-facebook"></span>Logout de Facebook</a>
                     </b-nav-item>  
                     
+
         </b-navbar>
 
         <b-alert :variant="alertLvl" dismissible v-model="alertShow">
@@ -76,7 +77,7 @@
                 <b-button type="submit" variant="primary">{% trans "Login" %}</b-button>
                 <a class="btn btn-block btn-social btn-login btn-github" :href="linkGithub"><span class="fa fa-github"></span>Login con GitHub</a>
                 <a class="btn btn-block btn-social btn-login btn-google" :href="linkGoogle"><span class="fa fa-google"></span>Login con Google</a>
-                <a class="btn btn-block btn-social btn-login btn-facebook"><span class="fa fa-facebook"></span>Login con Facebook</a>
+                <a class="btn btn-block btn-social btn-login btn-facebook" :href="linkFacebook"><span class="fa fa-facebook"></span>Login con Facebook</a>
                 </div>
                 
             </b-form>
@@ -109,7 +110,7 @@
                 <b-button type="submit" variant="primary">{% trans "Login" %}</b-button>
                 <a class="btn btn-block btn-social btn-login btn-github" :href="linkGithub"><span class="fa fa-github"></span>Login con GitHub</a>
                 <a class="btn btn-block btn-social btn-login btn-google" :href="linkGoogle"><span class="fa fa-google"></span>Login con Google</a>
-                <a class="btn btn-block btn-social btn-login btn-facebook"><span class="fa fa-facebook"></span>Login con Facebook</a>
+                <a class="btn btn-block btn-social btn-login btn-facebook" :href="linkFacebook"><span class="fa fa-facebook"></span>Login con Facebook</a>
                 </div>
                 
             </b-form>
@@ -128,7 +129,7 @@
                 <b-button type="submit" variant="primary">{% trans "Send" %}</b-button>
                 <a class="btn btn-block btn-social btn-login btn-github" :href="linkGithub"><span class="fa fa-github"></span>Login con GitHub</a>
                 <a class="btn btn-block btn-social btn-login btn-google" :href="linkGoogle"><span class="fa fa-google"></span>Login con Google</a>
-                <a class="btn btn-block btn-social btn-login btn-facebook"><span class="fa fa-facebook"></span>Login con Facebook</a>
+                <a class="btn btn-block btn-social btn-login btn-facebook" :href="linkFacebook"><span class="fa fa-facebook"></span>Login con Facebook</a>
                 </div>
                 
             </b-form>
@@ -148,8 +149,8 @@
                     {% trans "Vote" %}
                 </b-button>
             </div>
+
         </div>        
-       
         
     </div>
    
@@ -204,6 +205,11 @@
                     totp_code: ''
                 },
                 linkGoogle: "{% url 'social:begin' 'google-oauth2' %}?next=" + voting.id,
+                emailForm: {
+                    email: '',
+                    callback: window.location.href                    
+                },
+                linkFacebook: "{% url 'social:begin' 'facebook' %}?next=" + voting.id,
                 emailForm: {
                     email: '',
                     callback: window.location.href                    
@@ -330,6 +336,18 @@
                     this.postData("{% url "gateway" "authentication" "/logout/" %}", data);
                     var xmlHttp = new XMLHttpRequest();
                     xmlHttp.open( "GET", '/authentication/logoutGoogle/', false );
+                    xmlHttp.send( null );
+                    this.token = null;
+                    this.user = null;
+                    document.cookie = 'decide=;';
+                    this.signup = true;
+                },               
+                decideLogoutFacebook(evt) {
+                    evt.preventDefault();
+                    var data = {token: this.token};
+                    this.postData("{% url "gateway" "authentication" "/logout/" %}", data);
+                    var xmlHttp = new XMLHttpRequest();
+                    xmlHttp.open( "GET", '/authentication/logoutFacebook/', false );
                     xmlHttp.send( null );
                     this.token = null;
                     this.user = null;
