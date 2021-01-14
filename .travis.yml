@@ -22,7 +22,7 @@ before_script:
   - sudo mv -f ~/chromedriver /usr/local/share/
   - sudo chmod +x /usr/local/share/chromedriver
   - sudo ln -s /usr/local/share/chromedriver /usr/local/bin/chromedriver
-  
+
 language: python
 python:
   - '3.6'
