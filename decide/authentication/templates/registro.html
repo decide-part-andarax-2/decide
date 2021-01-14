@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load i18n static %}
+{% load qr_code %}
+
+{% block extrahead %}
+    <link type="text/css" rel="stylesheet"
+         href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+    <link type="text/css" rel="stylesheet"
+         href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css" />
+    <link type="text/css" rel="stylesheet" href="{% static "authentication/style.css" %}" />
+{% endblock %}
+
+
+{% block content %}
+<div id="app-booth" class="pagecontent">
+    <h1>User register</h1>
+
+    <form action="" method="post">
+        {% csrf_token %}
+
+        {% for field in user_form %}
+            <div class="field">
+                <label for="{{ field.id_for_label }}" class="label">{{ field.label_tag }}</label>
+                {{ field }}
+
+                {% if field.help_text %}
+                    <p class="help">{{ field.help_text|safe }}</p>
+                {% endif %}
+
+                {% for error in field.errors%}
+                    <p class="text-danger">{{ error }}</p>
+                {% endfor %}
+            </div>
+        {% endfor %}
+
+        {{extra_form.phone.label_tag}}  {{extra_form.phone}} {{extra_form.errors.phone}}
+        {% qr_from_text url_totp size="S" %} <br>
+        <p>*Scan with your phone if you are going to use 2FA</p>
+        {{extra_form.totp_code.label_tag}}  {{extra_form.totp_code}} {{extra_form.errors.totp_code}} <br>
+        {{extra_form.base32secret.as_hidden}}
+        <br>
+
+    <button type="submit" class="btn btn-primary">Register</button>
+
+    </form>
+</div>
+{% endblock %}

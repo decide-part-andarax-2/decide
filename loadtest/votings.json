@@ -1,0 +1,38 @@
+{
+    "Voting1": {
+        "name": "First voting",
+        "desc": "Sample voting description",
+        "slug": "voting1",
+        "voting_type": "IDENTITY"
+    },
+    "Voting2": {
+        "name": "Second voting",
+        "desc": "Sample voting description",
+        "slug": "voting2",
+        "voting_type": "ABSOLUTA"
+    },
+    "Voting3": {
+        "name": "Third voting",
+        "desc": "Sample voting description",
+        "slug": "voting3",
+        "voting_type": "RELATIVA"
+    },
+    "Voting4": {
+        "name": "Forth voting",
+        "desc": "Sample voting description",
+        "slug": "voting4",
+        "voting_type": "IDENTITY"
+    },
+    "Voting5": {
+        "name": "Fifth voting",
+        "desc": "Sample voting description",
+        "slug": "voting5",
+        "voting_type": "ABSOLUTA"
+    },
+    "Voting6": {
+        "name": "Sixth voting",
+        "desc": "Sample voting description",
+        "slug": "voting6",
+        "voting_type": "RELATIVA"
+    }
+}

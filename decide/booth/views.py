@@ -4,6 +4,7 @@ from django.conf import settings
 from django.http import Http404
 
 from base import mods
+from voting import models
 
 
 # TODO: check permissions and census
@@ -29,3 +30,29 @@ class BoothView(TemplateView):
         context['KEYBITS'] = settings.KEYBITS
 
         return context
+
+class BoothViewUrl(TemplateView):
+    template_name = 'booth/booth.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        vid = kwargs.get('voting_slug', 0)
+
+        try:
+            vot = models.Voting.objects.get(slug=vid)
+            r = mods.get('voting', params={'id': vot.id})
+
+            # Casting numbers to string to manage in javascript with BigInt
+            # and avoid problems with js and big number conversion
+            for k, v in r[0]['pub_key'].items():
+                r[0]['pub_key'][k] = str(v)
+
+            context['voting'] = json.dumps(r[0])
+        except:
+            raise Http404
+
+        context['KEYBITS'] = settings.KEYBITS
+
+        return context
+
+

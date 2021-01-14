@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load i18n static %}
+
+{% block extrahead %}
+    <link type="text/css" rel="stylesheet"
+         href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+    <link type="text/css" rel="stylesheet"
+         href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css" />
+    <link type="text/css" rel="stylesheet" href="{% static "authentication/style.css" %}" />
+{% endblock %}
+
+{% block content %}
+    <nav class="navbar navbar-dark bg-secondary navbar-expand">
+        <h1 class="navbar-brand">Decide</h1> 
+    </nav>
+    
+    <div id="app-booth" class="pagecontent">
+        <h1>Inicio de sesión | Decide!</h1>
+
+        <form method="POST">
+            {% csrf_token %}
+            <div>
+                <label>Nombre de usuario:</label>
+                <input type="text" class="form-control" placeholder="Nombre de usuario" name="username">
+            </div>
+
+            <div>
+                <label>Contraseña:</label>
+                <input type="password" class="form-control" placeholder="Contraseña" name="password">
+            </div>
+
+            <br><button type="submit" class="btn btn-primary">Enviar</button>
+        </form>
+    </div>
+
+{% endblock %}

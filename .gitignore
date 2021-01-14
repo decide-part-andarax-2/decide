@@ -101,3 +101,9 @@ ENV/
 .mypy_cache/
 
 .vagrant
+
+#vscode dependencies
+.vscode
+.vscode/launch.json
+.vscode/settings.json
+decide/voting/results/

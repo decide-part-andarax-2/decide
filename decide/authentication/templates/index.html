@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load i18n static %}
+
+{% block extrahead %}
+    <link type="text/css" rel="stylesheet"
+         href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+    <link type="text/css" rel="stylesheet"
+         href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css" />
+    <link type="text/css" rel="stylesheet" href="{% static "authentication/style.css" %}" />
+{% endblock %}
+
+{% block content %}
+    <nav class="navbar navbar-dark bg-secondary navbar-expand">
+        <h1 class="navbar-brand">Decide</h1> 
+    </nav>
+
+    <div id="app-booth" class="pagecontent">
+        <h1>Bienvenido a Decide Autenticación</h1>
+        <p><a href="authentication/registro" class="btn btn-primary">Regístrate aquí</a></p>
+        <p><a href="accounts/login/" class="btn btn-primary">Login</a></p>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,116 @@
+
+
+{% extends "base.html" %}
+{% load i18n static %}
+
+{% block extrahead %}
+    <link type="text/css" rel="stylesheet"
+         href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+    <link type="text/css" rel="stylesheet"
+         href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css" />
+    <link type="text/css" rel="stylesheet" href="{% static "authentication/style.css" %}" />
+{% endblock %}
+
+{% block content %}
+<h1>Redirigiendo Facebook a la votación {{voting_id}}</h1>
+    <div id="app-facebook-auth">
+        <!-- Navbar -->
+        <b-navbar type="dark" variant="secondary">
+            <b-navbar-brand tag="h1">Decide</b-navbar-brand>
+                <b-navbar-nav class="ml-auto" v-if="!signup">
+                    <b-nav-item href="#" v-on:click="decideLogout">
+                        {% trans "logout" %}
+                    </b-nav-item>
+                </b-navbar-nav>
+        </b-navbar>
+
+        <b-alert :variant="alertLvl" dismissible v-model="alertShow">
+            [[ alertMsg ]]
+        </b-alert>
+
+    </div>
+
+    
+{% endblock %}
+
+{% block extrabody %}
+
+    <!-- Vuejs -->
+    <script src="https://unpkg.com/vue"></script>
+    <script src="https://unpkg.com/babel-polyfill@latest/dist/polyfill.min.js"></script>
+    <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.js"></script>
+
+    <script>
+        var app = new Vue({
+            delimiters: ['[[', ']]'],
+            el: '#app-facebook-auth',
+            data: {
+                selected: "",
+                signup: true,
+                alertShow: false,
+                alertMsg: "",
+                alertLvl: "info",
+                token: "{{token}}",
+                user: null
+            },
+            beforeMount() {
+                this.init();
+            },
+            methods: {
+                init() {
+                    document.cookie = 'decide='+this.token+'; path=/';
+                    this.getUser();
+                    window.location.replace('{{callback}}');
+                },
+                postData(url, data) {
+                    // Default options are marked with *
+                    var fdata = {
+                        body: JSON.stringify(data),
+                        headers: {
+                            'content-type': 'application/json',
+                        },
+                        method: 'POST',
+                    };
+                    
+                    if (this.token) {
+                        fdata.headers['Authorization'] = 'Token ' + this.token;
+                    }
+
+                    return fetch(url, fdata)
+                        .then(response => {
+                            if (response.status === 200) {
+                                return response.json();
+                            } else {
+                                return Promise.reject(response.statusText);
+                            }
+                        });
+                },
+                getUser(evt) {
+                    var data = {token: this.token};
+                    this.postData("{% url "gateway" "authentication" "/getuser/" %}", data)
+                        .then(data => {
+                            this.user = data;
+                            this.signup = false;
+                        }).catch(error => {
+                            this.showAlert("danger", '{% trans "Error: " %}' + error);
+                        });
+                },
+                decideLogout(evt) {
+                    evt.preventDefault();
+                    var data = {token: this.token};
+                    this.postData("{% url "gateway" "authentication" "/logout/" %}", data);
+                    this.token = null;
+                    this.user = null;
+                    document.cookie = 'decide=; path=/';
+                    this.signup = true;
+                },
+                showAlert(lvl, msg) {
+                    this.alertLvl = lvl;
+                    this.alertMsg = msg;
+                    this.alertShow = true;
+                }
+            },
+        })
+    </script>
+</body>
+{% endblock %}

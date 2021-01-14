@@ -1,7 +1,6 @@
-Codacy's code quality: [![Codacy Badge](https://app.codacy.com/project/badge/Grade/7ff0b5e572d541319aaf2e56e146d4eb)](https://www.codacy.com/gh/decide-part-andarax/decide/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=decide-part-andarax/decide&amp;utm_campaign=Badge_Grade)
-Codacy's coverage: [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/7ff0b5e572d541319aaf2e56e146d4eb)](https://www.codacy.com/gh/decide-part-andarax/decide/dashboard?utm_source=github.com&utm_medium=referral&utm_content=decide-part-andarax/decide&utm_campaign=Badge_Coverage)
-Travis CI status: [![Build Status](https://travis-ci.com/decide-part-andarax/decide.svg?branch=master)](https://travis-ci.com/decide-part-andarax/decide)
-
+Codacy's code quality: [![Codacy Badge](https://app.codacy.com/project/badge/Grade/b6bc9561462f4da6a1e8b05c434935e4)](https://www.codacy.com/gh/decide-part-andarax-3/decide/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=decide-part-andarax-3/decide&amp;utm_campaign=Badge_Grade)
+Codacy's coverage: [![Codacy Badge](https://app.codacy.com/project/badge/Coverage/b6bc9561462f4da6a1e8b05c434935e4)](https://www.codacy.com/gh/decide-part-andarax-3/decide/dashboard?utm_source=github.com&utm_medium=referral&utm_content=decide-part-andarax-3/decide&utm_campaign=Badge_Coverage)
+Travis CI status: [![Build Status](https://travis-ci.com/decide-part-andarax-3/decide.svg?branch=develop)](https://travis-ci.com/decide-part-andarax-3/decide)
 
 Plataforma voto electrónico educativa
 =====================================
@@ -73,12 +72,12 @@ Tras esto tendremos que crearnos nuestra base de datos con postgres:
 Entramos en la carpeta del proyecto (cd decide) y realizamos la primera migración para preparar la
 base de datos que utilizaremos:
 
-    ./manage.py migrate
+    python ./manage.py migrate
 
 Por último, ya podremos ejecutar el módulos o módulos seleccionados en la configuración de la
 siguiente manera:
 
-    ./manage.py runserver
+    python ./manage.py runserver
 
 Ejecutar con docker
 -------------------
@@ -113,15 +112,15 @@ Parar contenedores:
 
 Crear un usuario administrador:
 
-    $ docker exec -ti decide_web ./manage.py createsuperuser
+    $ docker exec -ti decide_web python ./manage.py createsuperuser
 
 Lanzar la consola django:
 
-    $ docker exec -ti decide_web ./manage.py shell
+    $ docker exec -ti decide_web python ./manage.py shell
 
 Lanzar tests:
 
-    $ docker exec -ti decide_web ./manage.py test
+    $ docker exec -ti decide_web python ./manage.py test
 
 Lanzar una consola SQL:
 

@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.utils import timezone
 
+from .models import QuestionOrder
 from .models import QuestionOption
 from .models import Question
 from .models import Voting
@@ -20,7 +21,6 @@ def stop(ModelAdmin, request, queryset):
         v.end_date = timezone.now()
         v.save()
 
-
 def tally(ModelAdmin, request, queryset):
     for v in queryset.filter(end_date__lt=timezone.now()):
         token = request.session.get('auth-token', '')
@@ -30,10 +30,11 @@ def tally(ModelAdmin, request, queryset):
 class QuestionOptionInline(admin.TabularInline):
     model = QuestionOption
 
+class QuestionOrderInline(admin.TabularInline):
+    model = QuestionOrder
 
 class QuestionAdmin(admin.ModelAdmin):
-    inlines = [QuestionOptionInline]
-
+    inlines = [QuestionOptionInline, QuestionOrderInline]
 
 class VotingAdmin(admin.ModelAdmin):
     list_display = ('name', 'start_date', 'end_date')
