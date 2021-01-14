@@ -6,7 +6,7 @@
          href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
     <link type="text/css" rel="stylesheet"
          href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.css" />
-    <link type="text/css" rel="stylesheet" href="{% static "booth/style.css" %}" />
+    <link type="text/css" rel="stylesheet" href="{% static "authentication/style.css" %}" />
 {% endblock %}
 
 {% block content %}
@@ -19,7 +19,7 @@
           </ul>
      </nav>
      
-     <div id="app-booth" class="pagecontent">
+     <div id="app-authentication" class="pagecontent">
           <h1>Bienvenido a Decide! {{ user.username | upper }}</h1>
      </div>
 {% endblock %}
