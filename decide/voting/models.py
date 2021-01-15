@@ -106,7 +106,7 @@ def checkNumberQuestionOption(self, iteration):
 
 # Auxiliar method to reassing existing number in QuestionOrder
 def checkNumberQuestionOrder(self, iteration):
-    
+
     try:
         QuestionOrder.objects.get(number = self.number, question = self.question)
         raise ValidationError('Duplicated order number, please checkout question order')
@@ -124,7 +124,7 @@ def checkNumberQuestionOrder(self, iteration):
 
 # Auxiliar method to reassing existing number order number
 def checkOrderNumber(self, iteration):
-    
+
     try:
         QuestionOrder.objects.get(order_number = self.order_number, question = self.question)
         raise ValidationError('Duplicated order number, please checkout question order')
@@ -278,7 +278,8 @@ class Voting(models.Model):
         self.do_postproc()
 
     def do_postproc(self):
-        votingType = "IDENTITY"
+        #votingType = "IDENTITY"
+        votingType = self.voting_type
         tally = self.tally
         options = self.question.options.all()
         order_options = self.question.order_options.all()

@@ -324,7 +324,7 @@ class VotingTestCase(BaseTestCase):
 
         v1=Voting(name="Votacion tipo_inventado",question=q1)
         v1.save()
-        
+
         self.assertEqual(Voting.objects.get(name="Votacion tipo_inventado").voting_type, "IDENTITY")
 
     def test_update_voting(self):
@@ -428,7 +428,7 @@ class VotingModelTestCase(BaseTestCase):
 
         qord1 = QuestionOrder(question = q3, option = 'First order')
         qord1.save()
-      
+
         q=Question(desc="Esta es la descripcion")
         q.save()
 
@@ -456,7 +456,7 @@ class VotingModelTestCase(BaseTestCase):
         super().tearDown()
         self.v=None
         self.v2=None
-    
+
     # don't save others YES/NO if it saves question with YES/NO question selected
     def test_duplicity_yes_and_no(self):
         q = Question.objects.get(desc='This is a test yes/no question')
@@ -667,7 +667,7 @@ class VotingModelTestCase(BaseTestCase):
 
         self.assertRaises(ValueError)
         self.assertRaisesRegex(ValueError,"ValueError: invalid literal for int() with base 10: {}".format(order_number))
-        
+
     def test_delete_when_unselect(self):
         q = Question.objects.get(desc='This is a test yes/no question')
         q.is_yes_no_question = False
@@ -703,7 +703,7 @@ class VotingViewsTestCase(StaticLiveServerTestCase):
         wh_then = self.vars["window_handles"]
         if len(wh_now) > len(wh_then):
             return set(wh_now).difference(set(wh_then)).pop()
-    
+
     def test_duplicity_yes(self):
 
         # add the user and login
@@ -736,7 +736,7 @@ class VotingViewsTestCase(StaticLiveServerTestCase):
         self.assertEqual("NO", driver.find_element_by_id("id_options-1-option").text)
         self.assertEqual("", driver.find_element_by_id("id_options-2-option").get_attribute("value"))
 
-    
+
     def test_delete_when_unselect(self):
 
         User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
@@ -1066,7 +1066,7 @@ class VotingViewsTestCase(StaticLiveServerTestCase):
         self.assertEqual("Hi Pepito", driver.find_element_by_id("id_order_options-0-option").text)
         self.assertEqual("", driver.find_element_by_id("id_order_options-1-option").get_attribute("value"))
 
-    
+
     def test_duplicity_option(self):
 
         User.objects.create_superuser('superuser', 'superuser@decide.com', 'superuser')
@@ -1511,7 +1511,7 @@ class OrderVotingTestCase(BaseTestCase):
 
         qo3 = QuestionOrder(question = q1, option = 'Third option', number=3, order_number=3)
         qo3.save()
-      
+
         self.v=Voting(name="Mock voting",question=q1, slug="testslug1")
         self.v.save()
 
@@ -1520,7 +1520,7 @@ class OrderVotingTestCase(BaseTestCase):
     def tearDown(self):
         super().tearDown()
         self.v=None
-    
+
     #tests if a order option can be repeated in different order options in a new question
     def test_repeated_order_number(self):
         q2 = Question(desc='Second mock question description')
