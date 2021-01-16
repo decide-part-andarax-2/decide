@@ -752,7 +752,7 @@ class PostProcViewsTestCase(StaticLiveServerTestCase):
         self.vars = {}
 
         options = webdriver.ChromeOptions()
-        options.headless = False
+        options.headless = True
         self.driver = webdriver.Chrome(options=options)
 
         super().setUp()
