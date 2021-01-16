@@ -240,7 +240,7 @@ class Voting(models.Model):
         self.save()
 
     def get_votes(self, token=''):
-        # gettings votes from store
+        # getting votes from store
         votes = mods.get('store', params={'voting_id': self.id}, HTTP_AUTHORIZATION='Token ' + token)
         # anon votes
         return [[i['a'], i['b']] for i in votes]
@@ -280,14 +280,14 @@ class Voting(models.Model):
         self.do_postproc()
 
     def do_postproc(self):
-        #votingType = "IDENTITY"
+        # votingType = "IDENTITY"
         votingType = self.voting_type
         tally = self.tally
         options = self.question.options.all()
         order_options = self.question.order_options.all()
 
         opts = []
-        #Abrimos el fichero donde se guardaran los resultados y el comprimido donde se guardaran estos ficheros
+        # we open the file where de results are stored and the compressed file were this files are stored
         if not os.path.exists("voting/results/"):
             os.mkdir("voting/results")
         fname = "voting/results/v" + str(self.id) + "_" + self.slug + ".txt"
@@ -332,7 +332,7 @@ class Voting(models.Model):
         self.postproc = postp
         self.save()
 
-        #Comprimimos el fichero
+        # Compress the file
         comprimido = tarfile.open('voting/results/results.tar', mode='a')
         if not fname in comprimido.getnames():
             comprimido.add(fname)
