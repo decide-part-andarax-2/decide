@@ -40,7 +40,10 @@ class Question(models.Model):
                     options = QuestionOption.objects.all().filter(question = self)
                     for element in options:
                         QuestionOption.objects.get(pk=element.id).delete()
-                
+
+                    orders = QuestionOrder.objects.all().filter(question = self)
+                    for element in orders:
+                        QuestionOrder.objects.get(pk=element.id).delete()
                 # if it has no options at all
                 except:
                     pass
@@ -189,14 +192,15 @@ class QuestionOrder(models.Model):
         return super().save()
 
     def save(self):
-        if not self.number:
-            self.number = self.question.order_options.count() + 1
-        if not self.order_number:
-            self.order_number = self.question.order_options.count() + 1
+        if not self.question.is_yes_no_question:
+            if not self.number:
+                self.number = self.question.order_options.count() + 1
+            if not self.order_number:
+                self.order_number = self.question.order_options.count() + 1
 
-        checkOrderNumber(self,0)
-        checkNumberQuestionOrder(self,0)
-        repitedOrder(self)
+            checkOrderNumber(self,0)
+            checkNumberQuestionOrder(self,0)
+            repitedOrder(self)
 
     def __str__(self):
         return '{} ({})'.format(self.option, self.number)
