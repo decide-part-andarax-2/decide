@@ -17,7 +17,7 @@ import pyotp
 
 from base import mods
 
-from .forms import UserForm, ExtraForm, EditUserForm
+from .forms import UserForm, ExtraForm, EditUserForm, EditExtraForm
 from .models import Extra
 from django.test import Client
 from django.test.client import RequestFactory
@@ -424,3 +424,57 @@ class EditUserFormTestCase(TestCase):
         form_data = {'first_name': 'Test1', 'last_name': 'Test1', 'email':'voter1'}
         form = EditUserForm(instance=self.u1, data=form_data)
         self.assertFalse(form.is_valid())
+
+
+class EditExtraFormTestCase(TestCase):
+
+    def setUp(self):
+        self.client = APIClient()
+        mods.mock_query(self.client)
+        self.u1 = User(username='voter1')
+        self.u1.set_password('123')
+        self.u1.email = 'voter1@gmail.com'
+        self.u1.save()
+
+        self.e1 = Extra(user=self.u1)
+        self.e1.phone = 666666666
+        self.e1.save()
+
+        self.u2 = User(username='voter2')
+        self.u2.set_password('123')
+        self.u2.email = 'voter2@gmail.com'
+        self.u2.save()
+
+        self.e2 = Extra(user=self.u2)
+        self.e2.phone = 666666662
+        self.e2.save()
+        
+    #Formato válido campos de extra
+    def test_edit_extra_form_correct(self):
+        form_data = {'phone': '666666661'}
+        form = EditExtraForm(data=form_data)
+        self.assertTrue(form.is_valid())
+    
+    #Formato inválido de teléfono (logitud incorrecta)
+    def test_edit_extra_form_with_email_with_different_length(self):
+        form_data = {'phone': '66666666666661'}
+        form = EditExtraForm(data=form_data)
+        self.assertFalse(form.is_valid())
+
+    #Formato inválido de teléfono (no está formado por dígitos)
+    def test_edit_extra_form_with_email_without_digits(self):
+        form_data = {'phone': 'no_digits'}
+        form = EditExtraForm(data=form_data)
+        self.assertFalse(form.is_valid())
+
+    #Formato inválido de teléfono (ya usado por otro usuario)
+    def test_edit_user_form_with_exiting_phone(self):
+        form_data = {'phone': '666666662'}
+        form = EditExtraForm(instance=self.e1, data=form_data)
+        self.assertFalse(form.is_valid())
+
+    #Formato válido de teléfono (sin modificarlo)
+    def test_edit_user_form_without_updating_phone(self):
+        form_data = {'phone': '666666666'}
+        form = EditExtraForm(instance=self.e1, data=form_data)
+        self.assertTrue(form.is_valid())
