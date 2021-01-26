@@ -35,7 +35,7 @@ from django.shortcuts import render, redirect
 
 
 
-from .forms import UserForm, ExtraForm
+from .forms import UserForm, ExtraForm, EditUserForm, EditExtraForm
 from .models import Extra
 
 def registro_usuario(request, backend='django.contrib.auth.backends.ModelBackend'):
@@ -70,9 +70,6 @@ def registro_usuario(request, backend='django.contrib.auth.backends.ModelBackend
         "base32secret":base32secret,
     }       
     return render(request, 'registro.html', formularios)
-
-def inicio(request):
-    return render(request, 'inicio.html')
 
 def home(request):
     return render(request, 'index.html')
@@ -296,3 +293,29 @@ class EmailConfirmTokenView(TemplateView):
             
         return context
 
+def inicio(request):
+    
+    userLogged = request.user
+    try:
+        extraLogged = Extra.objects.get(user=userLogged)
+    except Extra.DoesNotExist:
+        extraLogged = Extra(user=userLogged)
+    
+
+    user_form = EditUserForm(instance=userLogged)
+    extra_form = EditExtraForm(instance=extraLogged)
+
+    if request.method == 'POST':
+        extra_form = EditExtraForm(request.POST,"extra_form", instance=extraLogged)
+        user_form = EditUserForm(request.POST,"user_form", instance=userLogged)
+        if user_form.is_valid() and extra_form.is_valid():
+            user_form.save()
+            extra_form.save()
+            return redirect(to='inicio')
+            
+    formularios = {
+        "user_form":user_form,
+        "extra_form":extra_form,
+    }    
+
+    return render(request, 'inicio.html')
