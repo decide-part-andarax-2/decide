@@ -267,6 +267,30 @@ class PostProcView(APIView):
         out.sort(key=lambda x: -x['votes'])
         return out
 
+    def webster_mod(self, options, seats):
+        out = []
+
+        for opt in options:
+            out.append({
+                **opt,
+                'postproc': 0,
+            })
+
+        asientos = 0
+        while asientos < seats:
+            cocientes = []
+            for i in range(len(out)):
+                if asientos == 0:
+                    cocientes.append(out[i]['votes'] / 1.4)
+                else:
+                    cocientes.append(out[i]['votes'] / (2 * out[i]['postproc'] + 1))
+
+            ganador = cocientes.index(max(cocientes))
+            out[ganador]['postproc'] = out[ganador]['postproc'] + 1
+            asientos += 1
+
+        out.sort(key=lambda x: -x['votes'])
+        return out
 
     def post(self, request):
         """
@@ -321,6 +345,11 @@ class PostProcView(APIView):
                 return Response({}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 return Response(self.webster(opts, s))
+        elif t=='WEBSTERMOD':
+            if(s==None):
+                return Response([], status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response(self.webster_mod(opts, s))
         elif t == 'HAMILTON':
             if(s==None):
                 return Response({}, status=status.HTTP_400_BAD_REQUEST)
