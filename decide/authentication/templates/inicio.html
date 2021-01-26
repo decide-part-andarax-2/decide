@@ -21,5 +21,41 @@
      
      <div id="app-booth" class="pagecontent">
           <h1>Bienvenido a Decide! {{ user.username | upper }}</h1>
+          
+          <form action="" method="post">
+               {% csrf_token %}
+               {% for field in user_form %}
+                    <div class="field">
+                         <label for="{{ field.id_for_label }}" class="label">{{ field.label_tag }}</label>
+                         {{ field }}
+
+                         {% if field.help_text %}
+                              <p class="help">{{ field.help_text|safe }}</p>
+                         {% endif %}
+
+                         {% for error in field.errors%}
+                              <p class="text-danger">{{ error }}</p>
+                         {% endfor %}
+                    </div>
+               {% endfor %}
+
+               {% for field in extra_form %}
+                    <div class="field">
+                         <label for="{{ field.id_for_label }}" class="label">{{ field.label_tag }}</label>
+                         {{ field }}
+
+                         {% if field.help_text %}
+                              <p class="help">{{ field.help_text|safe }}</p>
+                         {% endif %}
+
+                         {% for error in field.errors%}
+                              <p class="text-danger">{{ error }}</p>
+                         {% endfor %}
+                    </div>
+               {% endfor %}
+               <br/>
+               <button type="submit" class="btn btn-primary">Update profile</button>
+          </form>
+
      </div>
 {% endblock %}
