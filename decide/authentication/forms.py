@@ -55,3 +55,41 @@ class ExtraForm(forms.ModelForm):
             if not current_totp.verify(totp_code):
                 raise forms.ValidationError('El codigo OTP no es valido')
         return totp_code
+
+
+class EditUserForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email']
+        widgets = {
+            'first_name': forms.TextInput(attrs={'class':'form-control'}),
+            'last_name': forms.TextInput(attrs={'class':'form-control'}),
+            'email': forms.EmailInput(attrs={'class':'form-control'}),
+        }
+
+    def clean_email(self):
+        user_id = self.instance.pk
+        email = self.cleaned_data.get('email')
+        user_with_email = User.objects.filter(email=email)
+        {'pk': user_id} in user_with_email.values('pk')
+        
+        if user_with_email.exists() and not ({'pk': user_id} in user_with_email.values('pk')):
+            raise forms.ValidationError("Email already exists")
+        return email
+
+class EditExtraForm(forms.ModelForm):
+    class Meta:
+        model = Extra
+        fields = ['phone']
+        widgets = { 'phone': forms.TextInput(attrs={'class':'form-control'}), }
+        
+    def clean_phone(self):
+    #     #Validación del número de teléfono en el formulario extra_form
+    #     '''
+    #     El número telefónico debe de estar compuesto por 9 dígitos
+
+    #     '''
+        phone = self.cleaned_data['phone']
+        if (not phone.isdigit()) or len(phone)!=9:
+            raise forms.ValidationError('El teléfono debe estar formado por 9 dígitos')
+        return phone
