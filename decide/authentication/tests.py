@@ -17,7 +17,7 @@ import pyotp
 
 from base import mods
 
-from .forms import UserForm, ExtraForm
+from .forms import UserForm, ExtraForm, EditUserForm
 from .models import Extra
 from django.test import Client
 from django.test.client import RequestFactory
@@ -380,7 +380,47 @@ class ExtraModel(TestCase):
         self.assertEqual(extra.user, u)
 
 
-    
-    
+class EditUserFormTestCase(TestCase):
 
+    def setUp(self):
+        self.client = APIClient()
+        mods.mock_query(self.client)
+        self.u1 = User(username='voter1')
+        self.u1.set_password('123')
+        self.u1.email = 'voter1@gmail.com'
+        self.u1.save()
 
+        self.u2 = User(username='voter2')
+        self.u2.set_password('123')
+        self.u2.email = 'voter2@gmail.com'
+        self.u2.save()
+        
+    #Formato válido campos usuario
+    def test_edit_user_form_correct(self):
+        form_data = {'first_name': 'Test1', 'last_name': 'Test1', 'email':'test1@gmail.com'}
+        form = EditUserForm(data=form_data)
+        self.assertTrue(form.is_valid())
+
+    #Formato válido campos usuario
+    def test_edit_user_form_correct_with_empty_fields(self):
+        form_data = {'first_name': '', 'last_name': '', 'email':''}
+        form = EditUserForm(data=form_data)
+        self.assertTrue(form.is_valid())
+
+    #Formato inválido para campo de correo electrónico (email ya exitente) 
+    def test_edit_user_form_with_existing_email(self):
+        form_data = {'first_name': 'Test1', 'last_name': 'Test1', 'email':'voter1@gmail.com'}
+        form = EditUserForm(instance=self.u2, data=form_data)
+        self.assertFalse(form.is_valid())
+    
+    #Formato válido para campo de correo electrónico (email del propio usuario) 
+    def test_edit_user_form_without_updating_email(self):
+        form_data = {'first_name': 'Test1', 'last_name': 'Test1', 'email':'voter1@gmail.com'}
+        form = EditUserForm(instance=self.u1, data=form_data)
+        self.assertTrue(form.is_valid())
+
+    #Formato inválido para campo de correo electrónico
+    def test_edit_user_form_with_invalid_email(self):
+        form_data = {'first_name': 'Test1', 'last_name': 'Test1', 'email':'voter1'}
+        form = EditUserForm(instance=self.u1, data=form_data)
+        self.assertFalse(form.is_valid())
